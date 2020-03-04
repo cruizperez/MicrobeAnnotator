@@ -25,6 +25,7 @@ from sys import exit
 def create_table(database, input_table, table_name, index_name, column_names = None):
     header = False
     columns = None
+    print("Checking table and column names...", end="")
     if check_table_name(table_name) == False:
         exit("Table name should only be composed of alphanumeric characters and underscores")
     conn = sqlite3.connect(database)
@@ -38,16 +39,22 @@ def create_table(database, input_table, table_name, index_name, column_names = N
             columns = columns.strip().split("\t")
     else:
         columns = column_names
+    for column in column_names:
+        if check_table_name(table_name) == False:
+            exit("Column {} should only be composed of \
+                alphanumeric characters and underscores".format(column))
+    print("Done")
     print("Building table...", end="")
     # Remove previous database if exists.
     sql_comm = 'DROP TABLE IF EXISTS %s' % table_name
     cursor.execute(sql_comm)
     # Create new table with given column names
-    sql_comm = 'CREATE TABLE %s (?)' % table_name
-    cursor.execute(sql_comm, (", ".join(["%s text" % column for column in columns])))
+    sql_comm = 'CREATE TABLE %s (%s)' % (table_name,
+                ", ".join(["%s text" % column for column in columns]))
+    cursor.execute(sql_comm)
     # Create index from the first column
-    sql_comm = 'CREATE UNIQUE INDEX protein_id on ? (?)'
-    cursor.execute(sql_comm, (table_name, columns[0]))
+    sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, columns[0])
+    cursor.execute(sql_comm)
 
     # # Fill table with fields from inp
     # with open(Input_Table) as DB_Table:
