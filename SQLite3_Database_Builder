@@ -40,11 +40,11 @@ def create_table(database, input_table, table_name, index_name, column_names = N
         columns = column_names
     print("Building table...", end="")
     # Remove previous database if exists.
-    sql_comm = 'DROP TABLE IF EXISTS {}'.format(table_name)
+    sql_comm = 'DROP TABLE IF EXISTS %s' % table_name
     cursor.execute(sql_comm)
     # Create new table with given column names
-    sql_comm = 'CREATE TABLE {} (?)'.format(table_name)
-    cursor.execute(sql_comm, (table_name, ", ".join(["%s text" % column for column in columns])))
+    sql_comm = 'CREATE TABLE %s (?)' % table_name
+    cursor.execute(sql_comm, (", ".join(["%s text" % column for column in columns])))
     # Create index from the first column
     sql_comm = 'CREATE UNIQUE INDEX protein_id on ? (?)'
     cursor.execute(sql_comm, (table_name, columns[0]))
