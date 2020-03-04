@@ -97,7 +97,7 @@ def main():
     Index_Name = args.Index_Name
     Headers = args.Headers
 
-    Create_Table(Database, Input_Table, Table_name, Index_Name, Headers)
+    create_table(Database, Input_Table, Table_name, Index_Name, Headers)
 
 
 if __name__ == "__main__":
