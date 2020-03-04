@@ -63,13 +63,13 @@ def create_table(database, input_table, table_name, index_name, column_names = N
         values = ','.join(values.split())
         protein_table = csv.reader(database_table, delimiter='\t')
         for row in protein_table:
-            print(row)
+            row = tuple(row)
             if header == True:
                 header = False
             else:
 
                 sql_comm = "INSERT INTO %s VALUES (?, ?, ?, ?)" % (table_name)
-                cursor.execute(sql_comm, (row,))
+                cursor.execute(sql_comm, row)
         conn.commit()
     cursor.close()
     conn.close()
