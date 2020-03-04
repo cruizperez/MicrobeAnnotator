@@ -17,13 +17,16 @@ information relevant for annotation purposes.
 """---0.0 Import Modules---"""
 import sqlite3
 import csv
+import re
+from sys import exit
 
 ################################################################################
 """---1.0 Define Functions---"""
-
-def Create_Table(database, input_table, table_name, index_name, column_names = None):
+def create_table(database, input_table, table_name, index_name, column_names = None):
     header = False
     columns = None
+    if check_table_name(table_name) == False:
+        exit("Table name should only be composed of alphanumeric characters and underscores")
     conn = sqlite3.connect(database)
     conn.text_factory = str
     cursor = conn.cursor()
@@ -37,10 +40,10 @@ def Create_Table(database, input_table, table_name, index_name, column_names = N
         columns = column_names
     print("Building table...", end="")
     # Remove previous database if exists.
-    sql_comm = 'DROP TABLE IF EXISTS ?'
-    cursor.execute(sql_comm, (table_name,))
+    sql_comm = 'DROP TABLE IF EXISTS {}'.format(table_name)
+    cursor.execute(sql_comm)
     # Create new table with given column names
-    sql_comm = 'CREATE TABLE ? (?)'
+    sql_comm = 'CREATE TABLE {} (?)'.format(table_name)
     cursor.execute(sql_comm, (table_name, ", ".join(["%s text" % column for column in columns])))
     # Create index from the first column
     sql_comm = 'CREATE UNIQUE INDEX protein_id on ? (?)'
@@ -61,6 +64,13 @@ def Create_Table(database, input_table, table_name, index_name, column_names = N
     cursor.close()
     conn.close()
 
+def check_table_name(table_name):
+    approved = True
+    for character in table_name:
+        if not re.match(r'[A-Za-z0-9_]+$', character):
+            approved = False
+            break
+    return approved 
 ################################################################################
 """---3.0 Main Function---"""
 
