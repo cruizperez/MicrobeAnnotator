@@ -39,34 +39,33 @@ def create_table(database, input_table, table_name, index_name, column_names = N
             columns = columns.strip().split("\t")
     else:
         columns = column_names
-    for column in column_names:
+    for column in columns:
         if check_table_name(table_name) == False:
             exit("Column {} should only be composed of \
                 alphanumeric characters and underscores".format(column))
     print("Done")
+    columns_for_db = ", ".join(["%s text" % column for column in columns])
     print("Building table...", end="")
     # Remove previous database if exists.
     sql_comm = 'DROP TABLE IF EXISTS %s' % table_name
     cursor.execute(sql_comm)
     # Create new table with given column names
-    sql_comm = 'CREATE TABLE %s (%s)' % (table_name,
-                ", ".join(["%s text" % column for column in columns]))
+    sql_comm = 'CREATE TABLE %s (%s)' % (table_name, columns_for_db)
     cursor.execute(sql_comm)
     # Create index from the first column
     sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, columns[0])
     cursor.execute(sql_comm)
 
-    # # Fill table with fields from inp
-    # with open(Input_Table) as DB_Table:
-    #     reader = csv.reader(DB_Table, delimiter='\t')
-    #     for row in reader:
-    #         if Header == True:
-    #             Header = False
-    #         else:
-    #             insertsql = "INSERT INTO %s VALUES (%s)" % (Table_Name,
-    #                                            ", ".join([ "?" for column in row ]))
-    #             cur.execute(insertsql, row)
-    #     conn.commit()
+    # Fill table with fields from input
+    with open(input_table) as database_table:
+        protein_table = csv.reader(database_table, delimiter='\t')
+        for row in protein_table:
+            if header == True:
+                header = False
+            else:
+                sql_comm = "INSERT INTO %s VALUES (?)" % (table_name)
+                cursor.execute(sql_comm, (row,))
+        conn.commit()
 
     cursor.close()
     conn.close()
