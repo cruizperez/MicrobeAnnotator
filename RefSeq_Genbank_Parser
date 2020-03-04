@@ -35,11 +35,11 @@ def table_creator(genbank_file):
     Returns:
         temporal_table -- Path to temporal table created
     """
-    print(genbank_file)
     temporal_table = Path(genbank_file).with_suffix('.temp')
     protein_information = {}
     with gzip.open(genbank_file, 'rt') as uncompressed_genbank, \
     open(temporal_table, 'w') as output:
+        output.write("Protein_ID\tProduct\tTaxonomy\tNote\n")
         for record in SeqIO.parse(uncompressed_genbank, "genbank"):
             id = record.id
             product = record.description.split("[")[0].strip()
@@ -142,8 +142,12 @@ def main():
     keep = args.keep
 
     # --------------------------------------------------
+    print("Processing {} files on {} threads... ".format(len(input_files), threads), end=" ")
     temp_tables = table_generator_worker(input_files, threads)
+    print("Done")
+    print("Merging tables...", end="")
     table_merger(temp_tables, output, keep)
+    print("Done")
     # --------------------------------------------------
 
 
