@@ -119,21 +119,32 @@ def main():
     import argparse, sys
     # Setup parser for arguments.
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-            description='''This script builds a sqlite database from a tab separated table.\n'''
-            '''By default it assumes the first line of the input table has headers, if not\n'''
-            '''you must provide a list of headers as --header header1,header2,header3...\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name]\n'''
-            '''Global mandatory parameters: -i [Input Table] -d [Database Name]\n'''
+            description='''This script downloads the fasta and genbank files that\n'''
+            '''are needed to build the RefSeq annotation database. By default it\n'''
+            '''downloads both but you can specify either\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -f [Output folder]\n'''
+            '''Global mandatory parameters: -f [Output folder]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-f', '--folder', dest='folder', action='store', required=False,
-                        help='Input tab-delimited table to parse, by default assumes headers are present')
+                        help='Folder to store the fasta and genbank files')
+    parser.add_argument('--proteins', dest='proteins', action='store_true', required=False,
+                        help='Only download the protein fasta files.')
+    parser.add_argument('--genbank', dest='genbank', action='store_true', required=False,
+                        help='Only download the genbank files')
     args = parser.parse_args()
 
     folder = args.folder
+    proteins = args.proteins
+    genbank = args.genbank
 
     # ----------------------------
-    refseq_fasta_downloader(folder)
-    refseq_genbank_downloader(folder)
+    if proteins == False and genbank == False:
+        refseq_fasta_downloader(folder)
+        refseq_genbank_downloader(folder)
+    elif proteins == True:
+        refseq_fasta_downloader(folder)
+    elif genbank == True:
+        refseq_genbank_downloader(folder)
     # ----------------------------
 
 if __name__ == "__main__":
