@@ -118,7 +118,7 @@ def check_table_name(name_string):
 
 
 ################################################################################
-"""---3.0 Main Function---"""
+"""---2.0 Main Function---"""
 
 def main():
     import argparse, sys
