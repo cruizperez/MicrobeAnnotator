@@ -8,8 +8,8 @@
 # Version:      0.9
 # Date:         March 04, 2020
 
-# Description: Parses compressed genbank files and extracts protein
-information relevant for annotation purposes.
+# Description: Create SQLite database from a tab-delimited table.
+Used to create annotation parsing databases.
 ########################################################################
 """
 
@@ -22,7 +22,7 @@ from sys import exit
 
 ################################################################################
 """---1.0 Define Functions---"""
-def create_table(database, input_table, table_name, index_name, column_names = None):
+def create_table(database, input_table, table_name, column_names = None):
     header = False
     columns = None
     print("Checking table and column names...", end="")
@@ -80,7 +80,9 @@ def check_table_name(table_name):
         if not re.match(r'[A-Za-z0-9_]+$', character):
             approved = False
             break
-    return approved 
+    return approved
+
+
 ################################################################################
 """---3.0 Main Function---"""
 
@@ -90,24 +92,26 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
             description='''This script builds a sqlite database from a tab separated table.\n'''
             '''By default it assumes the first line of the input table has headers, if not\n'''
-            '''you must provide a list of headers as -h header1,header2,header3...\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name] -t [Table Name] -n [Index Name] --header [Header List]\n'''
-            '''Global mandatory parameters: -i [Input Table] -d [Database Name] -t [Table Name] -n [Index Name]\n'''
+            '''you must provide a list of headers as --header header1,header2,header3...\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name] -t [Table Name] --header [Header List]\n'''
+            '''Global mandatory parameters: -i [Input Table] -d [Database Name] -t [Table Name]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
-    parser.add_argument('-i', '--input', dest='Input_Table', action='store', required=True, help='Input tab-delimited table to parse, by default assumes headers are present')
-    parser.add_argument('-d', '--database', dest='Database', action='store', required=True, help='Database name, can be exisiting or new.')
-    parser.add_argument('-t', '--table', dest='Table_name', action='store', required=True, help='Table within db to create, always overwrites if tbale with the same name is present.')
-    parser.add_argument('-n', '--index_name', dest='Index_Name', action='store', required=True, help='Name to index the table, must be unique within the database')
-    parser.add_argument('--header', dest='Headers', action='store', nargs='+', required=False, help='Header list if not present in input table, enter as --header header1,header2,...')
+    parser.add_argument('-i', '--input', dest='input_table', action='store', required=True,
+                        help='Input tab-delimited table to parse, by default assumes headers are present')
+    parser.add_argument('-d', '--database', dest='database', action='store', required=True,
+                        help='Database name, can be exisiting or new.')
+    parser.add_argument('-t', '--table', dest='table_name', action='store', required=True,
+                        help='Table within db to create, always overwrites if table with the same name is present.')
+    parser.add_argument('--header', dest='headers', action='store', nargs='+', required=False,
+                        help='Header list if not present in input table, enter as --header header1,header2,...')
     args = parser.parse_args()
 
-    Input_Table = args.Input_Table
-    Database = args.Database
-    Table_name = args.Table_name
-    Index_Name = args.Index_Name
-    Headers = args.Headers
+    input_table = args.input_table
+    database = args.database
+    table_name = args.table_name
+    headers = args.headers
 
-    create_table(Database, Input_Table, Table_name, Index_Name, Headers)
+    create_table(database, input_table, table_name, headers)
 
 
 if __name__ == "__main__":

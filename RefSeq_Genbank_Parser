@@ -39,7 +39,7 @@ def table_creator(genbank_file):
     protein_information = {}
     with gzip.open(genbank_file, 'rt') as uncompressed_genbank, \
     open(temporal_table, 'w') as output:
-        output.write("Protein_ID\tProduct\tTaxonomy\tNote\n")
+        output.write("ID\tProduct\tTaxonomy\tNote\n")
         for record in SeqIO.parse(uncompressed_genbank, "genbank"):
             id = record.id
             product = record.description.split("[")[0].strip()
