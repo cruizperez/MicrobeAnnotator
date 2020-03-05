@@ -99,8 +99,8 @@ def main():
             description='''This script builds a sqlite database from a tab separated table.\n'''
             '''By default it assumes the first line of the input table has headers, if not\n'''
             '''you must provide a list of headers as --header header1,header2,header3...\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name] -t [Table Name] --header [Header List]\n'''
-            '''Global mandatory parameters: -i [Input Table] -d [Database Name] -t [Table Name]\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name] -t [Table Name] -c [Column names]\n'''
+            '''Global mandatory parameters: -i [Input Table] -d [Database Name] -t [Table Name] -c [Column names]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-i', '--input', dest='input_table', action='store', required=True,
                         help='Input tab-delimited table to parse, by default assumes headers are present')
@@ -108,7 +108,7 @@ def main():
                         help='Database name, can be exisiting or new.')
     parser.add_argument('-t', '--table', dest='table_name', action='store', required=True,
                         help='Table within db to create, always overwrites if table with the same name is present.')
-    parser.add_argument('-c' ,'--colnames', dest='column_names', action='store', nargs='+', required=False,
+    parser.add_argument('-c' ,'--colnames', dest='column_names', action='store', nargs='+', required=True,
                         help='Header list if not present in input table, enter as --header header1,header2,...')
     args = parser.parse_args()
 
