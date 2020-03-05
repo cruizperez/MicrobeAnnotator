@@ -15,8 +15,6 @@
 
 ################################################################################
 """---0.0 Import Modules---"""
-from sys import exit
-import pandas as pd
 from shutil import which
 from shutil import copyfileobj
 from shutil import rmtree
@@ -56,8 +54,7 @@ def refseq_fasta_downloader(output_folder, ascp_key = None):
     archaea_list = searching_all_files(temp_fasta_files / "archaea")
     final_list = viral_list + bacteria_list + archaea_list
     with open(Path(merged_db_folder) / ("01.Refseq_Protein_Rel" + release_number + ".faa"), 'w') as merged_db:
-        for file in viral_list:
-            print(file)
+        for file in final_list:
             with gzip.open(file, 'rt') as temp_file:
                 copyfileobj(temp_file,merged_db)
                 Path.unlink(file)
@@ -71,9 +68,7 @@ def refseq_genbank_downloader(output_folder, ascp_key = None):
     release_file = urllib.request.urlopen("https://ftp.ncbi.nlm.nih.gov/refseq/release/RELEASE_NUMBER")
     release_number = release_file.readline().decode('utf-8').strip()
     temp_gb_files = Path(output_folder) / "02.temp_genbank"
-    merged_db_folder = Path(output_folder) / "02.RefSeq_Annotation_DB"
     Path(temp_gb_files).mkdir(parents=True, exist_ok=True)
-    Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
     # Download compressed protein files
     subprocess.call(["ascp", '-QTr', '-d', '-l', '100M', '-E', '*wgs_mstr*',
                     '-E', '*rna*', '-E', '*genomic*', '-E', '*.faa.gz',
@@ -139,11 +134,15 @@ def main():
 
     # ----------------------------
     if proteins == False and genbank == False:
+        print("Downloading protein fasta files")
         refseq_fasta_downloader(folder)
+        print("Downloading protein genbank files")
         refseq_genbank_downloader(folder)
     elif proteins == True:
+        print("Downloading protein fasta files")
         refseq_fasta_downloader(folder)
     elif genbank == True:
+        print("Downloading protein genbank files")
         refseq_genbank_downloader(folder)
     # ----------------------------
 
