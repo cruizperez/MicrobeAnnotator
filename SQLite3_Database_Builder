@@ -21,40 +21,43 @@ import re
 from sys import exit
 import pandas as pd
 from sqlalchemy import create_engine
+from shutil import which
+import subprocess
+from pathlib import Path
 
 ################################################################################
 """---1.0 Define Functions---"""
-def create_sql_table(database, input_table, table_name, column_names):
+def create_sql_table_slow(database, input_table):
     """ Creates a SQLite database using a tab-delimited table as input
     
     Arguments:
         database {string} -- New or existing database to create table into
         input_table {string} -- Table to parse and transform to SQLite db
-        table_name {string} -- Name of table to create
-        column_names {list} -- List of column names for table inside the db
     """
     print("Checking table and column names... ", end="")
+    column_names = []
+    with open(input_table) as intable:
+        column_names = intable.readline().split("\t")
+    table_name = str(Path(input_table).with_suffix(""))
     if check_table_name(table_name) == False:
-        exit("Table name should only be composed of alphanumeric characters and underscores")
+        exit("Input table name should only be composed of alphanumeric characters and underscores")
     for column in column_names:
         if check_table_name(table_name) == False:
             exit("Column {} should only be composed of \
                 alphanumeric characters and underscores".format(column))
-    columns_for_db = ", ".join(["%s text" % column for column in column_names])
     print("Done. Everything seems good.")
 
-    # Create empty database
-    print("Creating database... ", end="")
+    # Read input table and populate database
+    print("Creating and populating database... ", end="", flush=True)
+    engine = create_engine('sqlite:///'+database, echo=False)
+    connection = engine.connect()
+    for table_chunk in pd.read_csv(input_table, sep="\t", chunksize=1000000, header=0):
+        table_chunk.to_sql(table_name, con=engine, if_exists='replace', index=False)
+    connection.close()
+    # Create index
     conn = sqlite3.connect(database)
     conn.text_factory = str
     cursor = conn.cursor()
-    # Remove previous database if exists.
-    sql_comm = 'DROP TABLE IF EXISTS %s' % table_name
-    cursor.execute(sql_comm)
-    # Create new table with given column names
-    sql_comm = 'CREATE TABLE %s (%s)' % (table_name, columns_for_db)
-    cursor.execute(sql_comm)
-    # Create index from the first column
     sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
     cursor.execute(sql_comm)
     conn.commit()
@@ -62,18 +65,37 @@ def create_sql_table(database, input_table, table_name, column_names):
     conn.close()
     print("Done")
 
-    # Read input table and populate database
-    print("Populating database... ", end="")
-    engine = create_engine('sqlite:///'+database, echo=False)
-    connection = engine.connect()
-    for table_chunk in pd.read_csv(input_table, sep="\t", chunksize=1000000, header=0):
-        table_chunk.to_sql(table_name, con=engine, if_exists='append', index=False)
-    connection.close()
+def create_sql_table_fast(database, input_table):
+    print("Checking table and column names... ", end="")
+    column_names = []
+    with open(input_table) as intable:
+        column_names = intable.readline().split("\t")
+    table_name = str(Path(input_table).with_suffix(""))
+    if check_table_name(table_name) == False:
+        exit("Input table name should only be composed of alphanumeric characters and underscores")
+    for column in column_names:
+        if check_table_name(table_name) == False:
+            exit("Column {} should only be composed of \
+                alphanumeric characters and underscores".format(column))
+    print("Done. Everything seems good.")
+
+    print("Creating and populating database... ", end="", flush=True)
+    subprocess.call(["csv-to-sqlite", "-f", str(input_table), "-o", str(database), 
+                    "-t", "none", "-D", "-x", "\t"])
+    conn = sqlite3.connect(database)
+    conn.text_factory = str
+    cursor = conn.cursor()
+    sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
+    cursor.execute(sql_comm)
+    conn.commit()
+    cursor.close()
+    conn.close()
     print("Done")
+
 
 def check_table_name(name_string):
     """ Checks if string contains any non alpha-numeric
-        characters or underscores.
+        or underscores characters.
     
     Arguments:
         name_string {string} -- String to evaluate
@@ -99,26 +121,31 @@ def main():
             description='''This script builds a sqlite database from a tab separated table.\n'''
             '''By default it assumes the first line of the input table has headers, if not\n'''
             '''you must provide a list of headers as --header header1,header2,header3...\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name] -t [Table Name] -c [Column names]\n'''
-            '''Global mandatory parameters: -i [Input Table] -d [Database Name] -t [Table Name] -c [Column names]\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name]\n'''
+            '''Global mandatory parameters: -i [Input Table] -d [Database Name]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-i', '--input', dest='input_table', action='store', required=True,
                         help='Input tab-delimited table to parse, by default assumes headers are present')
     parser.add_argument('-d', '--database', dest='database', action='store', required=True,
                         help='Database name, can be exisiting or new.')
-    parser.add_argument('-t', '--table', dest='table_name', action='store', required=True,
-                        help='Table within db to create, always overwrites if table with the same name is present.')
-    parser.add_argument('-c' ,'--colnames', dest='column_names', action='store', nargs='+', required=True,
-                        help='Header list if not present in input table, enter as --header header1,header2,...')
     args = parser.parse_args()
 
     input_table = args.input_table
     database = args.database
-    table_name = args.table_name
-    column_names = args.column_names
 
     # ----------------------------
-    create_sql_table(database, input_table, table_name, column_names)
+    if which("csv-to-sqlite") is not None:
+        print("Running fast database builder")
+        create_sql_table_fast(database, input_table)
+    else:
+        print("csv-to-sqlite not found. You can run the slow approach or\n \
+        install csv-to-sqlite with 'pip install csv-to-sqlite'.")
+        decision = input("Continue [yes/no]? ").lower()
+        if decision == 'yes':
+            create_sql_table_slow(database, input_table)
+        else:
+            exit("Bye!")
+    print("Database succesfully created!")
     # ----------------------------
 
 if __name__ == "__main__":
