@@ -91,7 +91,7 @@ def create_sql_table_fast(database, input_table):
     conn = sqlite3.connect(database)
     conn.text_factory = str
     cursor = conn.cursor()
-    sql_comm = 'CREATE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
+    sql_comm = 'CREATE INDEX %s on %s (%s)' % (table_name + "_ID", table_name, column_names[0])
     cursor.execute(sql_comm)
     conn.commit()
     cursor.close()
