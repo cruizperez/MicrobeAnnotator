@@ -58,7 +58,7 @@ def create_sql_table_slow(database, input_table):
     conn = sqlite3.connect(database)
     conn.text_factory = str
     cursor = conn.cursor()
-    sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
+    sql_comm = 'CREATE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
     cursor.execute(sql_comm)
     conn.commit()
     cursor.close()
@@ -66,6 +66,12 @@ def create_sql_table_slow(database, input_table):
     print("Done")
 
 def create_sql_table_fast(database, input_table):
+    """ Creates a SQLite database using a tab-delimited table as input
+    
+    Arguments:
+        database {string} -- Name of a new or existing database
+        input_table {string} -- Tab-separated table to use as template
+    """
     print("Checking table and column names... ", end="")
     column_names = []
     with open(input_table) as intable:
@@ -85,7 +91,7 @@ def create_sql_table_fast(database, input_table):
     conn = sqlite3.connect(database)
     conn.text_factory = str
     cursor = conn.cursor()
-    sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
+    sql_comm = 'CREATE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
     cursor.execute(sql_comm)
     conn.commit()
     cursor.close()
