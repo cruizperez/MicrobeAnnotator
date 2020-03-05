@@ -19,33 +19,35 @@ import sqlite3
 import csv
 import re
 from sys import exit
+import pandas as pd
+from sqlalchemy import create_engine
 
 ################################################################################
 """---1.0 Define Functions---"""
-def create_table(database, input_table, table_name, column_names = None):
-    header = False
-    columns = None
-    print("Checking table and column names...", end="")
+def create_sql_table(database, input_table, table_name, column_names):
+    """ Creates a SQLite database using a tab-delimited table as input
+    
+    Arguments:
+        database {string} -- New or existing database to create table into
+        input_table {string} -- Table to parse and transform to SQLite db
+        table_name {string} -- Name of table to create
+        column_names {list} -- List of column names for table inside the db
+    """
+    print("Checking table and column names... ", end="")
     if check_table_name(table_name) == False:
         exit("Table name should only be composed of alphanumeric characters and underscores")
-    conn = sqlite3.connect(database)
-    conn.text_factory = str
-    cursor = conn.cursor()
-    # If no columns provided extract them from the first line.
-    if column_names == None:
-        Header = True
-        with open(input_table) as input_file:
-            columns = input_file.readline()
-            columns = columns.strip().split("\t")
-    else:
-        columns = column_names
-    for column in columns:
+    for column in column_names:
         if check_table_name(table_name) == False:
             exit("Column {} should only be composed of \
                 alphanumeric characters and underscores".format(column))
-    print("Done")
-    columns_for_db = ", ".join(["%s text" % column for column in columns])
-    print("Building table...", end="")
+    columns_for_db = ", ".join(["%s text" % column for column in column_names])
+    print("Done. Everything seems good.")
+
+    # Create empty database
+    print("Creating database... ", end="")
+    conn = sqlite3.connect(database)
+    conn.text_factory = str
+    cursor = conn.cursor()
     # Remove previous database if exists.
     sql_comm = 'DROP TABLE IF EXISTS %s' % table_name
     cursor.execute(sql_comm)
@@ -53,31 +55,35 @@ def create_table(database, input_table, table_name, column_names = None):
     sql_comm = 'CREATE TABLE %s (%s)' % (table_name, columns_for_db)
     cursor.execute(sql_comm)
     # Create index from the first column
-    sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, columns[0])
+    sql_comm = 'CREATE UNIQUE INDEX protein_id on %s (%s)' % (table_name, column_names[0])
     cursor.execute(sql_comm)
-
-    # Fill table with fields from input
-    with open(input_table) as database_table:
-        number_of_columns = len(columns)
-        values = "? "*number_of_columns
-        values = ','.join(values.split())
-        protein_table = csv.reader(database_table, delimiter='\t')
-        for row in protein_table:
-            row = tuple(row)
-            if header == True:
-                header = False
-            else:
-
-                sql_comm = "INSERT INTO %s VALUES (?, ?, ?, ?)" % (table_name)
-                cursor.execute(sql_comm, row)
-        conn.commit()
+    conn.commit()
     cursor.close()
     conn.close()
+    print("Done")
 
-def check_table_name(table_name):
+    # Read input table and populate database
+    print("Populating database... ", end="")
+    engine = create_engine('sqlite:///'+database, echo=False)
+    connection = engine.connect()
+    for table_chunk in pd.read_csv(input_table, sep="\t", chunksize=1000000, header=0):
+        table_chunk.to_sql(table_name, con=engine, if_exists='append', index=False)
+    connection.close()
+    print("Done")
+
+def check_table_name(name_string):
+    """ Checks if string contains any non alpha-numeric
+        characters or underscores.
+    
+    Arguments:
+        name_string {string} -- String to evaluate
+    
+    Returns:
+        approved {bool} -- Boolean evaluating if string passes test or not
+    """
     approved = True
-    for character in table_name:
-        if not re.match(r'[A-Za-z0-9_]+$', character):
+    for character in name_string:
+        if not re.match(r'[A-Za-z0-9_]+', character):
             approved = False
             break
     return approved
@@ -102,17 +108,18 @@ def main():
                         help='Database name, can be exisiting or new.')
     parser.add_argument('-t', '--table', dest='table_name', action='store', required=True,
                         help='Table within db to create, always overwrites if table with the same name is present.')
-    parser.add_argument('--header', dest='headers', action='store', nargs='+', required=False,
+    parser.add_argument('-c' ,'--colnames', dest='column_names', action='store', nargs='+', required=False,
                         help='Header list if not present in input table, enter as --header header1,header2,...')
     args = parser.parse_args()
 
     input_table = args.input_table
     database = args.database
     table_name = args.table_name
-    headers = args.headers
+    column_names = args.column_names
 
-    create_table(database, input_table, table_name, headers)
-
+    # ----------------------------
+    create_sql_table(database, input_table, table_name, column_names)
+    # ----------------------------
 
 if __name__ == "__main__":
     main()
