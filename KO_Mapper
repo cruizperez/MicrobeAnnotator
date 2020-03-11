@@ -1,0 +1,442 @@
+#!/usr/bin/env python
+
+"""
+########################################################################
+# Author:       Carlos A. Ruiz Perez
+# Email:        cruizperez3@gatech.edu
+# Intitution:   Georgia Institute of Technology
+# Version:      0.9
+# Date:         March 05, 2020
+
+# Description: Maps protein KO information with their respective modules
+# and calculates the completeness percentage of each module present.
+########################################################################
+"""
+
+################################################################################
+"""---0.0 Import Modules---"""
+import pandas as pd
+import re
+import pickle
+from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+################################################################################
+"""---1.0 Define Functions---"""
+
+def ko_match(string):
+    if re.search(r'^K[0-9]{5}$', string) is not None:
+        return 1
+    else:
+        return 0
+
+def split_compound(string, comp_type):
+    if comp_type == 'compound':
+        return re.split('[-+]', string)
+    elif comp_type == 'and_comp':
+        return string.split('_')
+    elif comp_type == 'or_comp':
+        return string.split(',')
+
+def process_compounds(string, comp_type, genome_annotation):
+    string = split_compound(string, comp_type)
+    proteins_required = len(string)
+    proteins_present = 0
+    for option in string:
+        if option == '':
+            proteins_required -= 1
+        elif '+' in option or '-' in option:
+            compound = split_compound(option, 'compound')
+            proteins_in_compound = len(compound)
+            present_in_compound = 0
+            for sub_option in compound:
+                if ko_match(sub_option) > 0 and sub_option in genome_annotation:
+                    present_in_compound += 1
+            proteins_present += present_in_compound/proteins_in_compound
+        else:
+            if ko_match(option) > 0 and option in genome_annotation:
+                proteins_present += 1
+    return proteins_present, proteins_required
+
+def import_module_dict(dictionary_location):
+    pickle_in = open(dictionary_location,"rb")
+    dictionary = pickle.load(pickle_in)
+    return dictionary
+
+def module_information_importer(input_files):
+    print("Importing data... ", end="")
+    script_path = Path(__file__)
+    script_dir = script_path.parent
+    data_folder = Path(script_dir) / "00.Data"
+    regular_modules = import_module_dict(data_folder / "01.KEGG_Regular_Module_Information.pickle")
+    bifurcation_modules = import_module_dict(data_folder / "02.KEGG_Bifurcating_Module_Information.pickle")
+    # Get module names
+    module_names = []
+    for key in regular_modules.keys():
+        module_names.append(key)
+    for key in bifurcation_modules.keys():
+        module_names.append(key)
+    # Get genome names
+    genome_names = []
+    for genome_file in input_files:
+        genome_names.append(str(Path(genome_file).with_suffix('')))
+    # Get module correspondence
+    module_correspondence = {}
+    with open(data_folder / "00.Module_Names.txt") as corresp:
+        for line in corresp:
+            line = line.strip().split("\t")
+            module_correspondence[line[0]] = line[1]
+    
+    metabolism_matrix = pd.DataFrame(0, index=module_names, columns=genome_names)
+
+    return regular_modules, bifurcation_modules, module_names, genome_names, metabolism_matrix, module_correspondence
+
+def annotation_file_parser(genome_annotation_file):
+    genome_annotation = []
+    with open(genome_annotation_file) as annot_input:
+        for line in annot_input:
+            genome_annotation.append(line.strip())
+    return genome_annotation
+
+def regular_module_mapper(module_dictionary, genome_annotation_file):
+    genome_annotation = annotation_file_parser(genome_annotation_file)
+    regular_module_completenes = []
+    for module, final_steps in module_dictionary.items():
+        if module == "M00854":
+            print(module, final_steps)
+        complete_steps = 0
+        total_module_steps = len(final_steps)
+        for proteins in final_steps.values():
+            score_for_step = 0
+            steps_per_option = 100
+            match = False
+            for option in proteins:
+                match = False
+                # Search for single gene option
+                if ko_match(option) > 0:
+                    print(option)
+                    if option in genome_annotation:
+                        score_for_step = 1
+                        match = True
+                    if match == True:
+                        steps_per_option = 1
+                    elif 1 < steps_per_option:
+                        steps_per_option = 1
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif '%' in option:
+                    print(option)
+                    option = option.replace(')', '')
+                    option = option.split('-%')
+                    mandatory = split_compound(option[0], 'compound')
+                    proteins_required = len(mandatory) + 1
+                    proteins_present = 0
+                    for prot in mandatory:
+                        if ko_match(prot) > 0 and prot in genome_annotation:
+                            proteins_present += 1
+                    for prot in option[1].split(','):
+                        print(prot)
+                        if ko_match(prot) > 0 and prot in genome_annotation:
+                            proteins_present += 1
+                            break
+                    if proteins_present/proteins_required > score_for_step:
+                        score_for_step = proteins_present/proteins_required
+                        match = True
+                    if match == True:
+                        steps_per_option = 1
+                    elif 1 < steps_per_option:
+                        steps_per_option = 1
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif '_' in option and ',' in option:
+                    option = sorted(split_compound(option, 'and_comp'), key=len)
+                    print(option)
+                    highest_score = 0
+                    for element in option:
+                        if ko_match(element) > 0 and element in genome_annotation:
+                            highest_score += 1
+                        elif ',' in element:
+                            element = sorted(element.split(","), key=len)
+                            score_sub_option = 0
+                            length_options = len(element)
+                            for sub_element in element:
+                                if ko_match(sub_element) > 0 and sub_element in genome_annotation:
+                                    highest_score += 1
+                                    break
+                                elif '+' in sub_element:
+                                    proteins_present, proteins_required = process_compounds(sub_element, 
+                                    'compound', genome_annotation)
+                                    highest_score += proteins_present/proteins_required
+                    if highest_score > score_for_step:
+                        score_for_step = highest_score
+                        match = True
+                    if match == True:
+                        steps_per_option = len(option)
+                    elif len(option) < steps_per_option:
+                        steps_per_option = len(option)
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif len(option.split(",")) > 1:
+                    match = False
+                    option = sorted(option.split(","), key=len)
+                    print(option)
+                    highest_score = 0
+                    steps_to_add = 0
+                    for sub_option in option:
+                        if ko_match(sub_option) > 0 and sub_option in genome_annotation:
+                            if 1 > highest_score:    
+                                highest_score = 1
+                                steps_to_add = 1
+                        elif '+' in sub_option or '-' in sub_option:
+                            proteins_present, proteins_required = process_compounds(sub_option, 'compound', genome_annotation)
+                            if proteins_present/proteins_required > highest_score:
+                                highest_score = proteins_present/proteins_required
+                                steps_to_add = 1
+                    if highest_score > score_for_step:
+                        score_for_step = highest_score
+                        match = True
+                    if match == True:
+                        steps_per_option = steps_to_add
+                    elif steps_to_add< steps_per_option:
+                        steps_per_option = steps_to_add
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif '_' in option:
+                    match = False
+                    print(option)
+                    proteins_present, proteins_required = process_compounds(option, 'and_comp', genome_annotation)
+                    if proteins_present/proteins_required > score_for_step:
+                        score_for_step = proteins_present
+                        match = True
+                    if match == True:
+                        steps_per_option = proteins_required
+                    elif proteins_required < steps_per_option:
+                        steps_per_option = proteins_required
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif "+" in option or "-" in option:
+                    match = False
+                    print(option)
+                    highest_score = 0
+                    proteins_present, proteins_required = process_compounds(option, 'compound', genome_annotation)
+                    if proteins_present/proteins_required > score_for_step:
+                        score_for_step = proteins_present/proteins_required
+                        match = True
+                    if match == True:
+                        steps_per_option = 1
+                    elif proteins_required < steps_per_option:
+                        steps_per_option = 1
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                else:
+                    print("WEIRD CASE {}".format(option))
+            print("Score to add for option {}".format(score_for_step))
+            complete_steps += score_for_step
+            print("Complete steps {}".format(complete_steps))
+            if steps_per_option > 50:
+                steps_per_option = 1
+            if steps_per_option > 1:
+                total_module_steps += steps_per_option - 1
+        print("Total steps added {}".format(steps_per_option-1))
+        print("=================Final Result {} {} {}==========".format(module, total_module_steps, complete_steps))
+        regular_module_completenes.append((module, round(complete_steps/total_module_steps, 3)))
+    return regular_module_completenes
+
+def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
+    genome_annotation = annotation_file_parser(genome_annotation_file)
+    bifurcating_module_completenes = []
+    for module, versions in module_dictionary.items():
+        module_highest = 0
+        for version, total_steps in versions.items():
+            completed_steps = 0
+            total_version_steps = len(total_steps)
+            for proteins in total_steps.values():
+                score_for_step = 0
+                steps_per_option = 100
+                match = False
+                if isinstance(proteins, (list)):
+                    protein = sorted(proteins, key=len)
+                    for option in protein:
+                        match = False
+                        if ko_match(option) > 0:
+                            if option in genome_annotation:
+                                score_for_step = 1
+                                match = True
+                            if match == True:
+                                steps_per_option = 1
+                            elif 1 < steps_per_option:
+                                steps_per_option = 1
+                            print("====STEPS TO ADD {}-----".format(steps_per_option))
+                            print("====SCORE TO ADD {}-----".format(score_for_step))
+                        elif '_' in option and ',' in option:
+                            option = sorted(split_compound(option, 'and_comp'), key=len)
+                            highest_score = 0
+                            for element in option:
+                                if ko_match(element) > 0 and element in genome_annotation:
+                                    highest_score += 1
+                                elif ',' in element:
+                                    element = sorted(element.split(","), key=len)
+                                    score_sub_option = 0
+                                    length_options = len(element)
+                                    for sub_element in element:
+                                        if ko_match(sub_element) > 0 and sub_element in genome_annotation:
+                                            highest_score += 1
+                                            break
+                                        elif '+' in sub_element:
+                                            proteins_present, proteins_required = process_compounds(sub_element, 
+                                            'compound', genome_annotation)
+                                            highest_score += proteins_present/proteins_required
+                            if highest_score > score_for_step:
+                                score_for_step = highest_score
+                                match = True
+                            if match == True:
+                                steps_per_option = len(option)
+                            print("====STEPS TO ADD {}-----".format(steps_per_option))
+                            print("====SCORE TO ADD {}-----".format(score_for_step))
+                        elif '_' in option:
+                            match = False
+                            proteins_present, proteins_required = process_compounds(option, 'and_comp', genome_annotation)
+                            if proteins_present/proteins_required > score_for_step:
+                                score_for_step = proteins_present
+                                match = True
+                            if match == True:
+                                steps_per_option = proteins_required
+                            elif proteins_required < steps_per_option:
+                                steps_per_option = proteins_required
+                            print("====STEPS TO ADD {}-----".format(steps_per_option))
+                            print("====SCORE TO ADD {}-----".format(score_for_step))
+                        elif '+' in option or '-' in option:
+                            match = False
+                            highest_score = 0
+                            proteins_present, proteins_required = process_compounds(option, 'compound', genome_annotation)
+                            if proteins_present/proteins_required > score_for_step:
+                                score_for_step = proteins_present/proteins_required
+                                match = True
+                            if match == True:
+                                steps_per_option = 1
+                            elif proteins_required < steps_per_option:
+                                steps_per_option = 1
+                            print("====STEPS TO ADD {}-----".format(steps_per_option))
+                            print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif ko_match(proteins) > 0:
+                    match = False
+                    if proteins in genome_annotation:
+                        score_for_step = 1
+                        match = True
+                    if match == True:
+                        steps_per_option = 1
+                    elif 1 < steps_per_option:
+                        steps_per_option = 1
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif ',' in proteins:
+                    options = split_compound(proteins, 'or_comp')
+                    for option in options:
+                        if ko_match(option) > 0 and option in genome_annotation:
+                            score_for_step = 1
+                            match = True
+                        if match == True:
+                            steps_per_option = 1
+                        elif 1 < steps_per_option:
+                            steps_per_option = 1
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                elif '+' in proteins or '-' in proteins:
+                    match = False
+                    highest_score = 0
+                    proteins_present, proteins_required = process_compounds(proteins, 'compound', genome_annotation)
+                    if proteins_present/proteins_required > score_for_step:
+                        score_for_step = proteins_present/proteins_required
+                        match = True
+                    if match == True:
+                        steps_per_option = 1
+                    elif proteins_required < steps_per_option:
+                        steps_per_option = 1
+                    print("====STEPS TO ADD {}-----".format(steps_per_option))
+                    print("====SCORE TO ADD {}-----".format(score_for_step))
+                else:
+                    print("WEIRD CASE {}".format(proteins))
+                print("Score to add for option {}".format(score_for_step))
+                completed_steps += score_for_step
+                print("Complete steps {}".format(completed_steps))
+                if steps_per_option > 50:
+                    steps_per_option = 1
+                if steps_per_option > 1:
+                    total_version_steps += steps_per_option - 1
+            if completed_steps/total_version_steps > module_highest:
+                module_highest = completed_steps/total_version_steps
+        print("=================Final Result {} {} {} {}==========".format(module, total_version_steps, completed_steps, module_highest))
+        bifurcating_module_completenes.append((module, round(module_highest, 3)))
+        # print(module, total_steps_version, proteins_in_version)
+    return bifurcating_module_completenes
+
+def structural_module_mapper(module_dictionary, genome_annotation_file):
+    
+def global_mapper(regular_modules, bifurcating_modules, annotation_files):
+    full_metabolic_completeness = {}
+    
+    for file in annotation_files:
+        genome_name = str(Path(file).with_suffix(''))
+        regular_completeness = []#regular_module_mapper(regular_modules, file)
+        bifurcating_completenes = bifurcating_module_mapper(bifurcating_modules, file)
+        final_completeness = regular_completeness + bifurcating_completenes
+        full_metabolic_completeness[genome_name] = final_completeness
+    return full_metabolic_completeness
+    
+
+
+    
+
+################################################################################
+"""---2.0 Main Function---"""
+
+def main():
+    import argparse, sys
+    # Setup parser for arguments.
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
+            description='''This script downloads the fasta and genbank files that\n'''
+            '''are needed to build the RefSeq annotation database. By default it\n'''
+            '''downloads both but you can specify either\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -f [Output folder]\n'''
+            '''Global mandatory parameters: -f [Output folder]\n'''
+            '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
+    parser.add_argument('-i', '--input_files', dest='input_files', nargs='+', action='store', required=True,
+                        help='Space-separated list of files to parse.')
+    parser.add_argument('-p', '--prefix', dest='prefix', action='store', required=True,
+                        help='Prefix for the output files.')
+    args = parser.parse_args()
+
+    input_files = args.input_files
+    prefix = args.prefix
+
+
+
+    # ----------------------------
+    # Import data
+    regular_modules, bifurcation_modules, module_names, genome_names, metabolism_matrix, module_correspondence = module_information_importer(input_files)
+    # Map and annotate genomes
+    metabolic_annotation = global_mapper(regular_modules, bifurcation_modules, input_files)
+    
+    for genome, modules in metabolic_annotation.items():
+        for module in modules:
+            metabolism_matrix.loc[module[0],genome] = module[1]
+    # print(metabolism_matrix.shape)
+    metabolism_matrix_dropped = metabolism_matrix.loc[(metabolism_matrix >= 0.5).any(1)]
+    # print(metabolism_matrix_dropped)
+    # new_index = metabolism_matrix_dropped.index.map(module_correspondence)
+    metabolism_matrix_dropped = metabolism_matrix_dropped.rename(index=module_correspondence)
+    # print(metabolism_matrix_dropped)
+    # metabolism_matrix = metabolism_matrix[metabolism_matrix.rows[metabolism_matrix.sum(axis=0) >= 0.5]]
+    # print(metabolism_matrix_dropped.shape)
+    metabolism_matrix.to_csv("SALIDA.tab", sep="\t")
+    # Figure, Axis = plt.subplots(1,1, figsize=(25,25), constrained_layout=True)
+    rc={'xtick.labelsize': 1, 'ytick.labelsize': 1}
+    # sns.set(font_scale=0.3)
+    Heat = sns.clustermap(metabolism_matrix_dropped, xticklabels=True, yticklabels=True, figsize=(25,25), col_cluster=False)#, annot_kws={"size": 0.5})
+    Heat.savefig("Metabolism_Plot.pdf")
+
+    # ----------------------------
+
+if __name__ == "__main__":
+    main()
