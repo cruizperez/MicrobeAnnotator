@@ -1,0 +1,394 @@
+M00015	Arginine and proline metabolism	#8a3222
+M00028	Arginine and proline metabolism	#8a3222
+M00029	Arginine and proline metabolism	#8a3222
+M00047	Arginine and proline metabolism	#8a3222
+M00763	Arginine and proline metabolism	#8a3222
+M00844	Arginine and proline metabolism	#8a3222
+M00845	Arginine and proline metabolism	#8a3222
+M00879	Arginine and proline metabolism	#8a3222
+M00022	Aromatic amino acid metabolism	#8641b6
+M00023	Aromatic amino acid metabolism	#8641b6
+M00024	Aromatic amino acid metabolism	#8641b6
+M00025	Aromatic amino acid metabolism	#8641b6
+M00037	Aromatic amino acid metabolism	#8641b6
+M00038	Aromatic amino acid metabolism	#8641b6
+M00040	Aromatic amino acid metabolism	#8641b6
+M00042	Aromatic amino acid metabolism	#8641b6
+M00043	Aromatic amino acid metabolism	#8641b6
+M00044	Aromatic amino acid metabolism	#8641b6
+M00533	Aromatic amino acid metabolism	#8641b6
+M00545	Aromatic amino acid metabolism	#8641b6
+M00418	Aromatics degradation	#76d25b
+M00419	Aromatics degradation	#76d25b
+M00534	Aromatics degradation	#76d25b
+M00537	Aromatics degradation	#76d25b
+M00538	Aromatics degradation	#76d25b
+M00539	Aromatics degradation	#76d25b
+M00540	Aromatics degradation	#76d25b
+M00541	Aromatics degradation	#76d25b
+M00543	Aromatics degradation	#76d25b
+M00544	Aromatics degradation	#76d25b
+M00547	Aromatics degradation	#76d25b
+M00548	Aromatics degradation	#76d25b
+M00551	Aromatics degradation	#76d25b
+M00568	Aromatics degradation	#76d25b
+M00569	Aromatics degradation	#76d25b
+M00623	Aromatics degradation	#76d25b
+M00624	Aromatics degradation	#76d25b
+M00636	Aromatics degradation	#76d25b
+M00637	Aromatics degradation	#76d25b
+M00638	Aromatics degradation	#76d25b
+M00878	Aromatics degradation	#76d25b
+M00142	ATP synthesis	#cdd346
+M00143	ATP synthesis	#cdd346
+M00144	ATP synthesis	#cdd346
+M00145	ATP synthesis	#cdd346
+M00146	ATP synthesis	#cdd346
+M00147	ATP synthesis	#cdd346
+M00148	ATP synthesis	#cdd346
+M00149	ATP synthesis	#cdd346
+M00150	ATP synthesis	#cdd346
+M00151	ATP synthesis	#cdd346
+M00152	ATP synthesis	#cdd346
+M00153	ATP synthesis	#cdd346
+M00154	ATP synthesis	#cdd346
+M00155	ATP synthesis	#cdd346
+M00156	ATP synthesis	#cdd346
+M00157	ATP synthesis	#cdd346
+M00158	ATP synthesis	#cdd346
+M00159	ATP synthesis	#cdd346
+M00160	ATP synthesis	#cdd346
+M00162	ATP synthesis	#cdd346
+M00416	ATP synthesis	#cdd346
+M00417	ATP synthesis	#cdd346
+M00672	Beta-Lactam biosynthesis	#3b2882
+M00673	Beta-Lactam biosynthesis	#3b2882
+M00674	Beta-Lactam biosynthesis	#3b2882
+M00675	Beta-Lactam biosynthesis	#3b2882
+M00736	Beta-Lactam biosynthesis	#3b2882
+M00039	Biosynthesis of other secondary metabolites	#cbde82
+M00137	Biosynthesis of other secondary metabolites	#cbde82
+M00138	Biosynthesis of other secondary metabolites	#cbde82
+M00370	Biosynthesis of other secondary metabolites	#cbde82
+M00661	Biosynthesis of other secondary metabolites	#cbde82
+M00785	Biosynthesis of other secondary metabolites	#cbde82
+M00786	Biosynthesis of other secondary metabolites	#cbde82
+M00787	Biosynthesis of other secondary metabolites	#cbde82
+M00788	Biosynthesis of other secondary metabolites	#cbde82
+M00789	Biosynthesis of other secondary metabolites	#cbde82
+M00790	Biosynthesis of other secondary metabolites	#cbde82
+M00805	Biosynthesis of other secondary metabolites	#cbde82
+M00808	Biosynthesis of other secondary metabolites	#cbde82
+M00814	Biosynthesis of other secondary metabolites	#cbde82
+M00815	Biosynthesis of other secondary metabolites	#cbde82
+M00819	Biosynthesis of other secondary metabolites	#cbde82
+M00835	Biosynthesis of other secondary metabolites	#cbde82
+M00837	Biosynthesis of other secondary metabolites	#cbde82
+M00838	Biosynthesis of other secondary metabolites	#cbde82
+M00848	Biosynthesis of other secondary metabolites	#cbde82
+M00875	Biosynthesis of other secondary metabolites	#cbde82
+M00876	Biosynthesis of other secondary metabolites	#cbde82
+M00877	Biosynthesis of other secondary metabolites	#cbde82
+M00019	Branched-chain amino acid metabolism	#656cdb
+M00036	Branched-chain amino acid metabolism	#656cdb
+M00432	Branched-chain amino acid metabolism	#656cdb
+M00535	Branched-chain amino acid metabolism	#656cdb
+M00570	Branched-chain amino acid metabolism	#656cdb
+M00165	Carbon fixation	#408937
+M00166	Carbon fixation	#408937
+M00167	Carbon fixation	#408937
+M00168	Carbon fixation	#408937
+M00169	Carbon fixation	#408937
+M00170	Carbon fixation	#408937
+M00171	Carbon fixation	#408937
+M00172	Carbon fixation	#408937
+M00173	Carbon fixation	#408937
+M00374	Carbon fixation	#408937
+M00375	Carbon fixation	#408937
+M00376	Carbon fixation	#408937
+M00377	Carbon fixation	#408937
+M00579	Carbon fixation	#408937
+M00620	Carbon fixation	#408937
+M00001	Central carbohydrate metabolism	#c644a5
+M00002	Central carbohydrate metabolism	#c644a5
+M00003	Central carbohydrate metabolism	#c644a5
+M00004	Central carbohydrate metabolism	#c644a5
+M00005	Central carbohydrate metabolism	#c644a5
+M00006	Central carbohydrate metabolism	#c644a5
+M00007	Central carbohydrate metabolism	#c644a5
+M00008	Central carbohydrate metabolism	#c644a5
+M00009	Central carbohydrate metabolism	#c644a5
+M00010	Central carbohydrate metabolism	#c644a5
+M00011	Central carbohydrate metabolism	#c644a5
+M00307	Central carbohydrate metabolism	#c644a5
+M00308	Central carbohydrate metabolism	#c644a5
+M00309	Central carbohydrate metabolism	#c644a5
+M00580	Central carbohydrate metabolism	#c644a5
+M00633	Central carbohydrate metabolism	#c644a5
+M00112	Cofactor and vitamin metabolism	#5fda98
+M00115	Cofactor and vitamin metabolism	#5fda98
+M00116	Cofactor and vitamin metabolism	#5fda98
+M00117	Cofactor and vitamin metabolism	#5fda98
+M00119	Cofactor and vitamin metabolism	#5fda98
+M00120	Cofactor and vitamin metabolism	#5fda98
+M00121	Cofactor and vitamin metabolism	#5fda98
+M00122	Cofactor and vitamin metabolism	#5fda98
+M00123	Cofactor and vitamin metabolism	#5fda98
+M00124	Cofactor and vitamin metabolism	#5fda98
+M00125	Cofactor and vitamin metabolism	#5fda98
+M00126	Cofactor and vitamin metabolism	#5fda98
+M00127	Cofactor and vitamin metabolism	#5fda98
+M00128	Cofactor and vitamin metabolism	#5fda98
+M00140	Cofactor and vitamin metabolism	#5fda98
+M00141	Cofactor and vitamin metabolism	#5fda98
+M00572	Cofactor and vitamin metabolism	#5fda98
+M00573	Cofactor and vitamin metabolism	#5fda98
+M00577	Cofactor and vitamin metabolism	#5fda98
+M00622	Cofactor and vitamin metabolism	#5fda98
+M00810	Cofactor and vitamin metabolism	#5fda98
+M00811	Cofactor and vitamin metabolism	#5fda98
+M00836	Cofactor and vitamin metabolism	#5fda98
+M00840	Cofactor and vitamin metabolism	#5fda98
+M00841	Cofactor and vitamin metabolism	#5fda98
+M00842	Cofactor and vitamin metabolism	#5fda98
+M00843	Cofactor and vitamin metabolism	#5fda98
+M00846	Cofactor and vitamin metabolism	#5fda98
+M00847	Cofactor and vitamin metabolism	#5fda98
+M00868	Cofactor and vitamin metabolism	#5fda98
+M00880	Cofactor and vitamin metabolism	#5fda98
+M00017	Cysteine and methionine metabolism	#782975
+M00021	Cysteine and methionine metabolism	#782975
+M00034	Cysteine and methionine metabolism	#782975
+M00035	Cysteine and methionine metabolism	#782975
+M00338	Cysteine and methionine metabolism	#782975
+M00368	Cysteine and methionine metabolism	#782975
+M00609	Cysteine and methionine metabolism	#782975
+M00625	Drug resistance	#869534
+M00627	Drug resistance	#869534
+M00639	Drug resistance	#869534
+M00641	Drug resistance	#869534
+M00642	Drug resistance	#869534
+M00643	Drug resistance	#869534
+M00649	Drug resistance	#869534
+M00651	Drug resistance	#869534
+M00652	Drug resistance	#869534
+M00696	Drug resistance	#869534
+M00697	Drug resistance	#869534
+M00698	Drug resistance	#869534
+M00700	Drug resistance	#869534
+M00702	Drug resistance	#869534
+M00704	Drug resistance	#869534
+M00705	Drug resistance	#869534
+M00714	Drug resistance	#869534
+M00718	Drug resistance	#869534
+M00725	Drug resistance	#869534
+M00726	Drug resistance	#869534
+M00730	Drug resistance	#869534
+M00744	Drug resistance	#869534
+M00745	Drug resistance	#869534
+M00746	Drug resistance	#869534
+M00769	Drug resistance	#869534
+M00851	Drug resistance	#869534
+M00824	Enediyne biosynthesis	#d27bde
+M00825	Enediyne biosynthesis	#d27bde
+M00826	Enediyne biosynthesis	#d27bde
+M00827	Enediyne biosynthesis	#d27bde
+M00828	Enediyne biosynthesis	#d27bde
+M00829	Enediyne biosynthesis	#d27bde
+M00830	Enediyne biosynthesis	#d27bde
+M00831	Enediyne biosynthesis	#d27bde
+M00832	Enediyne biosynthesis	#d27bde
+M00833	Enediyne biosynthesis	#d27bde
+M00834	Enediyne biosynthesis	#d27bde
+M00082	Fatty acid metabolism	#d9a344
+M00083	Fatty acid metabolism	#d9a344
+M00085	Fatty acid metabolism	#d9a344
+M00086	Fatty acid metabolism	#d9a344
+M00087	Fatty acid metabolism	#d9a344
+M00415	Fatty acid metabolism	#d9a344
+M00861	Fatty acid metabolism	#d9a344
+M00873	Fatty acid metabolism	#d9a344
+M00874	Fatty acid metabolism	#d9a344
+M00055	Glycan biosynthesis	#588cd6
+M00056	Glycan biosynthesis	#588cd6
+M00065	Glycan biosynthesis	#588cd6
+M00068	Glycan biosynthesis	#588cd6
+M00069	Glycan biosynthesis	#588cd6
+M00070	Glycan biosynthesis	#588cd6
+M00071	Glycan biosynthesis	#588cd6
+M00072	Glycan biosynthesis	#588cd6
+M00073	Glycan biosynthesis	#588cd6
+M00074	Glycan biosynthesis	#588cd6
+M00075	Glycan biosynthesis	#588cd6
+M00872	Glycan biosynthesis	#588cd6
+M00057	Glycosaminoglycan metabolism	#d66432
+M00058	Glycosaminoglycan metabolism	#d66432
+M00059	Glycosaminoglycan metabolism	#d66432
+M00076	Glycosaminoglycan metabolism	#d66432
+M00077	Glycosaminoglycan metabolism	#d66432
+M00078	Glycosaminoglycan metabolism	#d66432
+M00079	Glycosaminoglycan metabolism	#d66432
+M00026	Histidine metabolism	#66d7bf
+M00045	Histidine metabolism	#66d7bf
+M00066	Lipid metabolism	#d53e55
+M00067	Lipid metabolism	#d53e55
+M00088	Lipid metabolism	#d53e55
+M00089	Lipid metabolism	#d53e55
+M00090	Lipid metabolism	#d53e55
+M00091	Lipid metabolism	#d53e55
+M00092	Lipid metabolism	#d53e55
+M00093	Lipid metabolism	#d53e55
+M00094	Lipid metabolism	#d53e55
+M00098	Lipid metabolism	#d53e55
+M00099	Lipid metabolism	#d53e55
+M00100	Lipid metabolism	#d53e55
+M00113	Lipid metabolism	#d53e55
+M00060	Lipopolysaccharide metabolism	#83d2de
+M00063	Lipopolysaccharide metabolism	#83d2de
+M00064	Lipopolysaccharide metabolism	#83d2de
+M00866	Lipopolysaccharide metabolism	#83d2de
+M00867	Lipopolysaccharide metabolism	#83d2de
+M00016	Lysine metabolism	#d84e8b
+M00030	Lysine metabolism	#d84e8b
+M00031	Lysine metabolism	#d84e8b
+M00032	Lysine metabolism	#d84e8b
+M00433	Lysine metabolism	#d84e8b
+M00525	Lysine metabolism	#d84e8b
+M00526	Lysine metabolism	#d84e8b
+M00527	Lysine metabolism	#d84e8b
+M00773	Macrolide biosynthesis	#2e4b26
+M00774	Macrolide biosynthesis	#2e4b26
+M00775	Macrolide biosynthesis	#2e4b26
+M00776	Macrolide biosynthesis	#2e4b26
+M00777	Macrolide biosynthesis	#2e4b26
+M00611	Metabolic capacity	#9378c3
+M00612	Metabolic capacity	#9378c3
+M00613	Metabolic capacity	#9378c3
+M00614	Metabolic capacity	#9378c3
+M00615	Metabolic capacity	#9378c3
+M00616	Metabolic capacity	#9378c3
+M00617	Metabolic capacity	#9378c3
+M00618	Metabolic capacity	#9378c3
+M00174	Methane metabolism	#9e7336
+M00344	Methane metabolism	#9e7336
+M00345	Methane metabolism	#9e7336
+M00346	Methane metabolism	#9e7336
+M00356	Methane metabolism	#9e7336
+M00357	Methane metabolism	#9e7336
+M00358	Methane metabolism	#9e7336
+M00378	Methane metabolism	#9e7336
+M00422	Methane metabolism	#9e7336
+M00563	Methane metabolism	#9e7336
+M00567	Methane metabolism	#9e7336
+M00608	Methane metabolism	#9e7336
+M00175	Nitrogen metabolism	#2c2351
+M00528	Nitrogen metabolism	#2c2351
+M00529	Nitrogen metabolism	#2c2351
+M00530	Nitrogen metabolism	#2c2351
+M00531	Nitrogen metabolism	#2c2351
+M00804	Nitrogen metabolism	#2c2351
+M00027	Other amino acid metabolism	#c5d7a9
+M00118	Other amino acid metabolism	#c5d7a9
+M00369	Other amino acid metabolism	#c5d7a9
+M00012	Other carbohydrate metabolism	#872b4e
+M00013	Other carbohydrate metabolism	#872b4e
+M00014	Other carbohydrate metabolism	#872b4e
+M00061	Other carbohydrate metabolism	#872b4e
+M00081	Other carbohydrate metabolism	#872b4e
+M00114	Other carbohydrate metabolism	#872b4e
+M00129	Other carbohydrate metabolism	#872b4e
+M00130	Other carbohydrate metabolism	#872b4e
+M00131	Other carbohydrate metabolism	#872b4e
+M00132	Other carbohydrate metabolism	#872b4e
+M00373	Other carbohydrate metabolism	#872b4e
+M00532	Other carbohydrate metabolism	#872b4e
+M00549	Other carbohydrate metabolism	#872b4e
+M00550	Other carbohydrate metabolism	#872b4e
+M00552	Other carbohydrate metabolism	#872b4e
+M00554	Other carbohydrate metabolism	#872b4e
+M00565	Other carbohydrate metabolism	#872b4e
+M00630	Other carbohydrate metabolism	#872b4e
+M00631	Other carbohydrate metabolism	#872b4e
+M00632	Other carbohydrate metabolism	#872b4e
+M00740	Other carbohydrate metabolism	#872b4e
+M00741	Other carbohydrate metabolism	#872b4e
+M00761	Other carbohydrate metabolism	#872b4e
+M00854	Other carbohydrate metabolism	#872b4e
+M00855	Other carbohydrate metabolism	#872b4e
+M00097	Other terpenoid biosynthesis	#6e9368
+M00371	Other terpenoid biosynthesis	#6e9368
+M00372	Other terpenoid biosynthesis	#6e9368
+M00363	Pathogenicity	#66406d
+M00542	Pathogenicity	#66406d
+M00564	Pathogenicity	#66406d
+M00574	Pathogenicity	#66406d
+M00575	Pathogenicity	#66406d
+M00576	Pathogenicity	#66406d
+M00850	Pathogenicity	#66406d
+M00852	Pathogenicity	#66406d
+M00853	Pathogenicity	#66406d
+M00856	Pathogenicity	#66406d
+M00857	Pathogenicity	#66406d
+M00859	Pathogenicity	#66406d
+M00860	Pathogenicity	#66406d
+M00161	Photosynthesis	#cfa68a
+M00163	Photosynthesis	#cfa68a
+M00597	Photosynthesis	#cfa68a
+M00598	Photosynthesis	#cfa68a
+M00660	Plant pathogenicity	#461d27
+M00133	Polyamine biosynthesis	#a5b3da
+M00134	Polyamine biosynthesis	#a5b3da
+M00135	Polyamine biosynthesis	#a5b3da
+M00136	Polyamine biosynthesis	#a5b3da
+M00793	Polyketide sugar unit biosynthesis	#5c4f24
+M00794	Polyketide sugar unit biosynthesis	#5c4f24
+M00795	Polyketide sugar unit biosynthesis	#5c4f24
+M00796	Polyketide sugar unit biosynthesis	#5c4f24
+M00797	Polyketide sugar unit biosynthesis	#5c4f24
+M00798	Polyketide sugar unit biosynthesis	#5c4f24
+M00799	Polyketide sugar unit biosynthesis	#5c4f24
+M00800	Polyketide sugar unit biosynthesis	#5c4f24
+M00801	Polyketide sugar unit biosynthesis	#5c4f24
+M00802	Polyketide sugar unit biosynthesis	#5c4f24
+M00803	Polyketide sugar unit biosynthesis	#5c4f24
+M00048	Purine metabolism	#e0a7d2
+M00049	Purine metabolism	#e0a7d2
+M00050	Purine metabolism	#e0a7d2
+M00546	Purine metabolism	#e0a7d2
+M00046	Pyrimidine metabolism	#25585e
+M00051	Pyrimidine metabolism	#25585e
+M00052	Pyrimidine metabolism	#25585e
+M00053	Pyrimidine metabolism	#25585e
+M00018	Serine and threonine metabolism	#de7d78
+M00020	Serine and threonine metabolism	#de7d78
+M00033	Serine and threonine metabolism	#de7d78
+M00555	Serine and threonine metabolism	#de7d78
+M00101	Sterol biosynthesis	#4e96a2
+M00102	Sterol biosynthesis	#4e96a2
+M00103	Sterol biosynthesis	#4e96a2
+M00104	Sterol biosynthesis	#4e96a2
+M00106	Sterol biosynthesis	#4e96a2
+M00107	Sterol biosynthesis	#4e96a2
+M00108	Sterol biosynthesis	#4e96a2
+M00109	Sterol biosynthesis	#4e96a2
+M00110	Sterol biosynthesis	#4e96a2
+M00862	Sterol biosynthesis	#4e96a2
+M00176	Sulfur metabolism	#4e96a2
+M00595	Sulfur metabolism	#4e96a2
+M00596	Sulfur metabolism	#4e96a2
+M00664	Symbiosis	#88574e
+M00095	Terpenoid backbone biosynthesis	#4e6089
+M00096	Terpenoid backbone biosynthesis	#4e6089
+M00364	Terpenoid backbone biosynthesis	#4e6089
+M00365	Terpenoid backbone biosynthesis	#4e6089
+M00366	Terpenoid backbone biosynthesis	#4e6089
+M00367	Terpenoid backbone biosynthesis	#4e6089
+M00849	Terpenoid backbone biosynthesis	#4e6089
+M00778	Type II polyketide biosynthesis	#af7194
+M00779	Type II polyketide biosynthesis	#af7194
+M00780	Type II polyketide biosynthesis	#af7194
+M00781	Type II polyketide biosynthesis	#af7194
+M00782	Type II polyketide biosynthesis	#af7194
+M00783	Type II polyketide biosynthesis	#af7194
+M00784	Type II polyketide biosynthesis	#af7194
+M00823	Type II polyketide biosynthesis	#af7194

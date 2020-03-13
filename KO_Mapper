@@ -21,6 +21,9 @@ import pickle
 from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
+from collections import OrderedDict
+from sys import exit
+import matplotlib
 
 ################################################################################
 """---1.0 Define Functions---"""
@@ -71,26 +74,34 @@ def module_information_importer(input_files):
     data_folder = Path(script_dir) / "00.Data"
     regular_modules = import_module_dict(data_folder / "01.KEGG_Regular_Module_Information.pickle")
     bifurcation_modules = import_module_dict(data_folder / "02.KEGG_Bifurcating_Module_Information.pickle")
-    # Get module names
+    structural_modules = import_module_dict(data_folder / "03.KEGG_Structural_Module_Information.pickle")
+    # Get genome and module names
+    module_groups = OrderedDict()
+    module_colors = OrderedDict()
     module_names = []
-    for key in regular_modules.keys():
-        module_names.append(key)
-    for key in bifurcation_modules.keys():
-        module_names.append(key)
-    # Get genome names
     genome_names = []
+    group_names = []
     for genome_file in input_files:
         genome_names.append(str(Path(genome_file).with_suffix('')))
     # Get module correspondence
-    module_correspondence = {}
-    with open(data_folder / "00.Module_Names.txt") as corresp:
-        for line in corresp:
+    module_correspondence = OrderedDict() 
+    with open(data_folder / "01.KEGG_DB/00.Module_Names.txt") as correspondence:
+        for line in correspondence:
             line = line.strip().split("\t")
             module_correspondence[line[0]] = line[1]
-    
+            module_names.append(line[0])
+            module_groups[line[0]] = line[2]
+            if line[2] not in group_names:
+                group_names.append(line[2])
+            module_colors[line[1]] = [line[2],line[3]]
+    # Create module group matrix
+    module_group_matrix = pd.DataFrame(0, index=group_names, columns=genome_names)
+    # Create module matrix
     metabolism_matrix = pd.DataFrame(0, index=module_names, columns=genome_names)
-
-    return regular_modules, bifurcation_modules, module_names, genome_names, metabolism_matrix, module_correspondence
+    print("Done!\n")
+    return regular_modules, bifurcation_modules, structural_modules, module_names, \
+            genome_names, metabolism_matrix, module_correspondence, module_group_matrix, \
+            module_groups, module_colors
 
 def annotation_file_parser(genome_annotation_file):
     genome_annotation = []
@@ -103,8 +114,6 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
     genome_annotation = annotation_file_parser(genome_annotation_file)
     regular_module_completenes = []
     for module, final_steps in module_dictionary.items():
-        if module == "M00854":
-            print(module, final_steps)
         complete_steps = 0
         total_module_steps = len(final_steps)
         for proteins in final_steps.values():
@@ -115,7 +124,6 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                 match = False
                 # Search for single gene option
                 if ko_match(option) > 0:
-                    print(option)
                     if option in genome_annotation:
                         score_for_step = 1
                         match = True
@@ -123,10 +131,7 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = 1
                     elif 1 < steps_per_option:
                         steps_per_option = 1
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif '%' in option:
-                    print(option)
                     option = option.replace(')', '')
                     option = option.split('-%')
                     mandatory = split_compound(option[0], 'compound')
@@ -136,7 +141,6 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                         if ko_match(prot) > 0 and prot in genome_annotation:
                             proteins_present += 1
                     for prot in option[1].split(','):
-                        print(prot)
                         if ko_match(prot) > 0 and prot in genome_annotation:
                             proteins_present += 1
                             break
@@ -147,19 +151,14 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = 1
                     elif 1 < steps_per_option:
                         steps_per_option = 1
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif '_' in option and ',' in option:
                     option = sorted(split_compound(option, 'and_comp'), key=len)
-                    print(option)
                     highest_score = 0
                     for element in option:
                         if ko_match(element) > 0 and element in genome_annotation:
                             highest_score += 1
                         elif ',' in element:
                             element = sorted(element.split(","), key=len)
-                            score_sub_option = 0
-                            length_options = len(element)
                             for sub_element in element:
                                 if ko_match(sub_element) > 0 and sub_element in genome_annotation:
                                     highest_score += 1
@@ -175,12 +174,9 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = len(option)
                     elif len(option) < steps_per_option:
                         steps_per_option = len(option)
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif len(option.split(",")) > 1:
                     match = False
                     option = sorted(option.split(","), key=len)
-                    print(option)
                     highest_score = 0
                     steps_to_add = 0
                     for sub_option in option:
@@ -200,11 +196,8 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = steps_to_add
                     elif steps_to_add< steps_per_option:
                         steps_per_option = steps_to_add
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif '_' in option:
                     match = False
-                    print(option)
                     proteins_present, proteins_required = process_compounds(option, 'and_comp', genome_annotation)
                     if proteins_present/proteins_required > score_for_step:
                         score_for_step = proteins_present
@@ -213,11 +206,8 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = proteins_required
                     elif proteins_required < steps_per_option:
                         steps_per_option = proteins_required
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif "+" in option or "-" in option:
                     match = False
-                    print(option)
                     highest_score = 0
                     proteins_present, proteins_required = process_compounds(option, 'compound', genome_annotation)
                     if proteins_present/proteins_required > score_for_step:
@@ -227,20 +217,14 @@ def regular_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = 1
                     elif proteins_required < steps_per_option:
                         steps_per_option = 1
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 else:
-                    print("WEIRD CASE {}".format(option))
-            print("Score to add for option {}".format(score_for_step))
+                    print("Unreccognized module {}. Check your database.".format(option))
             complete_steps += score_for_step
-            print("Complete steps {}".format(complete_steps))
             if steps_per_option > 50:
                 steps_per_option = 1
             if steps_per_option > 1:
                 total_module_steps += steps_per_option - 1
-        print("Total steps added {}".format(steps_per_option-1))
-        print("=================Final Result {} {} {}==========".format(module, total_module_steps, complete_steps))
-        regular_module_completenes.append((module, round(complete_steps/total_module_steps, 3)))
+        regular_module_completenes.append((module, round((complete_steps/total_module_steps)*100, 2)))
     return regular_module_completenes
 
 def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
@@ -267,8 +251,6 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                                 steps_per_option = 1
                             elif 1 < steps_per_option:
                                 steps_per_option = 1
-                            print("====STEPS TO ADD {}-----".format(steps_per_option))
-                            print("====SCORE TO ADD {}-----".format(score_for_step))
                         elif '_' in option and ',' in option:
                             option = sorted(split_compound(option, 'and_comp'), key=len)
                             highest_score = 0
@@ -278,7 +260,6 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                                 elif ',' in element:
                                     element = sorted(element.split(","), key=len)
                                     score_sub_option = 0
-                                    length_options = len(element)
                                     for sub_element in element:
                                         if ko_match(sub_element) > 0 and sub_element in genome_annotation:
                                             highest_score += 1
@@ -292,8 +273,6 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                                 match = True
                             if match == True:
                                 steps_per_option = len(option)
-                            print("====STEPS TO ADD {}-----".format(steps_per_option))
-                            print("====SCORE TO ADD {}-----".format(score_for_step))
                         elif '_' in option:
                             match = False
                             proteins_present, proteins_required = process_compounds(option, 'and_comp', genome_annotation)
@@ -304,8 +283,6 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                                 steps_per_option = proteins_required
                             elif proteins_required < steps_per_option:
                                 steps_per_option = proteins_required
-                            print("====STEPS TO ADD {}-----".format(steps_per_option))
-                            print("====SCORE TO ADD {}-----".format(score_for_step))
                         elif '+' in option or '-' in option:
                             match = False
                             highest_score = 0
@@ -317,8 +294,6 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                                 steps_per_option = 1
                             elif proteins_required < steps_per_option:
                                 steps_per_option = 1
-                            print("====STEPS TO ADD {}-----".format(steps_per_option))
-                            print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif ko_match(proteins) > 0:
                     match = False
                     if proteins in genome_annotation:
@@ -328,8 +303,6 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = 1
                     elif 1 < steps_per_option:
                         steps_per_option = 1
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif ',' in proteins:
                     options = split_compound(proteins, 'or_comp')
                     for option in options:
@@ -340,8 +313,6 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                             steps_per_option = 1
                         elif 1 < steps_per_option:
                             steps_per_option = 1
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 elif '+' in proteins or '-' in proteins:
                     match = False
                     highest_score = 0
@@ -353,40 +324,210 @@ def bifurcating_module_mapper(module_dictionary, genome_annotation_file):
                         steps_per_option = 1
                     elif proteins_required < steps_per_option:
                         steps_per_option = 1
-                    print("====STEPS TO ADD {}-----".format(steps_per_option))
-                    print("====SCORE TO ADD {}-----".format(score_for_step))
                 else:
-                    print("WEIRD CASE {}".format(proteins))
-                print("Score to add for option {}".format(score_for_step))
+                    print("Unreccognized module {}. Check your database.".format(proteins))
                 completed_steps += score_for_step
-                print("Complete steps {}".format(completed_steps))
                 if steps_per_option > 50:
                     steps_per_option = 1
                 if steps_per_option > 1:
                     total_version_steps += steps_per_option - 1
             if completed_steps/total_version_steps > module_highest:
                 module_highest = completed_steps/total_version_steps
-        print("=================Final Result {} {} {} {}==========".format(module, total_version_steps, completed_steps, module_highest))
-        bifurcating_module_completenes.append((module, round(module_highest, 3)))
-        # print(module, total_steps_version, proteins_in_version)
+        bifurcating_module_completenes.append((module, round(module_highest*100, 2)))
     return bifurcating_module_completenes
 
 def structural_module_mapper(module_dictionary, genome_annotation_file):
-    
-def global_mapper(regular_modules, bifurcating_modules, annotation_files):
+    genome_annotation = annotation_file_parser(genome_annotation_file)
+    structural_module_completenes = []
+    for module, components in module_dictionary.items():
+        score_for_components = 0
+        module_proteins_present = 0
+        module_proteins_required = 0
+        for proteins in components:
+            if isinstance(proteins, (list)):
+                highest_score = 0
+                proteins_to_add = 0
+                steps_to_add = 100
+                for option in proteins:
+                    if '_' in option and ',' in option:
+                        option = sorted(split_compound(option, 'and_comp'), key=len)
+                        proteins_present_option = 0
+                        proteins_required_option = 0
+                        for element in option:
+                            if ko_match(element) > 0:
+                                if element in genome_annotation:
+                                    proteins_present_option += 1
+                                    proteins_required_option += 1
+                                else:
+                                    proteins_required_option += 1
+                            elif ',' in element:
+                                element = sorted(element.split(","), key=len)
+                                score_sub_element = 0
+                                proteins_present_sub_element = 0
+                                proteins_required_sub_element = 0
+                                for sub_element in element:
+                                    if ko_match(sub_element) > 0:
+                                        if sub_element in genome_annotation:
+                                            score_sub_element = 1
+                                            proteins_present_sub_element += 1
+                                            proteins_required_sub_element += 1
+                                        elif 1 < proteins_required_sub_element and score_sub_element == 0:
+                                            proteins_required_sub_element = 1
+                                    elif '+' in sub_element or '-' in sub_element:
+                                        proteins_present, proteins_required = process_compounds(sub_element, 
+                                        'compound', genome_annotation)
+                                        if proteins_present/proteins_required > score_sub_element:
+                                            score_sub_element = proteins_present/proteins_required
+                                            proteins_present_sub_element = proteins_present
+                                            proteins_required_sub_element = proteins_required
+                                        elif proteins_required < proteins_required_sub_element and score_sub_element == 0:
+                                            proteins_required_sub_element = proteins_required
+                                proteins_present_option += proteins_present_sub_element
+                                proteins_required_option += proteins_required_sub_element
+                        if proteins_present_option/proteins_required_option > highest_score:
+                            highest_score = proteins_present_option/proteins_required_option
+                            proteins_to_add = proteins_present_option
+                            steps_to_add = proteins_required_option
+                        elif proteins_required_option < steps_to_add and highest_score == 0:
+                            steps_to_add = proteins_required_option
+                    elif '+' in option or '-' in option:
+                        proteins_present, proteins_required = process_compounds(option, 'compound', genome_annotation)
+                        if proteins_present/proteins_required > highest_score:
+                            highest_score = proteins_present/proteins_required
+                            steps_to_add = proteins_required
+                            proteins_to_add = proteins_present
+                        elif proteins_required < steps_to_add and highest_score == 0:
+                            steps_to_add = proteins_required
+                module_proteins_present += proteins_to_add
+                module_proteins_required += steps_to_add
+            elif ko_match(proteins) > 0:
+                if proteins in genome_annotation:
+                        module_proteins_present += 1
+                        module_proteins_required += 1
+                else:
+                    module_proteins_required += 1
+            elif ',' in proteins:
+                proteins = sorted(proteins.split(","), key=len)
+                score = 0
+                proteins_present_option = 0
+                proteins_required_option = 100
+                for element in proteins:
+                    if ko_match(element) > 0:
+                        if element in genome_annotation:
+                            proteins_required_option = 1
+                            proteins_present_option = 1
+                            break
+                        elif 1 < proteins_required_option and score == 0:
+                            proteins_required_option = 1
+                    elif '+' in element or '-' in element:
+                        proteins_present, proteins_required = process_compounds(element, 'compound', genome_annotation)
+                        if proteins_present/proteins_required > score:
+                            score = proteins_present/proteins_required
+                            proteins_present_option = proteins_present
+                            proteins_required_option = proteins_required
+                        elif proteins_required < proteins_required_option and score == 0:
+                            proteins_required_option = proteins_required
+                module_proteins_present += proteins_present_option
+                module_proteins_required += proteins_required_option
+            elif '+' in proteins or '-' in proteins:
+                proteins_present, proteins_required = process_compounds(proteins, 'compound', genome_annotation)
+                module_proteins_present += proteins_present
+                module_proteins_required += proteins_required  
+            else:
+                print("Unreccognized module {}. Check your database.".format(proteins))
+        score_for_components = module_proteins_present/module_proteins_required
+        structural_module_completenes.append((module, round(score_for_components*100, 2)))
+    return structural_module_completenes
+
+def global_mapper(regular_modules, bifurcating_modules, structural_modules, annotation_files):
+    print("Mapping entries... ", end="")
     full_metabolic_completeness = {}
     
     for file in annotation_files:
         genome_name = str(Path(file).with_suffix(''))
-        regular_completeness = []#regular_module_mapper(regular_modules, file)
-        bifurcating_completenes = bifurcating_module_mapper(bifurcating_modules, file)
-        final_completeness = regular_completeness + bifurcating_completenes
+        regular_completeness = regular_module_mapper(regular_modules, file)
+        bifurcating_completeness = bifurcating_module_mapper(bifurcating_modules, file)
+        structural_completeness = structural_module_mapper(structural_modules, file)
+        final_completeness = regular_completeness + bifurcating_completeness + structural_completeness
         full_metabolic_completeness[genome_name] = final_completeness
+    print("Done!\n")
     return full_metabolic_completeness
-    
 
+def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix):
+    matplotlib.rcParams['pdf.fonttype'] = 42
+    print("Grouping by metabolism type and plotting... ")
+    for module in list(metabolism_matrix_dropped_relabel.index):
+        for genome in list(metabolism_matrix_dropped_relabel.columns):
+            if metabolism_matrix_dropped_relabel.loc[module,genome] >= 80:
+                module_group_matrix.loc[module_colors[module][0],genome] += 1
+    module_group_matrix_transp = module_group_matrix.T
+    module_group_matrix_transp = module_group_matrix_transp.loc[(module_group_matrix_transp >= 1).any(1)]
+    color_dict = {}
+    color_list = []
+    for pair in module_colors.values():
+        if pair[0] not in color_dict:
+            color_dict[pair[0]] = pair[1]
+    for pathway in list(module_group_matrix_transp.columns):
+        color_list.append(color_dict[pathway])
+    Figure, Axis = plt.subplots(1,1, figsize=(25,15))
+    module_group_matrix_transp.plot.bar(ax=Axis, stacked=True, color=color_list, figsize=(25,15), legend=False)
+    Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='x-small', markerscale=0.3)
+    Axis.set_xlabel("Genomes", fontsize=30)
+    Axis.set_ylabel('Number of Modules (>=80% complete)', fontsize=30)
+    Figure.suptitle('Metabolism Module Categoryper Genome', fontsize=40)
+    Figure.subplots_adjust()
+    Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
+    print("Done!")
 
-    
+def create_outputs(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix):
+    matplotlib.rcParams['pdf.fonttype'] = 42
+    print("Creating output matrix and heatmap... ")
+    # Check clustering asked
+    if cluster is None:
+        row_cluster = False
+        col_cluster = False
+    elif cluster == 'rows':
+        row_cluster = True
+        col_cluster = False
+    elif cluster == 'cols':
+        row_cluster = False
+        col_cluster = True
+    elif cluster == 'both':
+        row_cluster = True
+        col_cluster = True
+    else:
+        exit("Wrong clustering option, select between 'both', 'cols', 'rows' or don't pass this option.")
+    # Extract data from metabolism matrix and color dictionary
+    for genome, modules in metabolic_annotation.items():
+        for module in modules:
+            metabolism_matrix.loc[module[0],genome] = module[1]
+    metabolism_matrix_dropped = metabolism_matrix.loc[(metabolism_matrix >= 50).any(1)]
+    retained_modules = list(metabolism_matrix_dropped.index)
+    colors_for_ticks = []
+    colors_for_legend = {}
+    metabolism_matrix_dropped_relabel = metabolism_matrix_dropped.rename(index=module_correspondence)
+    metabolism_matrix.to_csv(prefix + "_module_completeness.tab", sep="\t")
+    # Plot
+    heatmap = sns.clustermap(metabolism_matrix_dropped_relabel, xticklabels=True, yticklabels=True, 
+                            figsize=(30,25), row_cluster=row_cluster, col_cluster=col_cluster, cbar_pos=(0, 0, .1, .02),
+                            cbar_kws= {'orientation': 'horizontal'}, dendrogram_ratio=0.1)
+    if cluster is None or cluster == 'rows':
+        heatmap.ax_heatmap.set_title('Module Completeness', fontsize=40)
+    else:
+        heatmap.ax_col_dendrogram.set_title('Module Completeness', fontsize=40)
+    for module in heatmap.ax_heatmap.yaxis.get_ticklabels():
+        colors_for_ticks.append(module_colors[module.get_text()][1])
+        if module_colors[module.get_text()][0] not in colors_for_legend:
+            colors_for_legend[module_colors[module.get_text()][0]] = module_colors[module.get_text()][1]
+    [mod.set_color(col) for (col,mod) in zip(colors_for_ticks,heatmap.ax_heatmap.yaxis.get_ticklabels())]
+    for pathway, color in colors_for_legend.items():
+        heatmap.ax_heatmap.scatter(1,1, color=color, label=pathway, zorder=0, s=45)
+    heatmap.ax_heatmap.set_xlabel("Genomes", fontsize=30)
+    heatmap.ax_heatmap.set_ylabel('Modules (more than 50% complete)', fontsize=30)
+    plt.figlegend(loc="lower right", ncol=2, fontsize='medium')
+    heatmap.savefig(prefix + "_heatmap.pdf")
+    print("Done!\n")
+    return metabolism_matrix_dropped_relabel
 
 ################################################################################
 """---2.0 Main Function---"""
@@ -405,37 +546,24 @@ def main():
                         help='Space-separated list of files to parse.')
     parser.add_argument('-p', '--prefix', dest='prefix', action='store', required=True,
                         help='Prefix for the output files.')
+    parser.add_argument('--cluster', dest='cluster', action='store', required=False,
+                        help='Cluster genomes or modules. Select "cols" for genomes, "rows" for modules, or "both".\
+                            By default no clustering.')
     args = parser.parse_args()
 
     input_files = args.input_files
     prefix = args.prefix
-
-
+    cluster = args.cluster
 
     # ----------------------------
     # Import data
-    regular_modules, bifurcation_modules, module_names, genome_names, metabolism_matrix, module_correspondence = module_information_importer(input_files)
+    regular_modules, bifurcation_modules, structural_modules,  \
+    module_names, genome_names, metabolism_matrix, module_correspondence, \
+    module_group_matrix, module_groups, module_colors = module_information_importer(input_files)
     # Map and annotate genomes
-    metabolic_annotation = global_mapper(regular_modules, bifurcation_modules, input_files)
-    
-    for genome, modules in metabolic_annotation.items():
-        for module in modules:
-            metabolism_matrix.loc[module[0],genome] = module[1]
-    # print(metabolism_matrix.shape)
-    metabolism_matrix_dropped = metabolism_matrix.loc[(metabolism_matrix >= 0.5).any(1)]
-    # print(metabolism_matrix_dropped)
-    # new_index = metabolism_matrix_dropped.index.map(module_correspondence)
-    metabolism_matrix_dropped = metabolism_matrix_dropped.rename(index=module_correspondence)
-    # print(metabolism_matrix_dropped)
-    # metabolism_matrix = metabolism_matrix[metabolism_matrix.rows[metabolism_matrix.sum(axis=0) >= 0.5]]
-    # print(metabolism_matrix_dropped.shape)
-    metabolism_matrix.to_csv("SALIDA.tab", sep="\t")
-    # Figure, Axis = plt.subplots(1,1, figsize=(25,25), constrained_layout=True)
-    rc={'xtick.labelsize': 1, 'ytick.labelsize': 1}
-    # sns.set(font_scale=0.3)
-    Heat = sns.clustermap(metabolism_matrix_dropped, xticklabels=True, yticklabels=True, figsize=(25,25), col_cluster=False)#, annot_kws={"size": 0.5})
-    Heat.savefig("Metabolism_Plot.pdf")
-
+    metabolic_annotation = global_mapper(regular_modules, bifurcation_modules, structural_modules, input_files)
+    metabolism_matrix_dropped_relabel = create_outputs(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix)
+    plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
     # ----------------------------
 
 if __name__ == "__main__":
