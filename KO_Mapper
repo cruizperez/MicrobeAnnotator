@@ -29,12 +29,29 @@ import matplotlib
 """---1.0 Define Functions---"""
 
 def ko_match(string):
+    """ Looks if string has the form K[0-9]{5}
+    
+    Arguments:
+        string {string} -- String to test
+    
+    Returns:
+        [bool] -- String has form or not
+    """
     if re.search(r'^K[0-9]{5}$', string) is not None:
         return 1
     else:
         return 0
 
 def split_compound(string, comp_type):
+    """[summary]
+    
+    Arguments:
+        string {[type]} -- [description]
+        comp_type {[type]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
     if comp_type == 'compound':
         return re.split('[-+]', string)
     elif comp_type == 'and_comp':
