@@ -60,8 +60,11 @@ def search_table(sql_database, database_table, input_list, outfile):
             for gene_id in (input_list):
                 cur.execute("SELECT * FROM " + database_table + " WHERE ID=?", (gene_id[1],))
                 rows = cur.fetchall()
-                annotation = "\t".join(rows[0])
-                output.write("{}\t{}\n".format(gene_id[0], annotation))
+                if len(rows) > 0:
+                    annotation = "\t".join(rows[0])
+                    output.write("{}\t{}\n".format(gene_id[0], annotation))
+                else:
+                    continue
         else:
             for gene_id in (input_list):
                 cur.execute("SELECT * FROM " + database_table + " WHERE ID=?", (gene_id,))
