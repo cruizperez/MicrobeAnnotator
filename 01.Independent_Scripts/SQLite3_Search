@@ -66,8 +66,11 @@ def search_table(sql_database, database_table, input_list, outfile):
             for gene_id in (input_list):
                 cur.execute("SELECT * FROM " + database_table + " WHERE ID=?", (gene_id,))
                 rows = cur.fetchall()
-                annotation = "\t".join(rows[0])
-                output.write("{}\t{}\n".format(annotation))
+                if len(rows) > 0:
+                    annotation = "\t".join(rows[0])
+                    output.write("{}\t{}\n".format(annotation))
+                else:
+                    continue
     cur.close()
     conn.close()
 
@@ -128,8 +131,9 @@ def main():
     database = args.database
     table = args.table
     target_col = args.target_col - 1
+    query_col = args.query_col
     if query_col != None:
-        query_col = args.query_col - 1
+        query_col = query_col - 1
 
     # Read input table and extract ids.
     input_list = parse_input_table(input_file, query_col, target_col)
