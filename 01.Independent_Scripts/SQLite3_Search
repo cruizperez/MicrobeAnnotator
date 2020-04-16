@@ -77,7 +77,7 @@ def search_table(sql_database, database_table, input_list, outfile):
     cur.close()
     conn.close()
 
-def parse_input_table(input_file, query_col, target_col):
+def parse_input_table(input_file, query_col, target_col, table):
     """ Parses input file and returns query_ids and target_ids or just target_ids.
     
     Arguments:
@@ -90,12 +90,24 @@ def parse_input_table(input_file, query_col, target_col):
     """
     input_list = []
     with open(input_file, 'r') as infile:
-        for line in infile:
-            line = line.strip().split("\t")
-            if query_col is not None:
-                input_list.append((line[query_col], line[target_col]))
-            else:
-                input_list.append(line[target_col])
+        if table == "swissprot" or table  == "trembl":
+            for line in infile:
+                line = line.strip().split("\t")
+                db_hit = line[target_col].split("|")[2]
+                if query_col is not None:
+                    input_query = line[query_col]
+                    input_list.append((input_query, db_hit))
+                else:
+                    input_list.append(db_hit)
+        else:
+            for line in infile:
+                line = line.strip().split("\t")
+                db_hit = line[target_col]
+                if query_col is not None:
+                    input_query = line[query_col]
+                    input_list.append((input_query, db_hit))
+                else:
+                    input_list.append(db_hit)
     return input_list
 
 ################################################################################
@@ -132,14 +144,14 @@ def main():
     input_file = args.input_file
     outfile = args.outfile
     database = args.database
-    table = args.table
+    table = args.table.lower()
     target_col = args.target_col - 1
     query_col = args.query_col
     if query_col != None:
         query_col = query_col - 1
 
     # Read input table and extract ids.
-    input_list = parse_input_table(input_file, query_col, target_col)
+    input_list = parse_input_table(input_file, query_col, target_col, table)
     search_table(database, table, input_list, outfile)
 
 if __name__ == "__main__":
