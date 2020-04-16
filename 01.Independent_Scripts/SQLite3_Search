@@ -71,7 +71,7 @@ def search_table(sql_database, database_table, input_list, outfile):
                 rows = cur.fetchall()
                 if len(rows) > 0:
                     annotation = "\t".join(rows[0])
-                    output.write("{}\t{}\n".format(annotation))
+                    output.write("{}\n".format(annotation))
                 else:
                     continue
     cur.close()
