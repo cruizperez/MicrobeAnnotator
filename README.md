@@ -10,6 +10,7 @@ Requirements:
     (Usually it will be installed in your home under your user in "/home/[user]/.aspera/connect/bin", it will show you where)\
     Take note of this installation folder and, for your peace of mind lets add this folder to your PATH:\
     Add the following line to your ~/.bashrc file: export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"\
+    Now reload the ~/.bashrc file with: source ~/.bashrc file
     Now you have installed Aspera Connect!\
   
   
