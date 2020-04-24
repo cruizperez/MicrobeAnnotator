@@ -35,6 +35,10 @@ def refseq_fasta_downloader(output_folder, ascp_key = None):
     merged_db_folder = Path(output_folder) / "01.Protein_DB"
     Path(temp_fasta_files).mkdir(parents=True, exist_ok=True)
     Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
+    # Remove refseq fasta files if present (to avoid repeating files)
+    file_list = searching_all_files(merged_db_folder, 'protein')
+    for protein_file in file_list:
+        protein_file.unlink()
     # Download compressed protein files
     subprocess.call(["ascp", '-QTr', '-d', '-l', '100M', '-E', '*wgs_mstr*',
                     '-E', '*rna*', '-E', '*genomic*', '-E', '*.gpff.gz',
@@ -49,24 +53,24 @@ def refseq_fasta_downloader(output_folder, ascp_key = None):
                     '-i', ascp_key, 'anonftp@ftp.ncbi.nlm.nih.gov:/refseq/release/archaea/',
                     temp_fasta_files])
     # Get downloaded files
-    viral_list = searching_all_files(temp_fasta_files / "viral")
-    bacteria_list = searching_all_files(temp_fasta_files / "bacteria")
-    archaea_list = searching_all_files(temp_fasta_files / "archaea")
+    viral_list = searching_all_files(temp_fasta_files / "viral", 'protein')
+    bacteria_list = searching_all_files(temp_fasta_files / "bacteria", 'protein')
+    archaea_list = searching_all_files(temp_fasta_files / "archaea", 'protein')
     final_list = viral_list + bacteria_list + archaea_list
-    with open(Path(merged_db_folder) / ("01.Refseq_Protein_Rel" + release_number + ".faa"), 'w') as merged_db:
+    with open(Path(merged_db_folder) / ("refseq_protein_rel_" + release_number + ".faa"), 'w') as merged_db:
         for file in final_list:
             with gzip.open(file, 'rt') as temp_file:
                 copyfileobj(temp_file,merged_db)
                 Path.unlink(file)
     rmtree(temp_fasta_files)
+    with open(Path(output_folder) / "01.Protein_DB/RefSeq_Release.txt", 'w') as relinfo:
+        relinfo.write("Release number {}".format(release_number))
 
 
 def refseq_genbank_downloader(output_folder, ascp_key = None):
     # Requirements
     if ascp_key == None:
         ascp_key = get_aspera_key()
-    release_file = urllib.request.urlopen("https://ftp.ncbi.nlm.nih.gov/refseq/release/RELEASE_NUMBER")
-    release_number = release_file.readline().decode('utf-8').strip()
     temp_gb_files = Path(output_folder) / "02.temp_genbank"
     Path(temp_gb_files).mkdir(parents=True, exist_ok=True)
     # Download compressed protein files
@@ -83,9 +87,9 @@ def refseq_genbank_downloader(output_folder, ascp_key = None):
                     '-i', ascp_key, 'anonftp@ftp.ncbi.nlm.nih.gov:/refseq/release/archaea/',
                     temp_gb_files])
     # Get downloaded files
-    viral_list = searching_all_files(temp_gb_files / "viral")
-    bacteria_list = searching_all_files(temp_gb_files / "bacteria")
-    archaea_list = searching_all_files(temp_gb_files / "archaea")
+    viral_list = searching_all_files(temp_gb_files / "viral", 'genbank')
+    bacteria_list = searching_all_files(temp_gb_files / "bacteria", 'genbank')
+    archaea_list = searching_all_files(temp_gb_files / "archaea", 'genbank')
     final_list = viral_list + bacteria_list + archaea_list
     return final_list
 
@@ -95,15 +99,22 @@ def get_aspera_key():
     key = str(install_folder) + "/etc/asperaweb_id_dsa.openssh"
     return key
 
-def searching_all_files(directory):
+def searching_all_files(directory, file_type):
     dirpath = Path(directory)
     assert(dirpath.is_dir())
     file_list = []
-    for protein_file in dirpath.iterdir():
-        if protein_file.is_file():
-            file_list.append(protein_file)
-        else:
-            continue
+    if file_type == "protein":
+        for protein_file in dirpath.iterdir():
+            if protein_file.is_file()  and protein_file.suffix == ".faa":
+                file_list.append(protein_file)
+            else:
+                continue
+    else:
+        for protein_file in dirpath.iterdir():
+            if protein_file.is_file():
+                file_list.append(protein_file)
+            else:
+                continue
     return file_list
 
 

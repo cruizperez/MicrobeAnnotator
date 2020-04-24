@@ -36,21 +36,13 @@ def table_creator(genbank_file):
         temporal_table -- Path to temporal table created
     """
     temporal_table = Path(genbank_file).with_suffix('.temp')
-    protein_information = {}
     with gzip.open(genbank_file, 'rt') as uncompressed_genbank, \
     open(temporal_table, 'w') as output:
-        output.write("ID\tProduct\tTaxonomy\tNote\n")
         for record in SeqIO.parse(uncompressed_genbank, "genbank"):
             id = record.id
             product = record.description.split("[")[0].strip()
             taxonomy = ""
             species = ""
-            note = ""
-            if 'comment' not in record.annotations:
-                note == ""
-            else:
-                note = record.annotations['comment']
-                note = note.replace("\n", " ")
             if 'organism' not in record.annotations:
                 species = 'NA'
             else:
@@ -71,7 +63,7 @@ def table_creator(genbank_file):
                                     product = 'NA'
                             else:
                                 product = feature.qualifiers['product'][0]
-            output.write("{}\t{}\t{}\t{}\n".format(id, product, taxonomy, note))
+            output.write("{}\t{}\t{}\n".format(id, product, taxonomy))
     return temporal_table
 
 
@@ -111,6 +103,7 @@ def table_merger(temp_table_list, final_table, keep):
                 file.unlink()
             else: continue
 
+
 ################################################################################
 """---3.0 Main Function---"""
 def main():
@@ -127,7 +120,7 @@ def main():
                         help='Space-separated list of compressed genbank files, or use something like "$(ls files*.gz)"')
     input_options.add_argument('-o', '--output', dest='output', action='store', required=True,
                         help='File to store final table with record information')
-    
+
     misc_options = parser.add_argument_group('Miscellaneous options')
     misc_options.add_argument('-t', '--threads', dest='threads', action='store', default=1, type=int, required=False,
                         help='Number of threads to use, by default 1')
@@ -142,11 +135,12 @@ def main():
     keep = args.keep
 
     # --------------------------------------------------
-    print("Processing {} files on {} threads... ".format(len(input_files), threads), end=" ")
+    print("Processing {} files on {} threads...".format(len(input_files), threads), end=" ")
     temp_tables = table_generator_worker(input_files, threads)
     print("Done")
-    print("Merging tables...", end="")
+    print("Merging tables...", end=" ")
     table_merger(temp_tables, output, keep)
+    remove_temporal_folder("02.temp_genbank")
     print("Done")
     # --------------------------------------------------
 
