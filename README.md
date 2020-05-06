@@ -12,5 +12,8 @@ Requirements:
     Add the following line to your ~/.bashrc file: export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"\
     Now reload the ~/.bashrc file with: source ~/.bashrc file
     Now you have installed Aspera Connect!\
+- HMMER >= 3.1
+- Ruby >= 2.4
+- GNU Parallel
   
   

@@ -16,71 +16,87 @@
 
 ################################################################################
 """---0.0 Import Modules---"""
-import sys
-print(sys.path)
 import subprocess
 from shutil import which
 from sys import exit
 from pathlib import Path
-from .RefSeq_Data_Downloader import searching_all_files
 
 ################################################################################
 """---1.0 Define Functions---"""
 def blastp_db_creator(directory, path=None):
     print('Building blast databases')
-    fasta_files = searching_all_files(directory, 'protein')
     database_files = []
     if path != None:
         makeblasdb_call = Path(path) / 'makeblastdb'
     else:
         makeblasdb_call = 'makeblastdb'
     if which(makeblasdb_call) == None:
-        exit(' Blast\'s "makeblastdb" not found in path, provide the folder with blast binaries')
+        script_path = Path(__file__)
+        script_dir = script_path.parent
+        stand_alone_script = script_dir / "protein_db_creation.py"
+        print('Blast\'s "makeblastdb" not found in path, I cannot continue and so, I will exit.')
+        print('If you are running the MicrobeAnnotator_db_builder script this is the last step of the process.')
+        print('Given that this last step failed you need to run the standalone ' + str(stand_alone_script) + ' script')
+        print('and provide the binary folder for the selected method using the "--bin_path" option or add')
+        print('the binary to your PATH (see README for help on this).')
+        exit('Otherwise, just re-run this script providing the appropriate path. :)')
     else:
-        for protein_file in fasta_files:
-            output_name = protein_file.with_suffix("")
-            database_files.append(output_name)
-            subprocess.call([makeblasdb_call, '-in', protein_file, '-dbtype', 'prot',
-            '-parse_seqids', '-out', output_name])
+        for protein_file in Path(directory).iterdir():
+            if protein_file.suffix == '.fasta':
+                output_name = protein_file.with_suffix("")
+                database_files.append(output_name)
+                subprocess.call([makeblasdb_call, '-in', protein_file, '-dbtype', 'prot',
+                '-parse_seqids', '-out', output_name])
     print('Done!')
-    print(database_files)
-    return database_files
+    with open(Path(directory)/'blast_db.list', 'w') as db_list:
+        for file in database_files:
+            db_list.write('{}\n'.format(file.name))
 
-def diamond_db_creator(directory, path=None):
+def diamond_db_creator(directory, threads, path=None):
     print('Building diamond databases')
-    fasta_files = searching_all_files(directory, 'protein')
     database_files = []
     if path != None:
-        diamond_call = Path(path) / 'makedb'
+        diamond_call = Path(path) / 'diamond'
     else:
-        diamond_call = 'makedb'
+        diamond_call = 'diamond'
     if which(diamond_call) == None:
-        exit('Diamond\'s "makedb" not found in path, provide the folder with diamond binaries')
+        script_path = Path(__file__)
+        script_dir = script_path.parent
+        stand_alone_script = script_dir / "protein_db_creation.py"
+        print('Diamond\'s "makedb" not found in path, I cannot continue and so, I will exit.')
+        print('If you are running the MicrobeAnnotator_db_builder script this is the last step of the process.')
+        print('Given that this last step failed you need to run the standalone ' + str(stand_alone_script) + ' script')
+        print('and provide the binary folder for the selected method using the "--bin_path" option or add')
+        print('the binary to your PATH (see README for help on this).')
+        exit('Otherwise, just re-run this script providing the appropriate path. :)')
     else:
-        for protein_file in fasta_files:
-            output_name = protein_file.with_suffix("")
-            final_db_name = Path(output_name).with_suffix('.dmnd')
-            database_files.append(final_db_name)
-            subprocess.call([diamond_call, '--in', protein_file, '-d', output_name])
+        for protein_file in Path(directory).iterdir():
+            if protein_file.suffix == '.fasta':
+                output_name = protein_file.with_suffix("")
+                final_db_name = Path(output_name).with_suffix('.dmnd')
+                database_files.append(final_db_name)
+                subprocess.call(['diamond', 'makedb', '--in', protein_file, '-d', output_name, '--threads', str(threads)])
     print('Done!')
-    print(database_files)
-    return database_files
+    with open(Path(directory)/'diamond_db.list', 'w') as db_list:
+        for file in database_files:
+            db_list.write('{}\n'.format(file.name))
 
 def sword_db_creator(directory, path=None):
     print('Building sword databases (no db needed, just checking if sword is in path)')
-    fasta_files = searching_all_files(directory, 'protein')
     if path != None:
         sword_call = Path(path) / 'sword'
     else:
         sword_call = 'sword'
     if which(sword_call) == None:
-        print('I did not find the sword executable. However, I don\'t need \
-            it for this step, the search will probably fail in the future.\n \
-            Make sure to provide the correct path for sword')
+        print('I did not find the sword executable. I don\'t need')
+        print('it for this step. However, the search might fail in the future.')
+        print('Make sure to provide the correct path for sword when searching.')
     else:
         print('Done!')
-    print(fasta_files)
-    return fasta_files
+    with open(Path(directory)/'sword_db.list', 'w') as db_list:
+        for file in Path(directory).iterdir():
+            if file.suffix == '.fasta':
+                db_list.write('{}\n'.format(file.name))
 
 
 ################################################################################
