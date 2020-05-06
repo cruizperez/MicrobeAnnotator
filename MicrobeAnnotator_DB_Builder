@@ -148,7 +148,7 @@ def main():
     threads = args.threads
 
     # ----------------------------
-    db_duilder(directory, method, threads, light)
+    db_duilder(directory, method, light, threads, bin_path)
     # ----------------------------
 
 if __name__ == "__main__":
