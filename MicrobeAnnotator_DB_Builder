@@ -55,7 +55,7 @@ def db_duilder(output_folder, method, light, threads, path=None):
         temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
         final_sprot_table = outfolder / "02.uniprot_sprot.table"
         uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
-        if Path(outfolder / "02.temp_dat_files").is_dir()
+        if Path(outfolder / "02.temp_dat_files").is_dir():
             rmtree(outfolder / "02.temp_dat_files")
         print("Done!")
     else:
