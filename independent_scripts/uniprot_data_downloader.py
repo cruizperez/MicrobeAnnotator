@@ -24,11 +24,16 @@ import gzip
 ################################################################################
 """---1.0 Define Functions---"""
 def uniprot_fasta_downloader(output_folder, light):
+    # Create protein folder
+    merged_db_folder = Path(output_folder) / "01.Protein_DB"
+    Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
     # Get release number
     release_file = urllib.request.urlopen("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/reldate.txt")
     release_number = release_file.readline().decode('utf-8').split()[3]
-    merged_db_folder = Path(output_folder) / "01.Protein_DB"
-    Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
+    # Write release information into file
+    with open(merged_db_folder / "uniprot_release.txt", 'w') as relinfo:
+        relinfo.write("Release number (date) {}".format(release_number))
+    # Download fasta files
     print("Downloading fasta files...", flush=True)
     # Overwrite existing temporal files
     if light == True:
@@ -41,39 +46,33 @@ def uniprot_fasta_downloader(output_folder, light):
             Path.unlink(merged_db_folder / "uniprot_trembl.fasta.gz")
     # Download swissprot and trembl proteins
     if light == True:
-        swissprot_file = wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
-                  out=str(merged_db_folder))
+        wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
+                  out=str(merged_db_folder / "uniprot_sprot.fasta.gz"))
+        compressed = merged_db_folder / "uniprot_sprot.fasta.gz"
+        decompressed = merged_db_folder / "uniprot_sprot.fasta"
+        with gzip.open(compressed, 'rt') as compressed_fh, open(decompressed, 'w') as decompressed_fh:
+            copyfileobj(compressed_fh, decompressed_fh)
+            Path.unlink(Path(merged_db_folder / "uniprot_sprot.fasta.gz"))
     else:
-        swissprot_file = wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
-                  out=str(merged_db_folder))
-        trembl_file = wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz",
-                  out=str(merged_db_folder))
-    if light == True:
-        file_names = []
-        file_names.append(Path(Path(swissprot_file).stem).stem)
-        for file in file_names:
-            original_file = str(file) + ".fasta.gz"
-            with open(Path(merged_db_folder) / (str(file) + "_" + release_number + ".faa"), 'w') as merged_db:
-                with gzip.open(Path(merged_db_folder) / original_file, 'rt') as temp_file:
-                    copyfileobj(temp_file,merged_db)
-                    Path.unlink(Path(merged_db_folder) / original_file)
-    else:
-        file_names = []
-        file_names.append(Path(Path(swissprot_file).stem).stem)
-        file_names.append(Path(Path(trembl_file).stem).stem)
-        for file in file_names:
-            original_file = str(file) + ".fasta.gz"
-            with open(Path(merged_db_folder) / (str(file) + "_" + release_number + ".faa"), 'w') as merged_db:
-                with gzip.open(Path(merged_db_folder) / original_file, 'rt') as temp_file:
-                    copyfileobj(temp_file,merged_db)
-                    Path.unlink(Path(merged_db_folder) / original_file)
-    with open(Path(output_folder) / "01.Protein_DB/UniProt_Release.txt", 'w') as relinfo:
-        relinfo.write("Release number (date) {}".format(release_number))
+        wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
+                  out=str(merged_db_folder / "uniprot_sprot.fasta.gz"))
+        wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz",
+                  out=str(merged_db_folder / "uniprot_trembl.fasta.gz"))
+        compressed = merged_db_folder / "uniprot_sprot.fasta.gz"
+        decompressed = merged_db_folder / "uniprot_sprot.fasta"
+        with gzip.open(compressed, 'rt') as compressed_fh, open(decompressed, 'w') as decompressed_fh:
+            copyfileobj(compressed_fh, decompressed_fh)
+            Path.unlink(Path(merged_db_folder / "uniprot_sprot.fasta.gz"))
+        compressed = merged_db_folder / "uniprot_trembl.fasta.gz"
+        decompressed = merged_db_folder / "uniprot_trembl.fasta"
+        with gzip.open(compressed, 'rt') as compressed_fh, open(decompressed, 'w') as decompressed_fh:
+            copyfileobj(compressed_fh, decompressed_fh)
+            Path.unlink(Path(merged_db_folder / "uniprot_trembl.fasta.gz"))
     print("\nDone")
     
 def uniprot_dat_downloader(output_folder, light):
     # Create dat files folder
-    temp_dat_files = Path(output_folder) / "02.temp_dat_file"
+    temp_dat_files = Path(output_folder) / "02.temp_dat_files"
     Path(temp_dat_files).mkdir(parents=True, exist_ok=True)
     print("Downloading .dat files...", flush=True)
     # Overwrite existing temporal files
@@ -88,14 +87,13 @@ def uniprot_dat_downloader(output_folder, light):
     # Download swissprot and trembl dat files
     if light == True:
         wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz",
-                    out=str(temp_dat_files))
+                    out=str(temp_dat_files / "uniprot_sprot.dat.gz"))
     else:
         wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz",
-                    out=str(temp_dat_files))
+                    out=str(temp_dat_files / "uniprot_sprot.dat.gz"))
         wget.download("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.dat.gz",
-                      out=str(temp_dat_files))
+                      out=str(temp_dat_files / "uniprot_trembl.dat.gz"))
     print("\nDone")
-
 
 
 ################################################################################

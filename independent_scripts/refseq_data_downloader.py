@@ -26,19 +26,22 @@ import gzip
 ################################################################################
 """---1.0 Define Functions---"""
 def refseq_fasta_downloader(output_folder, ascp_key = None):
+    print("Downloading protein fasta files")
     # Requirements
     if ascp_key == None:
         ascp_key = get_aspera_key()
     release_file = urllib.request.urlopen("https://ftp.ncbi.nlm.nih.gov/refseq/release/RELEASE_NUMBER")
     release_number = release_file.readline().decode('utf-8').strip()
+    # Create folders
     temp_fasta_files = Path(output_folder) / "01.temp_proteins"
     merged_db_folder = Path(output_folder) / "01.Protein_DB"
     Path(temp_fasta_files).mkdir(parents=True, exist_ok=True)
     Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
+    with open(merged_db_folder / "refseq_release.txt", 'w') as relinfo:
+        relinfo.write("Release number {}".format(release_number))
     # Remove refseq fasta files if present (to avoid repeating files)
-    file_list = searching_all_files(merged_db_folder, 'protein')
-    for protein_file in file_list:
-        protein_file.unlink()
+    if Path(merged_db_folder / "refseq_protein.fasta").is_file():
+        Path(merged_db_folder / "refseq_protein.fasta").unlink()
     # Download compressed protein files
     subprocess.call(["ascp", '-QTr', '-d', '-l', '100M', '-E', '*wgs_mstr*',
                     '-E', '*rna*', '-E', '*genomic*', '-E', '*.gpff.gz',
@@ -53,21 +56,21 @@ def refseq_fasta_downloader(output_folder, ascp_key = None):
                     '-i', ascp_key, 'anonftp@ftp.ncbi.nlm.nih.gov:/refseq/release/archaea/',
                     temp_fasta_files])
     # Get downloaded files
-    viral_list = searching_all_files(temp_fasta_files / "viral", 'protein')
-    bacteria_list = searching_all_files(temp_fasta_files / "bacteria", 'protein')
-    archaea_list = searching_all_files(temp_fasta_files / "archaea", 'protein')
+    viral_list = search_all_files(temp_fasta_files / "viral")
+    bacteria_list = search_all_files(temp_fasta_files / "bacteria")
+    archaea_list = search_all_files(temp_fasta_files / "archaea")
     final_list = viral_list + bacteria_list + archaea_list
-    with open(Path(merged_db_folder) / ("refseq_protein_rel_" + release_number + ".faa"), 'w') as merged_db:
+    with open(Path(merged_db_folder) / ("refseq_protein.fasta"), 'w') as merged_db:
         for file in final_list:
             with gzip.open(file, 'rt') as temp_file:
                 copyfileobj(temp_file,merged_db)
                 Path.unlink(file)
     rmtree(temp_fasta_files)
-    with open(Path(output_folder) / "01.Protein_DB/RefSeq_Release.txt", 'w') as relinfo:
-        relinfo.write("Release number {}".format(release_number))
+    
 
 
 def refseq_genbank_downloader(output_folder, ascp_key = None):
+    print("Downloading protein genbank files")
     # Requirements
     if ascp_key == None:
         ascp_key = get_aspera_key()
@@ -87,9 +90,9 @@ def refseq_genbank_downloader(output_folder, ascp_key = None):
                     '-i', ascp_key, 'anonftp@ftp.ncbi.nlm.nih.gov:/refseq/release/archaea/',
                     temp_gb_files])
     # Get downloaded files
-    viral_list = searching_all_files(temp_gb_files / "viral", 'genbank')
-    bacteria_list = searching_all_files(temp_gb_files / "bacteria", 'genbank')
-    archaea_list = searching_all_files(temp_gb_files / "archaea", 'genbank')
+    viral_list = search_all_files(temp_gb_files / "viral")
+    bacteria_list = search_all_files(temp_gb_files / "bacteria")
+    archaea_list = search_all_files(temp_gb_files / "archaea")
     final_list = viral_list + bacteria_list + archaea_list
     return final_list
 
@@ -99,22 +102,15 @@ def get_aspera_key():
     key = str(install_folder) + "/etc/asperaweb_id_dsa.openssh"
     return key
 
-def searching_all_files(directory, file_type):
+def search_all_files(directory):
     dirpath = Path(directory)
     assert(dirpath.is_dir())
     file_list = []
-    if file_type == "protein":
-        for protein_file in dirpath.iterdir():
-            if protein_file.is_file()  and protein_file.suffix == ".faa":
-                file_list.append(protein_file)
-            else:
-                continue
-    else:
-        for protein_file in dirpath.iterdir():
-            if protein_file.is_file():
-                file_list.append(protein_file)
-            else:
-                continue
+    for file in dirpath.iterdir():
+        if file.is_file() and file.suffix == ".gz":
+            file_list.append(file)
+        else:
+            continue
     return file_list
 
 
@@ -137,24 +133,23 @@ def main():
                         help='Only download the protein fasta files.')
     parser.add_argument('--genbank', dest='genbank', action='store_true', required=False,
                         help='Only download the genbank files')
+    parser.add_argument('--ascp', dest='ascp_key', action='store', required=False, default=None,
+                        help='Path to Aspera Connect key')
     args = parser.parse_args()
 
     folder = args.folder
     proteins = args.proteins
     genbank = args.genbank
+    ascp_key = args.ascp_key
 
     # ----------------------------
     if proteins == False and genbank == False:
-        print("Downloading protein fasta files")
-        refseq_fasta_downloader(folder)
-        print("Downloading protein genbank files")
-        refseq_genbank_downloader(folder)
+        refseq_fasta_downloader(folder, ascp_key)
+        refseq_genbank_downloader(folder, ascp_key)
     elif proteins == True:
-        print("Downloading protein fasta files")
-        refseq_fasta_downloader(folder)
+        refseq_fasta_downloader(folder, ascp_key)
     elif genbank == True:
-        print("Downloading protein genbank files")
-        refseq_genbank_downloader(folder)
+        refseq_genbank_downloader(folder, ascp_key)
     # ----------------------------
 
 if __name__ == "__main__":

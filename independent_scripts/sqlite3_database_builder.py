@@ -89,14 +89,15 @@ def create_trembl_table(database, table):
 def create_refseq_table(database, table):
     # Store protein ko annotations
     # Download refseq KO annotations
-    #! TODO: Upload this data somewhere and add link here
-    #! to download with wget
-    print("Parsing RefSeq ko annotations")
+    print("Parsing RefSeq KO numbers")
+    annotation_file = wget.download("http://enve-omics.ce.gatech.edu/data/public_microbeannotator/01.RefSeq_KEGG_Annotations.txt.gz",
+                            out="refseq_ko_annotations.tar.gz")
     protein_annotations = {}
-    with gzip.open("01.RefSeq_Rel98_KEGG_Annotations.txt.gz", 'rt') as annotations:
+    with gzip.open(annotation_file, 'rt') as annotations:
         for line in annotations:
             line = line.rstrip('\n').split("\t")
             protein_annotations[line[0]] = [line[1], line[2]]
+    Path(annotation_file).unlink()
     print("Done")
     # Connect to db and create table
     print("Creating RefSeq table")
@@ -133,7 +134,7 @@ def create_refseq_table(database, table):
             cursor.executemany('INSERT INTO refseq VALUES(?, ?, ?, ?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
-        cursor.execute('CREATE INDEX redseq_id ON refseq (gene_id)')
+        cursor.execute('CREATE INDEX refseq_id ON refseq (gene_id)')
     print("Done")
 
 

@@ -140,7 +140,6 @@ def main():
     print("Done")
     print("Merging tables...", end=" ")
     table_merger(temp_tables, output, keep)
-    remove_temporal_folder("02.temp_genbank")
     print("Done")
     # --------------------------------------------------
 
