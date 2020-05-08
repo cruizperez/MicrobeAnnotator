@@ -84,9 +84,13 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
         print("Building SQLite database: 02.MicrobeAnnotator.db")
         database = outfolder / "02.MicrobeAnnotator.db"
         if light == True:
+            final_sprot_table = outfolder / "02.uniprot_sprot.table"
             sqlite3_database_builder.create_swissprot_table(str(database), final_sprot_table)
             Path(final_sprot_table).unlink()
         else:
+            final_sprot_table = outfolder / "02.uniprot_sprot.table"
+            final_trembl_table = outfolder / "02.uniprot_trembl.table"
+            final_refseq_table = outfolder / "02.refseq.table"
             sqlite3_database_builder.create_swissprot_table(str(database), final_sprot_table)
             sqlite3_database_builder.create_trembl_table(str(database), final_trembl_table)
             sqlite3_database_builder.create_refseq_table(str(database), final_refseq_table)
