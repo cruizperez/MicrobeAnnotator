@@ -32,88 +32,93 @@ import subprocess
 
 ################################################################################
 """---1.0 Define Functions---"""
-def db_duilder(output_file_folder, method, light, threads, path=None):
+def db_duilder(output_file_folder, method, light, threads, step, path=None):
     # Create output_file folder
     outfolder = Path(output_file_folder)
     outfolder.mkdir(parents=True, exist_ok=True)
     # Download information
-    print("Downloading UniProt information...")
-    uniprot_data_downloader.uniprot_fasta_downloader(outfolder, light)
-    uniprot_data_downloader.uniprot_dat_downloader(outfolder, light)
-    print("Finished downloading UniProt data!")
-    if light == False:
-        print("Downloading RefSeq information...")
-        refseq_data_downloader.refseq_fasta_downloader(outfolder)
-        genbank_files = refseq_data_downloader.refseq_genbank_downloader(outfolder)
-        print("Finished downloading RefSeq data!")
+    if step == 1:
+        print("Downloading UniProt information...")
+        uniprot_data_downloader.uniprot_fasta_downloader(outfolder, light)
+        uniprot_data_downloader.uniprot_dat_downloader(outfolder, light)
+        print("Finished downloading UniProt data!")
+        if light == False:
+            print("Downloading RefSeq information...")
+            refseq_data_downloader.refseq_fasta_downloader(outfolder)
+            genbank_files = refseq_data_downloader.refseq_genbank_downloader(outfolder)
+            print("Finished downloading RefSeq data!")
+        step += 1
     # -------------------
 
-    # # Parse annotation files
-    if light == True:
-        print("Parsing swissprot annotation data...")
-        temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
-        final_sprot_table = outfolder / "02.uniprot_sprot.table"
-        uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
-        if Path(outfolder / "02.temp_dat_files").is_dir():
-            rmtree(outfolder / "02.temp_dat_files")
-        print("Done!")
-    else:
-        print("Parsing swissprot and trembl annotation data...")
-        temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
-        final_sprot_table = outfolder / "02.uniprot_sprot.table"
-        uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
-        temporal_trembl_dat = outfolder / "02.temp_dat_files/uniprot_trembl.dat.gz"
-        final_trembl_table = outfolder / "02.uniprot_trembl.table"
-        uniprot_dat_parser.parse_uniprot_dat(temporal_trembl_dat, final_trembl_table)
-        if Path(outfolder / "02.temp_dat_files").is_dir():
-            rmtree(outfolder / "02.temp_dat_files")
-        print("Done!")
-        print("Parsing refseq annotation data...")
-        temp_table_list = refseq_genbank_parser.table_generator_worker(genbank_files, 6)
-        final_refseq_table = outfolder / "02.refseq.table"
-        refseq_genbank_parser.table_merger(temp_table_list, final_refseq_table, False)
-        print("Done!")
+    # Parse annotation files
+    if step == 2:
+        if light == True:
+            print("Parsing swissprot annotation data...")
+            temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
+            final_sprot_table = outfolder / "02.uniprot_sprot.table"
+            uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
+            if Path(outfolder / "02.temp_dat_files").is_dir():
+                rmtree(outfolder / "02.temp_dat_files")
+            print("Done!")
+        else:
+            print("Parsing swissprot and trembl annotation data...")
+            temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
+            final_sprot_table = outfolder / "02.uniprot_sprot.table"
+            uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
+            temporal_trembl_dat = outfolder / "02.temp_dat_files/uniprot_trembl.dat.gz"
+            final_trembl_table = outfolder / "02.uniprot_trembl.table"
+            uniprot_dat_parser.parse_uniprot_dat(temporal_trembl_dat, final_trembl_table)
+            if Path(outfolder / "02.temp_dat_files").is_dir():
+                rmtree(outfolder / "02.temp_dat_files")
+            print("Done!")
+            print("Parsing refseq annotation data...")
+            temp_table_list = refseq_genbank_parser.table_generator_worker(genbank_files, 6)
+            final_refseq_table = outfolder / "02.refseq.table"
+            refseq_genbank_parser.table_merger(temp_table_list, final_refseq_table, False)
+            print("Done!")
+        step += 1
     # --------------------
 
     # Merge annotations into SQLite database
-    print("Building SQLite database: 02.MicrobeAnnotator.db")
-    database = outfolder / "02.MicrobeAnnotator.db"
-    if light == True:
-        sqlite3_database_builder.create_swissprot_table(database, final_sprot_table)
-        Path(final_sprot_table).unlink()
-    else:
-        sqlite3_database_builder.create_swissprot_table(database, final_sprot_table)
-        sqlite3_database_builder.create_trembl_table(database, final_trembl_table)
-        sqlite3_database_builder.create_refseq_table(database, final_refseq_table)
-        if Path(final_sprot_table).is_file():
+    if step == 3:
+        print("Building SQLite database: 02.MicrobeAnnotator.db")
+        database = outfolder / "02.MicrobeAnnotator.db"
+        if light == True:
+            sqlite3_database_builder.create_swissprot_table(str(database), final_sprot_table)
             Path(final_sprot_table).unlink()
-        if Path(final_trembl_table).is_file():
-            Path(final_trembl_table).unlink()
-        if Path(final_refseq_table).is_file():
-            Path(final_refseq_table).unlink()
-    print("Done!")
+        else:
+            sqlite3_database_builder.create_swissprot_table(str(database), final_sprot_table)
+            sqlite3_database_builder.create_trembl_table(str(database), final_trembl_table)
+            sqlite3_database_builder.create_refseq_table(str(database), final_refseq_table)
+            if Path(final_sprot_table).is_file():
+                Path(final_sprot_table).unlink()
+            if Path(final_trembl_table).is_file():
+                Path(final_trembl_table).unlink()
+            if Path(final_refseq_table).is_file():
+                Path(final_refseq_table).unlink()
+        print("Done!")
+        step += 1
     # ---------------------
 
     # Create method-specific protein databases
-    protein_folder = outfolder / "01.Protein_DB"
-    if method == "blast":
-        protein_db_creation.blastp_db_creator(protein_folder, path)
-    elif method == "diamond":
-        protein_db_creation.diamond_db_creator(protein_folder, threads, path)
-    elif method == "sword":
-        protein_db_creation.sword_db_creator(protein_folder, path)
-    else:
-        script_path = Path(__file__)
-        script_dir = script_path.parent
-        stand_alone_script = script_dir / "independent_scripts/sqlite3_database_builder.py"
-        print("Please provide a valid db creation method.")
-        print("If you are running the MicrobeAnnotator_db_builder script this is the last step of the process.")
-        print('Given that this last step failed you need to run the standalone' + str(stand_alone_script) + 'script')
-        print('and provide the binary folder for the selected method using the "--bin_path" option or add')
-        print('the binary to your PATH (see README for help on this).')
-        exit('Otherwise, just re-run this script providing the appropriate path. :)')
-    print("---------")
-    print("MicrobeAnnotator has finished creating your databases! You are ready to search and annotate your proteins!")
+    if step == 4:
+        print("Building protein databases...")
+        protein_folder = outfolder / "01.Protein_DB"
+        if method == "blast":
+            protein_db_creation.blastp_db_creator(protein_folder, path)
+        elif method == "diamond":
+            protein_db_creation.diamond_db_creator(protein_folder, threads, path)
+        elif method == "sword":
+            protein_db_creation.sword_db_creator(protein_folder, path)
+        else:
+            print("Please provide a valid db creation method.")
+            print("If you are running the MicrobeAnnotator_db_builder script this is the last step of the process.")
+            print('Given that this last step failed you need to re-run this script starting from --step 4')
+            print('and provide the binary folder for the selected method using the "--bin_path" option or add')
+            exit('the binary to your PATH (see README for help on this).')
+        print("Done!")
+        print("---------")
+        print("MicrobeAnnotator has finished creating your databases! You are ready to search and annotate your proteins!")
 
 
 ################################################################################
@@ -135,6 +140,8 @@ def main():
                         help='Threads to use (when possible). By default 1.')
     parser.add_argument('--bin_path', dest='bin_path', action='store', required=False,
                         help='Path to binary folder for selected method. By defaul assumes the program is in path.')
+    parser.add_argument('--step', dest='step', action='store', required=False, default=1, type=int,
+                        help='Step to start with. 1.Download data, 2.Parse annotation data, 3.Building SQLite DB, 4.Build protein DBs. Default 1.')
     parser.add_argument('--light', dest='light', action='store_true', required=False,
                         help='Use only KOfamscan and swissprot databases. By default also builds refseq and trembl.')
     args = parser.parse_args()
@@ -147,7 +154,7 @@ def main():
     threads = args.threads
 
     # ----------------------------
-    db_duilder(directory, method, light, threads, bin_path)
+    db_duilder(directory, method, light, threads, step, bin_path)
     # ----------------------------
 
 if __name__ == "__main__":
