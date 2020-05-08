@@ -43,10 +43,10 @@ def blastp_db_creator(directory, path=None):
     else:
         for protein_file in Path(directory).iterdir():
             if protein_file.suffix == '.fasta':
-                output_name = protein_file.with_suffix("")
-                database_files.append(output_name)
+                output_file_name = protein_file.with_suffix("")
+                database_files.append(output_file_name)
                 subprocess.call([makeblasdb_call, '-in', protein_file, '-dbtype', 'prot',
-                '-parse_seqids', '-out', output_name])
+                '-parse_seqids', '-out', output_file_name])
     print('Done!')
     with open(Path(directory)/'blast_db.list', 'w') as db_list:
         for file in database_files:
@@ -72,10 +72,10 @@ def diamond_db_creator(directory, threads, path=None):
     else:
         for protein_file in Path(directory).iterdir():
             if protein_file.suffix == '.fasta':
-                output_name = protein_file.with_suffix("")
-                final_db_name = Path(output_name).with_suffix('.dmnd')
+                output_file_name = protein_file.with_suffix("")
+                final_db_name = Path(output_file_name).with_suffix('.dmnd')
                 database_files.append(final_db_name)
-                subprocess.call(['diamond', 'makedb', '--in', protein_file, '-d', output_name, '--threads', str(threads)])
+                subprocess.call(['diamond', 'makedb', '--in', protein_file, '-d', output_file_name, '--threads', str(threads)])
     print('Done!')
     with open(Path(directory)/'diamond_db.list', 'w') as db_list:
         for file in database_files:
@@ -109,8 +109,8 @@ def main():
             description='''This script downloads the fasta and genbank files that\n'''
             '''are needed to build the RefSeq annotation database. By default it\n'''
             '''downloads both but you can specify either\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -f [Output folder]\n'''
-            '''Global mandatory parameters: -f [Output folder]\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
+            '''Global mandatory parameters: -f [output_file folder]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-f', '--folder', dest='folder', action='store', required=True,
                         help='Folder where all raw fasta files are located.')
