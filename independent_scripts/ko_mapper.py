@@ -496,9 +496,9 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
     Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
     print("Done!")
 
-def create_outputs(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix):
+def create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
-    print("Creating output matrix and heatmap... ")
+    print("Creating output_file matrix and heatmap... ")
     # Check clustering asked
     if cluster is None:
         row_cluster = False
@@ -556,13 +556,13 @@ def main():
             description='''This script downloads the fasta and genbank files that\n'''
             '''are needed to build the RefSeq annotation database. By default it\n'''
             '''downloads both but you can specify either\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -f [Output folder]\n'''
-            '''Global mandatory parameters: -f [Output folder]\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
+            '''Global mandatory parameters: -f [output_file folder]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-i', '--input_files', dest='input_files', nargs='+', action='store', required=True,
                         help='Space-separated list of files to parse.')
     parser.add_argument('-p', '--prefix', dest='prefix', action='store', required=True,
-                        help='Prefix for the output files.')
+                        help='Prefix for the output_file files.')
     parser.add_argument('--cluster', dest='cluster', action='store', required=False,
                         help='Cluster genomes or modules. Select "cols" for genomes, "rows" for modules, or "both".\
                             By default no clustering.')
@@ -579,7 +579,7 @@ def main():
     module_group_matrix, module_groups, module_colors = module_information_importer(input_files)
     # Map and annotate genomes
     metabolic_annotation = global_mapper(regular_modules, bifurcation_modules, structural_modules, input_files)
-    metabolism_matrix_dropped_relabel = create_outputs(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix)
+    metabolism_matrix_dropped_relabel = create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix)
     plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
     # ----------------------------
 

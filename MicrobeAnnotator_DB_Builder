@@ -30,12 +30,11 @@ from shutil import which
 from shutil import rmtree
 import subprocess
 
-
 ################################################################################
 """---1.0 Define Functions---"""
-def db_duilder(output_folder, method, light, threads, path=None):
-    # Create output folder
-    outfolder = Path(output_folder)
+def db_duilder(output_file_folder, method, light, threads, path=None):
+    # Create output_file folder
+    outfolder = Path(output_file_folder)
     outfolder.mkdir(parents=True, exist_ok=True)
     # Download information
     print("Downloading UniProt information...")
@@ -125,8 +124,8 @@ def main():
     # Setup parser for arguments.
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
             description='''This script build the search databases required by MicrobeAnnotator\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -f [Output folder]\n'''
-            '''Global mandatory parameters: -f [Output folder]\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
+            '''Global mandatory parameters: -f [output_file folder]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-d', '--dir', dest='directory', action='store', required=True,
                         help='Directory where database will be created.')

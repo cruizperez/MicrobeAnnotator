@@ -12,7 +12,7 @@
 # Description: This script parses a table with protein IDs and searches
 # these IDs in a SQL database to extract protein annotations.
 # You can also include a column with the ids of your proteins (queries)
-# so they will be included in the output (use query_col [int]).
+# so they will be included in the output_file (use query_col [int]).
 ########################################################################
 """
 ################################################################################
@@ -32,7 +32,7 @@ def search_table(sql_database, database_table, input_list, outfile):
         database_table {string} -- Table within SQLite3 database to search.
         input_list {list} -- List with (query_ids and target_ids) or just target_ids.
         
-        outfile {string} -- File to write output
+        outfile {string} -- File to write output_file
     """ 
     conn = sqlite3.connect(sql_database)
     cur = conn.cursor()
@@ -40,7 +40,7 @@ def search_table(sql_database, database_table, input_list, outfile):
         query_present = True
     else:
         query_present = False
-    # Check which columns to use for output
+    # Check which columns to use for output_file
     if database_table == "swissprot" or database_table == "trembl":
         if query_present:
             col_names = ['#Query_ID' 'Target_ID', 'Accession', 'Name', 'KO_Uniprot', 'Organism', 'Taxonomy',
@@ -54,15 +54,15 @@ def search_table(sql_database, database_table, input_list, outfile):
         else:
             col_names = ['#Target_ID', 'Gene_Name', 'Taxonomy', 'Note']
     # Search the DB and append results to Annotation_List
-    with open(outfile, 'w') as output:
-        output.write("{}\n".format("\t".join(col_names)))
+    with open(outfile, 'w') as output_file:
+        output_file.write("{}\n".format("\t".join(col_names)))
         if query_present:
             for gene_id in (input_list):
                 cur.execute("SELECT * FROM " + database_table + " WHERE ID=?", (gene_id[1],))
                 rows = cur.fetchall()
                 if len(rows) > 0:
                     annotation = "\t".join(rows[0])
-                    output.write("{}\t{}\n".format(gene_id[0], annotation))
+                    output_file.write("{}\t{}\n".format(gene_id[0], annotation))
                 else:
                     continue
         else:
@@ -71,7 +71,7 @@ def search_table(sql_database, database_table, input_list, outfile):
                 rows = cur.fetchall()
                 if len(rows) > 0:
                     annotation = "\t".join(rows[0])
-                    output.write("{}\n".format(annotation))
+                    output_file.write("{}\n".format(annotation))
                 else:
                     continue
     cur.close()
@@ -123,14 +123,14 @@ def main():
             description='''This script parses a table with protein IDs and searches\n'''
             '''these IDs in a SQL database to extract protein annotations.\n'''
             '''You can also include a column with the ids of your proteins (queries)\n'''
-            '''so they will be included in the output (use query_col [int]).\n'''
+            '''so they will be included in the output_file (use query_col [int]).\n'''
             '''Usage: ''' + sys.argv[0] + ''' -i [Input Table] -d [Database Name] -t [Table Name] --query_col [Query Column]\n'''
             '''Global mandatory parameters: -i [Input Table] -d [Database Name] -t [Table Name] --query_col [Query Column]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-i', '--input', dest='input_file', action='store', required=True,
                         help='Input tab-delimited table to parse, by default assumes no headers are present')
-    parser.add_argument('-o', '--output', dest='outfile', action='store', required=True,
-                        help='Output tab-delimited table to store annotations')
+    parser.add_argument('-o', '--output_file', dest='outfile', action='store', required=True,
+                        help='output_file tab-delimited table to store annotations')
     parser.add_argument('-d', '--database', dest='database', action='store', required=True,
                         help='SQL database where the annotations are stored')
     parser.add_argument('-t', '--table', dest='table', action='store', required=True,

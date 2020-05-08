@@ -25,7 +25,7 @@ import gzip
 
 ################################################################################
 """---1.0 Define Functions---"""
-def refseq_fasta_downloader(output_folder, ascp_key = None):
+def refseq_fasta_downloader(output_file_folder, ascp_key = None):
     print("Downloading protein fasta files")
     # Requirements
     if ascp_key == None:
@@ -33,8 +33,8 @@ def refseq_fasta_downloader(output_folder, ascp_key = None):
     release_file = urllib.request.urlopen("https://ftp.ncbi.nlm.nih.gov/refseq/release/RELEASE_NUMBER")
     release_number = release_file.readline().decode('utf-8').strip()
     # Create folders
-    temp_fasta_files = Path(output_folder) / "01.temp_proteins"
-    merged_db_folder = Path(output_folder) / "01.Protein_DB"
+    temp_fasta_files = Path(output_file_folder) / "01.temp_proteins"
+    merged_db_folder = Path(output_file_folder) / "01.Protein_DB"
     Path(temp_fasta_files).mkdir(parents=True, exist_ok=True)
     Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
     with open(merged_db_folder / "refseq_release.txt", 'w') as relinfo:
@@ -69,12 +69,12 @@ def refseq_fasta_downloader(output_folder, ascp_key = None):
     
 
 
-def refseq_genbank_downloader(output_folder, ascp_key = None):
+def refseq_genbank_downloader(output_file_folder, ascp_key = None):
     print("Downloading protein genbank files")
     # Requirements
     if ascp_key == None:
         ascp_key = get_aspera_key()
-    temp_gb_files = Path(output_folder) / "02.temp_genbank"
+    temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
     Path(temp_gb_files).mkdir(parents=True, exist_ok=True)
     # Download compressed protein files
     subprocess.call(["ascp", '-QTr', '-d', '-l', '100M', '-E', '*wgs_mstr*',
@@ -124,8 +124,8 @@ def main():
             description='''This script downloads the fasta and genbank files that\n'''
             '''are needed to build the RefSeq annotation database. By default it\n'''
             '''downloads both but you can specify either\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -f [Output folder]\n'''
-            '''Global mandatory parameters: -f [Output folder]\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
+            '''Global mandatory parameters: -f [output_file folder]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-f', '--folder', dest='folder', action='store', required=False,
                         help='Folder to store the fasta and genbank files')

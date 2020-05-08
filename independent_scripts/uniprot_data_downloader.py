@@ -23,9 +23,9 @@ import gzip
 
 ################################################################################
 """---1.0 Define Functions---"""
-def uniprot_fasta_downloader(output_folder, light):
+def uniprot_fasta_downloader(output_file_folder, light):
     # Create protein folder
-    merged_db_folder = Path(output_folder) / "01.Protein_DB"
+    merged_db_folder = Path(output_file_folder) / "01.Protein_DB"
     Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
     # Get release number
     release_file = urllib.request.urlopen("ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/reldate.txt")
@@ -70,9 +70,9 @@ def uniprot_fasta_downloader(output_folder, light):
             Path.unlink(Path(merged_db_folder / "uniprot_trembl.fasta.gz"))
     print("\nDone")
     
-def uniprot_dat_downloader(output_folder, light):
+def uniprot_dat_downloader(output_file_folder, light):
     # Create dat files folder
-    temp_dat_files = Path(output_folder) / "02.temp_dat_files"
+    temp_dat_files = Path(output_file_folder) / "02.temp_dat_files"
     Path(temp_dat_files).mkdir(parents=True, exist_ok=True)
     print("Downloading .dat files...", flush=True)
     # Overwrite existing temporal files
@@ -106,8 +106,8 @@ def main():
             description='''This script downloads the fasta and .dat files that\n'''
             '''are needed to build the Uniprot annotation database. By default it\n'''
             '''downloads both but you can specify either\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -f [Output folder]\n'''
-            '''Global mandatory parameters: -f [Output folder]\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
+            '''Global mandatory parameters: -f [output_file folder]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-f', '--folder', dest='folder', action='store', required=False,
                         help='Folder to store the fasta and genbank files')

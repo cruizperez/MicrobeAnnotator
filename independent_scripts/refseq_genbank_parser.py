@@ -37,7 +37,7 @@ def table_creator(genbank_file):
     """
     temporal_table = Path(genbank_file).with_suffix('.temp')
     with gzip.open(genbank_file, 'rt') as uncompressed_genbank, \
-    open(temporal_table, 'w') as output:
+    open(temporal_table, 'w') as output_file:
         for record in SeqIO.parse(uncompressed_genbank, "genbank"):
             id = record.id
             product = record.description.split("[")[0].strip()
@@ -63,7 +63,7 @@ def table_creator(genbank_file):
                                     product = 'NA'
                             else:
                                 product = feature.qualifiers['product'][0]
-            output.write("{}\t{}\t{}\n".format(id, product, taxonomy))
+            output_file.write("{}\t{}\t{}\n".format(id, product, taxonomy))
     return temporal_table
 
 
@@ -92,13 +92,13 @@ def table_merger(temp_table_list, final_table, keep):
     
     Arguments:
         temp_table_list {list} -- List of paths to temporal tables created
-        final_table {str} -- Final output table
+        final_table {str} -- Final output_file table
         keep {bool} -- Retain intermediate files
     """
-    with open(final_table, 'w') as output:
+    with open(final_table, 'w') as output_file:
         for file in temp_table_list:
             with open(file) as temp:
-                shutil.copyfileobj(temp, output)
+                shutil.copyfileobj(temp, output_file)
             if keep == False:
                 file.unlink()
             else: continue
@@ -111,14 +111,14 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
             description='''This script parses the downloaded compressed RefSeq Genbank files,\n'''
                         '''extracts relevant information and stores in a single table\n'''
-            '''Usage: ''' + argv[0] + ''' -i [Genbank Files] -t [Threads] -o [Output]\n'''
-            '''Global mandatory parameters: -i [Genbank Files] -o [Output]\n'''
+            '''Usage: ''' + argv[0] + ''' -i [Genbank Files] -t [Threads] -o [output_file]\n'''
+            '''Global mandatory parameters: -i [Genbank Files] -o [output_file]\n'''
             '''Optional Database Parameters: See ''' + argv[0] + ' -h')
 
-    input_options = parser.add_argument_group('General input/output options')
+    input_options = parser.add_argument_group('General input/output_file options')
     input_options.add_argument('-i', '--input_files', dest='input_files', action='store', nargs='+', required=True,
                         help='Space-separated list of compressed genbank files, or use something like "$(ls files*.gz)"')
-    input_options.add_argument('-o', '--output', dest='output', action='store', required=True,
+    input_options.add_argument('-o', '--output_file', dest='output_file', action='store', required=True,
                         help='File to store final table with record information')
 
     misc_options = parser.add_argument_group('Miscellaneous options')
@@ -130,7 +130,7 @@ def main():
     args = parser.parse_args()
     
     input_files = args.input_files
-    output = args.output
+    output_file = args.output_file
     threads = args.threads
     keep = args.keep
 
@@ -139,7 +139,7 @@ def main():
     temp_tables = table_generator_worker(input_files, threads)
     print("Done")
     print("Merging tables...", end=" ")
-    table_merger(temp_tables, output, keep)
+    table_merger(temp_tables, output_file, keep)
     print("Done")
     # --------------------------------------------------
 
