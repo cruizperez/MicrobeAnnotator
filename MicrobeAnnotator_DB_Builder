@@ -75,6 +75,8 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
             temp_table_list = refseq_genbank_parser.table_generator_worker(genbank_files, 6)
             final_refseq_table = outfolder / "02.refseq.table"
             refseq_genbank_parser.table_merger(temp_table_list, final_refseq_table, False)
+            if Path(outfolder / "02.refseq.table").is_dir():
+                rmtree(outfolder / "02.refseq.table")
             print("Done!")
         step += 1
     # --------------------

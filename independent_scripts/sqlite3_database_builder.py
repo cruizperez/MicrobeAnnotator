@@ -19,6 +19,7 @@ import sqlite3
 from sys import exit
 import wget
 import gzip
+from pathlib import Path
 
 ################################################################################
 """---1.0 Define Functions---"""
