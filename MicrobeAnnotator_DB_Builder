@@ -152,6 +152,7 @@ def main():
     bin_path = args.bin_path
     light = args.light
     threads = args.threads
+    step = args.step
 
     # ----------------------------
     db_duilder(directory, method, light, threads, step, bin_path)
