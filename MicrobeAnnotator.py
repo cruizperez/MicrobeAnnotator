@@ -281,7 +281,7 @@ def main():
         if len(input_proteins) > 0:
             try:
                 pool = multiprocessing.Pool(processes)
-                arguments_to_pass = (output_dir, 'refseq', refseq_database, method,
+                arguments_to_pass = (output_dir, 'trembl', refseq_database, method,
                                     threads, id_perc, bitscore, evalue, aln_percent, method_bin)
                 search_results = pool.map(partial(protein_search.similarity_search,
                 multiple_arguments=arguments_to_pass), input_proteins)
@@ -315,7 +315,7 @@ def main():
                 if len(significant_hits) == 0:
                     continue
                 else:
-                    annotation = sqlite3_search.search_ids_imported(sql_database, "refseq", significant_hits)
+                    annotation = sqlite3_search.search_ids_imported(sql_database, "trembl", significant_hits)
                     # Each annotation will have:
                     # query_id gene_id product taxonomy ko_number ko_product
                 # Check if all annotations have ko numbers, if not, get ids to next round of iteration
