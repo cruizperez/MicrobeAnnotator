@@ -128,7 +128,10 @@ def search_ids_imported(sql_database, database_table, input_list):
     # Search the DB and return results in list
     resulting_annotations = []
     for id_pair in input_list:
-        gene_id = id_pair[1].split("|")[2]
+        if database_table == "refseq":
+            gene_id = id_pair[1]
+        else:
+            gene_id = id_pair[1].split("|")[2]
         cur.execute("SELECT * FROM " + database_table + " WHERE gene_id=?", (gene_id,))
         rows = cur.fetchall()
         if len(rows) > 0:

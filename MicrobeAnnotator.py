@@ -115,6 +115,7 @@ def main():
     for ko_result in kofam_results:
         protein_file_info[ko_result[0]] = [ko_result[1], ko_result[3]]
         outfile = str(temporal_protein_folder / (ko_result[1] + ".1it"))
+        # Add first iteration protein files
         protein_file_info[ko_result[0]].append(outfile)
         fasta_filter_list.fastA_filter_list(ko_result[0], outfile, ko_result[2], reverse=True)
     # ----------------------------
@@ -188,11 +189,12 @@ def main():
                         gene_ids_no_ko.append(match[0])
             # If there are ids with no annotations filter the iteration 1 protein file
             if len(gene_ids_no_ko) > 0:
-                second_it_outfile = str(temporal_protein_folder / (original_file + ".2it"))
+                second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
                 protein_file_info[original_file].append(second_it_outfile)
                 fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
                 second_it_outfile, gene_ids_no_ko, reverse=True)
     # -----------------------
+    print(protein_file_info)
 
     # If running complete pipeline search against refseq
     if light == False:
@@ -261,14 +263,14 @@ def main():
                             gene_ids_no_ko.append(match[0])
                 # If there are ids with no annotations filter the iteration 1 protein file
                 if len(gene_ids_no_ko) > 0:
-                    third_it_outfile = str(temporal_protein_folder / (original_file + ".3it"))
+                    third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
                     protein_file_info[original_file].append(third_it_outfile)
                     fasta_filter_list.fastA_filter_list(protein_file_info[original_file][4], 
                     third_it_outfile, gene_ids_no_ko, reverse=True)
                     # New structure: 
                     # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
                     # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
-        
+        print(protein_file_info)
         # Finally run remaining proteins against Trembl
         print("Searching proteins against Trembl...")
         if method == "blast":
@@ -331,7 +333,7 @@ def main():
                         match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
         if temporal_protein_folder.is_dir():
                 rmtree(temporal_protein_folder)
-
+        print(protein_file_info)
 if __name__ == "__main__":
     main()
 
