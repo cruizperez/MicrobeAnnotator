@@ -256,7 +256,7 @@ def main():
                 # Final annotation fields:
                 # query_id protein_id product ko_number ko_product taxonomy function compartment process database
                     for match in annotation:
-                        if match[4] != "":
+                        if match[4] != "" and match[4] != "NA":
                             final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
                             match[1], match[2], match[4], match[5], match[3]))
                         else:
