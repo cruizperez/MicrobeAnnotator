@@ -75,7 +75,7 @@ def diamond_db_creator(directory, threads, path=None):
                 output_file_name = protein_file.with_suffix("")
                 final_db_name = Path(output_file_name).with_suffix('.dmnd')
                 database_files.append(final_db_name)
-                subprocess.call(['diamond', 'makedb', '--in', protein_file, '-d', output_file_name, '--threads', str(threads)])
+                subprocess.call([diamond_call, 'makedb', '--in', protein_file, '-d', output_file_name, '--threads', str(threads)])
     print('Done!')
     with open(Path(directory)/'diamond_db.list', 'w') as db_list:
         for file in database_files:

@@ -23,7 +23,6 @@ import argparse, sys
 ################################################################################
 """---1.0 Define Functions---"""
 
-
 def search_table(sql_database, database_table, input_list, outfile):
     """ Searches a table in a SQLite3 database and extracts the target_id annotation.
     
@@ -43,7 +42,7 @@ def search_table(sql_database, database_table, input_list, outfile):
     # Check which columns to use for output_file
     if database_table == "swissprot" or database_table == "trembl":
         if query_present:
-            col_names = ['#Query_ID' 'Target_ID', 'Accession', 'Name', 'KO_Uniprot', 'Organism', 'Taxonomy',
+            col_names = ['#Query_ID', 'Target_ID', 'Accession', 'Name', 'KO_Uniprot', 'Organism', 'Taxonomy',
                         'Function', 'Compartment', 'Process']
         else:
             col_names = ['#Target_ID', 'Accession', 'Name', 'KO_Uniprot', 'Organism', 'Taxonomy',
@@ -57,8 +56,8 @@ def search_table(sql_database, database_table, input_list, outfile):
     with open(outfile, 'w') as output_file:
         output_file.write("{}\n".format("\t".join(col_names)))
         if query_present:
-            for gene_id in (input_list):
-                cur.execute("SELECT * FROM " + database_table + " WHERE ID=?", (gene_id[1],))
+            for gene_id in input_list:
+                cur.execute("SELECT * FROM " + database_table + " WHERE gene_id=?", (gene_id[1],))
                 rows = cur.fetchall()
                 if len(rows) > 0:
                     annotation = "\t".join(rows[0])
@@ -66,8 +65,8 @@ def search_table(sql_database, database_table, input_list, outfile):
                 else:
                     continue
         else:
-            for gene_id in (input_list):
-                cur.execute("SELECT * FROM " + database_table + " WHERE ID=?", (gene_id,))
+            for gene_id in input_list:
+                cur.execute("SELECT * FROM " + database_table + " WHERE gene_id=?", (gene_id,))
                 rows = cur.fetchall()
                 if len(rows) > 0:
                     annotation = "\t".join(rows[0])
@@ -110,14 +109,44 @@ def parse_input_table(input_file, query_col, target_col, table):
                     input_list.append(db_hit)
     return input_list
 
+
+def search_ids_imported(sql_database, database_table, input_list):
+    """ Searches a table in a SQLite3 database and extracts the target_id annotation.
+    
+    Arguments:
+        sql_database {string} -- SQLite3 database to use for searching.
+        database_table {string} -- Table within SQLite3 database to search.
+        input_list {list} -- List with (query_ids and target_ids) or just target_ids.
+    """ 
+    conn = sqlite3.connect(sql_database)
+    cur = conn.cursor()
+    # Check which columns to use for output_file
+    # Uniprot db fields:
+    # protein_id accession product ko_number organism taxonomy function compartment process
+    # RefSeq db fields:
+    # protein_id product taxonomy ko_number ko_product
+    # Search the DB and return results in list
+    resulting_annotations = []
+    for id_pair in input_list:
+        gene_id = id_pair[1].split("|")[2]
+        cur.execute("SELECT * FROM " + database_table + " WHERE gene_id=?", (gene_id,))
+        rows = cur.fetchall()
+        if len(rows) > 0:
+            annotation = rows[0]
+            annotation = list(annotation)
+            annotation.insert(0, id_pair[0])
+            resulting_annotations.append(annotation)
+        else:
+            continue
+    cur.close()
+    conn.close()
+    return resulting_annotations
+
+
 ################################################################################
 """---3.0 Main Function---"""
 
 def main():
-    # Description: 
-# 
-# 
-# 
     # Setup parser for arguments.
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
             description='''This script parses a table with protein IDs and searches\n'''
