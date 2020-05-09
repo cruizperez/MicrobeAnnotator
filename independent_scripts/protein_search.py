@@ -15,8 +15,6 @@
 
 ################################################################################
 """---0.0 Import Modules---"""
-
-
 import wget
 from shutil import copyfileobj
 from pathlib import Path
@@ -30,13 +28,15 @@ from shutil import rmtree
 def kofamscan_annotation(protein_file, multi_argument):
     # Import modules
     import subprocess
+    import random
+    import string
     # Unpack arguments
     output_directory = multi_argument[0]
     threads = multi_argument[1]
     bin_path = multi_argument[2]
     # Create folders
     output_directory = Path(output_directory)
-    kofamscan_result_folder = output_directory / 'KOFamscan_results'
+    kofamscan_result_folder = output_directory / 'kofamscan_results'
     kofamscan_result_folder.mkdir(parents=True, exist_ok=True)
     protein_file_name = Path(protein_file).name
     # Call kofamscan and filter results
@@ -44,22 +44,29 @@ def kofamscan_annotation(protein_file, multi_argument):
         kofam_call = 'exec_annotation'
     else:
         kofam_call = str(Path(bin_path) / 'exec_annotation')
-    kofam_output_file = str(kofamscan_result_folder / protein_file_name + '.kofam')
-    subprocess.call([kofam_call, '-o', kofam_output_file, '--cpu', str(threads), protein_file])
+    kofam_output_file = str(kofamscan_result_folder / (protein_file_name + '.kofam'))
+    temp_folder = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(15)])
+    subprocess.call([kofam_call, '-o', kofam_output_file, '--cpu', str(threads),
+                    '--tmp-dir', temp_folder, protein_file])
     filtered_output_file = kofam_output_file + '.filt'
     kofamscan_filter(kofam_output_file, filtered_output_file)
+    if Path(temp_folder).is_dir():
+        rmtree(temp_folder)
 
     # Extract ids of proteins annotated and add annotations into final file
     final_annotation_folder = output_directory / 'annotation_results'
     final_annotation_folder.mkdir(parents=True, exist_ok=True)
-    final_file = Path(final_annotation_folder) / protein_file_name + '.annotations'
+    final_file = Path(final_annotation_folder) / (protein_file_name + '.annotations')
     ids_proteins_annotated = []
     with open(filtered_output_file, 'r') as ko_annotated, open(final_file, 'w') as output:
-        output.write("query_id\tprotein_name\tko_number\tproduct\tmethod\n")
+        output.write("query_id\tprotein_id\tproduct\tko_number\tko_product\ttaxonomy\tfunction\tcompartment\tprocess\tdatabase\n")
         for line in ko_annotated:
-            line = line.strip().split("\t")
-            ids_proteins_annotated.append(line[1])
-            output.write("{}\tNA\t{}\t{}\tkofamscan\n".format(line[1], line[2], line[6], 'kofamscan'))
+            if "#" in line:
+                continue
+            else:
+                line = line.strip().split("\t")
+                ids_proteins_annotated.append(line[1])
+                output.write("{}\tNA\tNA\t{}\t{}\tNA\tNA\tNA\tNA\tkofamscan\n".format(line[1], line[2], line[6]))
 
     return (protein_file, protein_file_name, ids_proteins_annotated, final_file)
 
@@ -150,12 +157,12 @@ def add_query_len(input_tab, protein_file, outfile):
     protein_len = {}
     with open(protein_file, 'r') as proteins:
         for title, seq in SimpleFastaParser(proteins):
-            protein_len[title] = len(seq)
+            protein_len[title.split()[0]] = len(seq)
     with open(input_tab, 'r') as blast_like, open(outfile, 'w') as output:
         for line in blast_like:
             line = line.strip()
             protein = line.split("\t")[0]
-            output.write("{}\t{}".format(line. protein_len[protein]))
+            output.write("{}\t{}\n".format(line, protein_len[protein]))
 
 def similarity_search(protein_file, multiple_arguments):
     # Import modules
@@ -175,7 +182,7 @@ def similarity_search(protein_file, multiple_arguments):
     bin_path = multiple_arguments[9]
     # Create folders
     output_directory = Path(output_directory)
-    db_result_folder = output_directory / db_version + '_results'
+    db_result_folder = output_directory / (db_version + '_results')
     db_result_folder.mkdir(parents=True, exist_ok=True)
     protein_file_name = Path(protein_file).name
 
@@ -227,7 +234,7 @@ def similarity_search(protein_file, multiple_arguments):
             else:
                 exit("Sword not found in " + bin_path + ", please provide the correct path to the folder with binaries")
         else:
-            method_output_file = str(db_result_folder / protein_file_name + '.' + method)
+            method_output_file = str(db_result_folder / (protein_file_name + '.' + method))
             subprocess.call([sword_call, '-i', protein_file, '-j', database, 
             '-o', method_output_file, "-f", "bm8", "-a", "10000", "-k", "5", "-c", "15000",
             "-T", "16", "-t", str(threads)])
