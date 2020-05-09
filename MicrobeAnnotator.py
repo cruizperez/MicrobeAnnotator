@@ -18,6 +18,7 @@
 import multiprocessing
 from functools import partial
 from pathlib import Path
+from shutil import rmtree
 from independent_scripts import protein_search
 from independent_scripts import fasta_filter_list
 from independent_scripts import sqlite3_search
@@ -173,6 +174,8 @@ def main():
                 for match in annotation:
                     final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
                     match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+            if temporal_protein_folder.is_dir():
+                rmtree(temporal_protein_folder)
         else:
             # Check if all annotations have ko numbers, if not, get ids to next round of iteration
             gene_ids_no_ko = []
@@ -326,6 +329,8 @@ def main():
                     for match in annotation:
                         final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
                         match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+        if temporal_protein_folder.is_dir():
+                rmtree(temporal_protein_folder)
 
 if __name__ == "__main__":
     main()
