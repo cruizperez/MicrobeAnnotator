@@ -61,7 +61,15 @@ def main():
                         help='Maximum evalue to retain a hit. By default 0.01.')
     search_options.add_argument('--aln_percent', dest='aln_percent', action='store', required=False, default=60, type=int,
                         help='Minimum percentage of query covered by hit alignment. By default 60.')
-    misc_options = parser.add_argument_group('Miscellaneous options')
+    plot_options = parser.add_argument_group('Summary abnd plotting options.')
+    plot_options.add_argument('--cluster', dest='cluster', action='store', required=False,
+                        help=textwrap.dedent('''
+                        Cluster genomes and/or modules. Select "cols" for genomes, "rows" for modules, or "both".
+                        By default, no clustering
+                        '''))
+    plot_options.add_argument('--filename', dest='plot_filename', action='store', required=False, default='metabolic_summary_'
+                        help='Prefix for output summary tables and plots. By default "metabolic_summary"')
+    misc_options = parser.add_argument_group('Miscellaneous options.')
     misc_options.add_argument('-t', '--threads', dest='threads', action='store', required=False, default=1, type=int,
                         help='Threads to use per processed file, i.e. (per protein file). By default 1.')
     misc_options.add_argument('-p', '--processes', dest='processes', action='store', required=False, default=1, type=int,
@@ -80,6 +88,7 @@ def main():
     output_dir = args.output_dir
     database_folder = args.database_folder
     method = args.method
+    method = method.lower()
     kofam_bin = args.kofam_bin
     method_bin = args.method_bin
     id_perc = args.id_perc
@@ -89,8 +98,31 @@ def main():
     threads = args.threads
     processes = args.processes
     light = args.light
+    cluster = args.cluster
+    if cluster != None:
+        cluster = cluster.lower()
+    plot_filename = args.plot_filename
 
-
+    # Check user input
+    if method != 'blast' and method != 'diamond' and method != 'sword':
+        exit('Please provide a valid search method with "-m", one of "blast", "diamond" or "sword"')
+    print("This is MicrobeAnnotator")
+    print('I will process a total of {} files. Of these, I will run {} in parallel with {} threads per file.'.format(
+        str(len(input_list)), str(processes), str(threads)))
+    if light == True:
+        print('For this run I will use KOFamscan and the Swissprot database to annotate your proteins.')
+    else:
+        print('For this run I will use KOFamscan and the Swissprot, RefSeq and Trembl databases to annotate your proteins.')
+    if cluster == None:
+        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix using no clustering.'.format(plot_filename))
+    elif cluster == 'cols':
+        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the genomes (cols)'.format(plot_filename))
+    elif cluster == 'rows':
+        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the modules (rows)'.format(plot_filename))
+    elif cluster == 'both':
+        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the genomes and modules'.format(plot_filename))
+    else:
+        exit('I do not recognize this clustering option: {}.'.format(cluster))
     # ----------------------------
     # Search the initial dataset with KOFamscan
     print("Searching proteins using KOFamscan...")
@@ -236,6 +268,7 @@ def main():
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
+        print("Extracting annotation data...")
         for original_file, information in protein_file_info.items():
             if len(information) == 6:
                 filtered_sword_results = information[5]
@@ -309,6 +342,7 @@ def main():
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
+        print("Extracting annotation data...")
         for original_file, information in protein_file_info.items():
             if len(information) == 8:
                 filtered_sword_results = information[7]
@@ -338,6 +372,7 @@ def main():
         # ------------------------
 
     # Parse annotation files and summarize them
+    print("Extracting ko numbers and summarizing results...")
     annotation_files = []
     for information in protein_file_info.values():
         annotation_folder = information[1].parent
@@ -348,16 +383,14 @@ def main():
                 if line[3] != "":
                     ko_present.write("{}\n".format(line[3]))
         annotation_files.append(ko_numbers)
-    cluster = "both"
-    prefix = str(Path(output_dir) / "metabolic_summary")
+    prefix = plot_filename
     regular_modules, bifurcation_modules, structural_modules,  \
     module_names, genome_names, metabolism_matrix, module_correspondence, \
     module_group_matrix, module_groups, module_colors = ko_mapper.module_information_importer(annotation_files)
     metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
     metabolism_matrix_dropped_relabel = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix)
     ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
-
-
+    print("MicrobeAnnotator has finished succefully!")
 
 if __name__ == "__main__":
     main()
