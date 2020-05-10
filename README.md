@@ -21,7 +21,17 @@ The iterative approach is composed of three or five main steps (depending on the
 Comming soon.
 
 ## Requirements:
-- [Aspera Connect](https://downloads.asperasoft.com/connect2/)
+- Programs:
+ * [Aspera Connect](https://downloads.asperasoft.com/connect2/)
+ * [KofamScan](https://github.com/takaram/kofam_scan)
+ * [HMMER](http://hmmer.org/)>=3.1
+ * [Ruby](https://www.ruby-lang.org/en/)>=2.4
+ * [GNU Parallel](https://www.gnu.org/software/parallel/)
+ Either:
+ * [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)>=2.2
+ * [Diamond](https://github.com/bbuchfink/diamond)>=0.9.14.115
+ * [Sword](https://github.com/rvaser/sword)>=1.0.4
+
 - Aspera Connect\
     To install aspera in a Linux system follow (example with version 3.9.8.176272):\
     wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz\
@@ -32,8 +42,6 @@ Comming soon.
     Add the following line to your ~/.bashrc file: export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"\
     Now reload the ~/.bashrc file with: source ~/.bashrc file
     Now you have installed Aspera Connect!\
-- HMMER >= 3.1
-- Ruby >= 2.4
-- GNU Parallel
+ 
   
   
