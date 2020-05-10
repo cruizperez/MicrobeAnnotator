@@ -50,24 +50,28 @@ It appears we need a bunch of pre-requisites to run MicrobeAnnotator! No worries
 2. Run `bash Anaconda-latest-Linux-x86_64.sh` and follow the installation instructions.
 3. Once installed you can run `conda -V`. You should get the version of conda that you installed.
 
-Now, let's add the conda channels required to install the pre-requisites:
-`conda config --add channels conda-forge`
-`conda config --add channels bioconda`
+Now, let's add the conda channels required to install the pre-requisites:\
+`conda config --add channels conda-forge`\
+`conda config --add channels bioconda`\
 
-Then, create an environment for MicrobeAnnotator:
+Then, create an environment for MicrobeAnnotator:\
+`conda create -n microbeannotator blast hmmer ruby parallel diamond sword seaborn biopython`\
+And activate it:\
+`conda activate microbeannotator`\
 
-
-
+This should take care of most of the requirements except for Aspera Connect and KofamScan, which are a little more involved. Let's install those.\
 - Aspera Connect\
     To install aspera in a Linux system follow (example with version 3.9.8.176272):\
-    wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz\
-    tar xvfz ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz\
-    bash ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.sh\
-    (Usually it will be installed in your home under your user in "/home/[user]/.aspera/connect/bin", it will show you where)\
+    `wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz`\
+    `tar xvfz ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz`\
+    `bash ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.sh`\
+    (Usually it will be installed in your home under your user in `"/home/[user]/.aspera/connect/bin"`, it will show you where)\
     Take note of this installation folder and, for your peace of mind lets add this folder to your PATH:\
-    Add the following line to your ~/.bashrc file: export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"\
-    Now reload the ~/.bashrc file with: source ~/.bashrc file
+    Add the following line to your `~/.bashrc` file: `export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"`\
+    Now reload the ~/.bashrc file with: `source ~/.bashrc`
     Now you have installed Aspera Connect!\
+- KofamScan\
+    
  
   
   
