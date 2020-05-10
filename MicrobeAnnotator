@@ -6,10 +6,11 @@
 # Email:        cruizperez3@gatech.edu
 # Intitution:   Georgia Institute of Technology
 # Version:      0.9
-# Date:         May 06, 2020
+# Date:         May 10, 2020
 
-# Description: Downloads all data required to build the search databases.
-# Parses the annotation information and creates the method-specific dbs.
+# Description: MicrobeAnnotator parses protein fasta files and annotates them
+# using several databases in an iterative fashion and summarizes the findings
+# using KEGG modules based on KO numbers associated with best database matches.
 ########################################################################
 """
 
@@ -25,16 +26,15 @@ from independent_scripts import sqlite3_search
 from independent_scripts import ko_mapper
 
 ################################################################################
-"""---1.0 Define Functions---"""
-
-
-################################################################################
-"""---2.0 Main Function---"""
+"""---1.0 Main Function---"""
 
 def main():
     import argparse, sys, textwrap
     # Setup parser for arguments.
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
+    MicrobeAnnotator parses protein fasta files and annotates them
+# using several databases in an iterative fashion and summarizes the findings
+# using KEGG modules based on KO numbers associated with best database matches.
             description='''This script build the search databases required by MicrobeAnnotator\n'''
             '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
             '''Global mandatory parameters: -f [output_file folder]\n'''
@@ -123,9 +123,10 @@ def main():
         print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the genomes and modules'.format(plot_filename))
     else:
         exit('I do not recognize this clustering option: {}.'.format(cluster))
+    print("---------\n\n")
     # ----------------------------
     # Search the initial dataset with KOFamscan
-    print("Searching proteins using KOFamscan...")
+    print("Searching proteins using KOFamscan...\n")
     try:
         pool = multiprocessing.Pool(processes)
         kofam_results = pool.map(partial(protein_search.kofamscan_annotation, 
@@ -141,7 +142,7 @@ def main():
     # Filter out the proteins already annotated
     # Create dictionary with information per protein file
     # Structure: protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it]
-    print("Filtering KOFamscan results...")
+    print("Filtering KOFamscan results...\n")
     temporal_protein_folder = Path(output_dir) / "temporal_proteins"
     temporal_protein_folder.mkdir(parents=True, exist_ok=True)
     protein_file_info = {}
@@ -155,7 +156,7 @@ def main():
 
     # Search proteins NOT annotated with KOFamscan against Swissprot
     # Determine database to use
-    print("Searching proteins against Swissprot...")
+    print("Searching proteins against Swissprot...\n")
     if method == "blast":
         swissprot_database = str(Path(database_folder) / "01.Protein_DB/uniprot_sprot")
     elif method == "diamond":
@@ -187,7 +188,7 @@ def main():
 
     print(protein_file_info)
     # Search annotations in SQLite DB and append to the final annotation file
-    print("Extracting annotation data...")
+    print("Extracting annotation data...\n")
     sql_database = str(Path(database_folder) / "02.MicrobeAnnotator.db")
     for original_file, information in protein_file_info.items():
         filtered_sword_results = information[3]
@@ -232,7 +233,7 @@ def main():
     # If running complete pipeline search against refseq
     if light == False:
         # Determine database to use
-        print("Searching proteins against RefSeq...")
+        print("Searching proteins against RefSeq...\n")
         if method == "blast":
             refseq_database = str(Path(database_folder) / "01.Protein_DB/refseq_protein")
         elif method == "diamond":
@@ -268,7 +269,7 @@ def main():
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
-        print("Extracting annotation data...")
+        print("Extracting annotation data...\n")
         for original_file, information in protein_file_info.items():
             if len(information) == 6:
                 filtered_sword_results = information[5]
@@ -306,7 +307,7 @@ def main():
                     # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
         print(protein_file_info)
         # Finally run remaining proteins against Trembl
-        print("Searching proteins against Trembl...")
+        print("Searching proteins against Trembl...\n")
         if method == "blast":
             trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl")
         elif method == "diamond":
@@ -342,7 +343,7 @@ def main():
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
-        print("Extracting annotation data...")
+        print("Extracting annotation data...\n")
         for original_file, information in protein_file_info.items():
             if len(information) == 8:
                 filtered_sword_results = information[7]
@@ -372,7 +373,7 @@ def main():
         # ------------------------
 
     # Parse annotation files and summarize them
-    print("Extracting ko numbers and summarizing results...")
+    print("Extracting ko numbers and summarizing results...\n")
     annotation_files = []
     for information in protein_file_info.values():
         annotation_folder = information[1].parent
