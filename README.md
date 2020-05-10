@@ -26,10 +26,10 @@ Comming soon.
  * [KofamScan](https://github.com/takaram/kofam_scan)
  * [HMMER](http://hmmer.org/)>=3.1
  * [Ruby](https://www.ruby-lang.org/en/)>=2.4
- * [GNU Parallel](https://www.gnu.org/software/parallel/)
+ * [GNU Parallel](https://www.gnu.org/software/parallel/)\
  Either:
  * [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)>=2.2
- * [Diamond](https://github.com/bbuchfink/diamond)>=0.9.14.115
+ * [Diamond](https://github.com/bbuchfink/diamond)>=0.9
  * [Sword](https://github.com/rvaser/sword)>=1.0.4
 
 - Aspera Connect\
