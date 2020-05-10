@@ -32,12 +32,13 @@ def main():
     import argparse, sys, textwrap
     # Setup parser for arguments.
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-    MicrobeAnnotator parses protein fasta files and annotates them
-# using several databases in an iterative fashion and summarizes the findings
-# using KEGG modules based on KO numbers associated with best database matches.
-            description='''This script build the search databases required by MicrobeAnnotator\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
-            '''Global mandatory parameters: -f [output_file folder]\n'''
+            description='''MicrobeAnnotator parses protein fasta files and annotates them\n'''
+            '''using several databases in an iterative fashion and summarizes the findings\n'''
+            '''using KEGG modules based on KO numbers associated with best database matches.\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -i [protein file] -o [output folder] -d [MicrobeAnnotator db folder]\n'''
+            '''-m [search method]\n'''
+            '''Global mandatory parameters: -i [protein file] -o [output folder] -d [MicrobeAnnotator db folder]\n'''
+            '''-m [search method]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     general_options = parser.add_argument_group('Mandatory i/o options.')
     general_options.add_argument('-i', '--input', dest='input_list', action='store', required=True, nargs='+',
