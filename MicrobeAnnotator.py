@@ -301,7 +301,7 @@ def main():
         temp_dir = protein_file_info.copy()
         for result in search_results:
             for filename, info in temp_dir.items():
-                if len(info) == 7 and result[0] == info[4]:
+                if len(info) == 7 and result[0] == info[6]:
                     protein_file_info[filename].append(result[1])
         del temp_dir
         print(protein_file_info)
