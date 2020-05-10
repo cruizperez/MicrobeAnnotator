@@ -187,7 +187,6 @@ def main():
                 protein_file_info[filename].append(result[1])
     del temp_dir
 
-    print(protein_file_info)
     # Search annotations in SQLite DB and append to the final annotation file
     print("Extracting annotation data...\n")
     sql_database = str(Path(database_folder) / "02.MicrobeAnnotator.db")
@@ -229,7 +228,6 @@ def main():
                 fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
                 second_it_outfile, gene_ids_no_ko, reverse=True)
     # -----------------------
-    print(protein_file_info)
 
     # If running complete pipeline search against refseq
     if light == False:
@@ -266,7 +264,6 @@ def main():
                 if len(info) == 5 and result[0] == info[4]:
                     protein_file_info[filename].append(result[1])
         del temp_dir
-        print(protein_file_info)
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
@@ -306,7 +303,6 @@ def main():
                     # New structure: 
                     # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
                     # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
-        print(protein_file_info)
         # Finally run remaining proteins against Trembl
         print("Searching proteins against Trembl...\n")
         if method == "blast":
@@ -340,7 +336,6 @@ def main():
                 if len(info) == 7 and result[0] == info[6]:
                     protein_file_info[filename].append(result[1])
         del temp_dir
-        print(protein_file_info)
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
@@ -370,7 +365,6 @@ def main():
                         match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
         if temporal_protein_folder.is_dir():
                 rmtree(temporal_protein_folder)
-        print(protein_file_info)
         # ------------------------
 
     # Parse annotation files and summarize them
