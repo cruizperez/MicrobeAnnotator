@@ -116,9 +116,10 @@ This should take care of most of the requirements except for Aspera Connect and 
     And, given that we have already installed hmmer and parallel earlier we can ignore the other lines.\
     Finally, you can either add the KofamScan location folder to your $PATH as before with Aspera Connect or later pass it to MicrobeAnnotator when running.\
     Now, KofamScan is ready to be used! You can test it by running `./exec_annotation -h`.
-    
+
+### Downloading MicrobeAnnotator
 Next, we need to download MicrobeAnnotator:
-`git clone https://github.com/cruizperez/Microbe_Annotator.git`\
+`git clone https://github.com/cruizperez/MicrobeAnnotator.git`\
 This should download the program in the folder you are in and everything should be good to go! :)
 
 ## Usage
