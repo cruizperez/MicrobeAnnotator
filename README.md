@@ -10,8 +10,7 @@ Easy-to-use pipeline for the comprehensive metabolic annotation of microbial gen
 * [FAQs] (#faqs)
 * [License]
 
-- [MicrobeAnnotator](#microbeannotator)
-  * [Table of Content](#table-of-content)
+## Table of Content
   * [Features](#features)
   * [Citation](#citation)
 
