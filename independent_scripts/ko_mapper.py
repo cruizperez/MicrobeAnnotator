@@ -88,7 +88,7 @@ def module_information_importer(input_files):
     print("Importing data... ", end="")
     script_path = Path(__file__)
     script_dir = script_path.parent
-    data_folder = Path(script_dir).parent / "00.Data"
+    data_folder = Path(script_dir).parent / "data"
     regular_modules = import_module_dict(data_folder / "01.KEGG_Regular_Module_Information.pickle")
     bifurcation_modules = import_module_dict(data_folder / "02.KEGG_Bifurcating_Module_Information.pickle")
     structural_modules = import_module_dict(data_folder / "03.KEGG_Structural_Module_Information.pickle")
