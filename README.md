@@ -43,6 +43,7 @@ Either:
    - biopython
    - sqlite3
    - urllib
+   - pywget
 
 ## Installation
 It appears we need a bunch of pre-requisites to run MicrobeAnnotator! No worries, their installation using Conda is quite easy. If you don't have Conda, you can install it as follows:
@@ -71,7 +72,7 @@ This should take care of most of the requirements except for Aspera Connect and 
     Now reload the ~/.bashrc file with: `source ~/.bashrc`
     Now you have installed Aspera Connect!\
 - KofamScan\
-    First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[user]`:\
+    First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[your_user]` (note your_user is a placeholder for your username):\
     `mkdir kofamscan`\
     `cd kofamscan`\
     `wget ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz`\
@@ -85,7 +86,8 @@ This should take care of most of the requirements except for Aspera Connect and 
     When you decompress and enter the kofamscan-1.2.0 folder you will find a `config-template.yml` file, which is required for KofamScan to find the databases. We need to copy it and modify by adding the correct paths to the database we just downloaded.\
     `cp config-template.yml config.yml`\
     Open with your favorite text editor:\
-    `vim config.yml`\
+    `vim config.yml`
+    
     You will see something like this:\
     `# Path to your KO-HMM database`\
     `# A database can be a .hmm file, a .hal file or a directory in which`\
@@ -105,6 +107,19 @@ This should take care of most of the requirements except for Aspera Connect and 
 
     `# Number of hmmsearch processes to be run parallelly`\
     `cpu: 8`
+    
+    This is the information we need to edit with the path to the folder where we downloaded the data:
+    In this example we will replace:\
+    `# profile: /path/to/your/profile/db` by `profile: /home/[your_user]/kofamscan/profiles/prokaryote`\
+    Next, we replace:\
+    `# ko_list: /path/to/your/kolist/file` by `ko_list: /home/[your_user]/kofamscan/ko_list`\
+    And, given that we have already installed hmmer and parallel earlier we can ignore the other lines.\
+    Finally, you can either add the KofamScan location folder to your $PATH as before with Aspera Connect or later pass it to MicrobeAnnotator when running.\
+    Now, KofamScan is ready to be used! You can test it by running `./exec_annotation -h`.
+    
+## Usage
+
+    
     
     
  
