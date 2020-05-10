@@ -86,24 +86,24 @@ This should take care of most of the requirements except for Aspera Connect and 
     `cp config-template.yml config.yml`\
     Open with your favorite text editor:\
     `vim config.yml`\
-    You will see something like this:
-    `# Path to your KO-HMM database`
-    `# A database can be a .hmm file, a .hal file or a directory in which`
-    `# .hmm files are. Omit the extension if it is .hal or .hmm file`
+    You will see something like this:\
+    `# Path to your KO-HMM database`\
+    `# A database can be a .hmm file, a .hal file or a directory in which`\
+    `# .hmm files are. Omit the extension if it is .hal or .hmm file`\
     `# profile: /path/to/your/profile/db`
 
-    `# Path to the KO list file`
+    `# Path to the KO list file`\
     `# ko_list: /path/to/your/kolist/file`
 
-    `# Path to an executable file of hmmsearch`
-    `# You do not have to set this if it is in your $PATH`
+    `# Path to an executable file of hmmsearch`\
+    `# You do not have to set this if it is in your $PATH`\
     `# hmmsearch: /usr/local/bin/hmmsearch`
 
-    `# Path to an executable file of GNU parallel`
-    `# You do not have to set this if it is in your $PATH`
+    `# Path to an executable file of GNU parallel`\
+    `# You do not have to set this if it is in your $PATH`\
     `# parallel: /usr/local/bin/parallel`
 
-    `# Number of hmmsearch processes to be run parallelly`
+    `# Number of hmmsearch processes to be run parallelly`\
     `cpu: 8`
     
     
