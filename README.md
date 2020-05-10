@@ -10,9 +10,17 @@ Easy-to-use pipeline for the comprehensive metabolic annotation of microbial gen
 - [FAQs] (#faqs)
 - [License]
 
+## Features
+MicrobeAnnotator uses an iterative approach to annotate microbial genomes (Bacteria, Archaea and Virus) starting from proteins predicted using your favorite ORF prediction tool, e.g. Prodigal.
+The iterative approach is composed of three or five main steps (depending on the flavor of MicrobeAnnotator you run).
+- Search of initial protein dataset using KOFamscan, extraction of unannotated proteins.
+- Search of proteins extracted in the previous step using UniProt Swissprot database. Extract unannotated proteins and repeat search using RefSeq and Trembl (if running the full version).
+- Summarize the metabolic potential using KEGG modules by extracting KO numbers associated with each match in the databases used.
 
+## Citation
+Comming soon.
 
-Requirements:
+## Requirements:
 - Aspera Connect\
     To install aspera in a Linux system follow (example with version 3.9.8.176272):\
     wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz\
