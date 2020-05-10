@@ -21,7 +21,7 @@ The iterative approach is composed of three or five main steps (depending on the
 Comming soon.
 
 ## Requirements:
-- [![Aspera Connect](https://downloads.asperasoft.com/connect2/)
+- [Aspera Connect](https://downloads.asperasoft.com/connect2/)
 - Aspera Connect\
     To install aspera in a Linux system follow (example with version 3.9.8.176272):\
     wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz\
