@@ -161,7 +161,7 @@ At the end you should see your output folder with: \
 `[database]_results/` folder: Raw and filtered search results for each database used (depends of the flavor used).\
 A `metabolic_summary_barplot` file: Summarizes the KEGG module completeness per genome (protein file).\
 A `metabolic_summary_heatmap` file: Summarizes the KEGG module completeness of all genomes in an-easier-to-understand heatmap (compared to a raw table, that is).\
-A `metabolic_summary_module_completeness.tab` file: Matrix describing the completness of all KEGG modules per genome (or protein file).\
+A `metabolic_summary_module_completeness.tab` file: Matrix describing the completness of all KEGG modules per genome (or protein file).
 
 This should be the end result of MicrobeAnnotator, where you can easily compare the metabolic potential of your microbial genomes and if you like, have more information of the annotation of each protein in each file. Happy annotation!
 
