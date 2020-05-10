@@ -274,11 +274,11 @@ def main():
         # Finally run remaining proteins against Trembl
         print("Searching proteins against Trembl...")
         if method == "blast":
-            refseq_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl")
+            trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl")
         elif method == "diamond":
-            refseq_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.dmnd")
+            trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.dmnd")
         elif method == "sword":
-            refseq_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.fasta")
+            trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.fasta")
         input_proteins = []
         for infor in protein_file_info.values():
             if len(infor) == 7:
@@ -286,7 +286,7 @@ def main():
         if len(input_proteins) > 0:
             try:
                 pool = multiprocessing.Pool(processes)
-                arguments_to_pass = (output_dir, 'trembl', refseq_database, method,
+                arguments_to_pass = (output_dir, 'trembl', trembl_database, method,
                                     threads, id_perc, bitscore, evalue, aln_percent, method_bin)
                 search_results = pool.map(partial(protein_search.similarity_search,
                 multiple_arguments=arguments_to_pass), input_proteins)
@@ -310,7 +310,7 @@ def main():
         # Search annotations in SQLite DB and append to the final annotation file
         for original_file, information in protein_file_info.items():
             if len(information) == 8:
-                filtered_sword_results = information[5]
+                filtered_sword_results = information[7]
                 final_annotation_file = information[1]
                 significant_hits = []
                 with open(filtered_sword_results) as swissprot_results:
@@ -334,6 +334,9 @@ def main():
         if temporal_protein_folder.is_dir():
                 rmtree(temporal_protein_folder)
         print(protein_file_info)
+        # ------------------------
+
+
 if __name__ == "__main__":
     main()
 
