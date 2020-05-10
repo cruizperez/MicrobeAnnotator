@@ -52,14 +52,14 @@ It appears we need a bunch of pre-requisites to run MicrobeAnnotator! No worries
 
 Now, let's add the conda channels required to install the pre-requisites:\
 `conda config --add channels conda-forge`\
-`conda config --add channels bioconda`\
+`conda config --add channels bioconda`
 
 Then, create an environment for MicrobeAnnotator:\
-`conda create -n microbeannotator blast hmmer ruby parallel diamond sword seaborn biopython`\
+`conda create -n microbeannotator blast hmmer ruby parallel diamond sword seaborn biopython wget`\
 And activate it:\
-`conda activate microbeannotator`\
+`conda activate microbeannotator`
 
-This should take care of most of the requirements except for Aspera Connect and KofamScan, which are a little more involved. Let's install those.\
+This should take care of most of the requirements except for Aspera Connect and KofamScan, which are a little more involved. Let's install those.
 - Aspera Connect\
     To install aspera in a Linux system follow (example with version 3.9.8.176272):\
     `wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz`\
@@ -71,6 +71,41 @@ This should take care of most of the requirements except for Aspera Connect and 
     Now reload the ~/.bashrc file with: `source ~/.bashrc`
     Now you have installed Aspera Connect!\
 - KofamScan\
+    First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[user]`:\
+    `mkdir kofamscan`\
+    `cd kofamscan`\
+    `wget ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz`\
+    `wget ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz`\
+    `wget ftp://ftp.genome.jp/pub/tools/kofamscan/kofamscan-1.2.0.tar.gz`\
+    Decompress and untar:\
+    `gunzip ko_list.gz`\
+    `tar xvfz profiles.tar.gz`\
+    `tar xvfz kofamscan-1.2.0.tar.gz`\
+    `cd kofamscan-1.2.0`
+    When you decompress and enter the kofamscan-1.2.0 folder you will find a `config-template.yml` file, which is required for KofamScan to find the databases. We need to copy it and modify by adding the correct paths to the database we just downloaded.\
+    `cp config-template.yml config.yml`\
+    Open with your favorite text editor:\
+    `vim config.yml`\
+    You will see something like this:
+    `# Path to your KO-HMM database`
+    `# A database can be a .hmm file, a .hal file or a directory in which`
+    `# .hmm files are. Omit the extension if it is .hal or .hmm file`
+    `# profile: /path/to/your/profile/db`
+
+    `# Path to the KO list file`
+    `# ko_list: /path/to/your/kolist/file`
+
+    `# Path to an executable file of hmmsearch`
+    `# You do not have to set this if it is in your $PATH`
+    `# hmmsearch: /usr/local/bin/hmmsearch`
+
+    `# Path to an executable file of GNU parallel`
+    `# You do not have to set this if it is in your $PATH`
+    `# parallel: /usr/local/bin/parallel`
+
+    `# Number of hmmsearch processes to be run parallelly`
+    `cpu: 8`
+    
     
  
   
