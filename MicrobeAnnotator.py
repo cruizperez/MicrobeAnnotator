@@ -22,6 +22,7 @@ from shutil import rmtree
 from independent_scripts import protein_search
 from independent_scripts import fasta_filter_list
 from independent_scripts import sqlite3_search
+from independent_scripts import ko_mapper
 
 ################################################################################
 """---1.0 Define Functions---"""
@@ -335,6 +336,27 @@ def main():
                 rmtree(temporal_protein_folder)
         print(protein_file_info)
         # ------------------------
+
+    # Parse annotation files and summarize them
+    annotation_files = []
+    for information in protein_file_info.values():
+        annotation_folder = information[1].parent
+        ko_numbers = str(annotation_folder / (information[0] + ".ko"))
+        with open(information[1], 'r') as annotations, open(ko_numbers, 'w') as ko_present:
+            for line in annotations:
+                line = line.strip().split("\t")
+                if line[3] != "":
+                    ko_present.write("{}\n".format(line[3]))
+        annotation_files.append(ko_numbers)
+    cluster = "both"
+    prefix = str(Path(output_dir) / "metabolic_summary")
+    regular_modules, bifurcation_modules, structural_modules,  \
+    module_names, genome_names, metabolism_matrix, module_correspondence, \
+    module_group_matrix, module_groups, module_colors = ko_mapper.module_information_importer(annotation_files)
+    metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
+    metabolism_matrix_dropped_relabel = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix)
+    ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
+
 
 
 if __name__ == "__main__":
