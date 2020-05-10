@@ -125,7 +125,7 @@ This should download the program in the folder you are in and everything should 
 ### Database creation
 First things first. There are two "flavors" of MicrobeAnnotator depending on your storage and computational capabilities (and your time); the regular and light versions.
 The difference between the two is that the regular implementation will make use of four different databases to annotate your proteins, i.e., the KofamScan database and the Swissprot, Trembl and RefSeq databases. On the other hand, the light version will only use KofamScan and Swissprot, which in most cases will annotate the majority of your proteins and will take way less time and space.\
-You can decide of course which version to run at any time, but for the time being let's have an example with the full version (to run the light version just add the `--light` when calling the script.
+You can decide of course which version to run at any time, but for the time being let's have an example with the full version (to run the light version just add the `--light` flag when calling the script.
 
 The first step is to download and format the databases we want to use for MicrobeAnnotator. For this we will execute the `MicrobeAnnotator_DB_Builder` script within the MicrobeAnnotator folder. You can add see all options and inputs for the script with  `MicrobeAnnotator_DB_Builder -h`.\
 Run the script as:\
