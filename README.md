@@ -2,13 +2,19 @@
 Easy-to-use pipeline for the comprehensive metabolic annotation of microbial genomes.
 
 ## Table of Content
-- [Features] (#features)
-- [Citation] (#citation)
-- [Requirements] (#requirements)
-- [Installation] (#installation)
-- [Usage] (#usage)
-- [FAQs] (#faqs)
-- [License]
+* [Features] (#features)
+* [Citation] (#citation)
+* [Requirements] (#requirements)
+* [Installation] (#installation)
+* [Usage] (#usage)
+* [FAQs] (#faqs)
+* [License]
+
+- [MicrobeAnnotator](#microbeannotator)
+  * [Table of Content](#table-of-content)
+  * [Features](#features)
+  * [Citation](#citation)
+
 
 ## Features
 MicrobeAnnotator uses an iterative approach to annotate microbial genomes (Bacteria, Archaea and Virus) starting from proteins predicted using your favorite ORF prediction tool, e.g. Prodigal.
