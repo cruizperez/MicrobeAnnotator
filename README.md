@@ -1,5 +1,16 @@
-# Microbe_Annotator
-Pipeline for metabolic annotation of microbial genomes
+# MicrobeAnnotator
+Easy-to-use pipeline for the comprehensive metabolic annotation of microbial genomes.
+
+## Table of Content
+- [Features] (#features)
+- [Citation] (#citation)
+- [Requirements] (#requirements)
+- [Installation] (#installation)
+- [Usage] (#usage)
+- [FAQs] (#faqs)
+- [License]
+
+
 
 Requirements:
 - Aspera Connect\
