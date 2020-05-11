@@ -61,7 +61,7 @@ conda config --add channels bioconda
 Then, create an environment for MicrobeAnnotator:
 
 ```bash
-conda create -n microbeannotator blast hmmer ruby parallel diamond sword seaborn biopython wget
+conda create -n microbeannotator blast hmmer ruby parallel diamond sword seaborn biopython pywget
 ```
 
 And activate it:
