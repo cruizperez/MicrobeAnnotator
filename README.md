@@ -25,7 +25,7 @@ Comming soon.
    - [Aspera Connect](https://downloads.asperasoft.com/connect2/)
    - [KofamScan](https://github.com/takaram/kofam_scan)
    - [HMMER](http://hmmer.org/) >= 3.1
-   - [Ruby](https://www.ruby-lang.org/en/) >= 2.4
+   - [Ruby](https://www.ruby-lang.org/en/) >= 2.5
    - [GNU Parallel](https://www.gnu.org/software/parallel/)\
 One of:
    - [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/) >= 2.2
@@ -61,7 +61,7 @@ conda config --add channels bioconda
 Then, create an environment for MicrobeAnnotator:
 
 ```bash
-conda create -n microbeannotator blast hmmer ruby parallel diamond sword seaborn biopython pywget
+conda create -n microbeannotator blast hmmer ruby=2.5.1 parallel diamond sword seaborn biopython pywget
 ```
 
 And activate it:
