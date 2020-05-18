@@ -99,7 +99,7 @@ mkdir kofamscan
 cd kofamscan
 wget ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz
 wget ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz
-wget ftp://ftp.genome.jp/pub/tools/kofamscan/kofamscan-1.2.0.tar.gz
+wget ftp://ftp.genome.jp/pub/tools/kofam_scan/kofam_scan-1.3.0.tar.gz
 
 # Decompress and untar:
 gunzip ko_list.gz
