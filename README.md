@@ -196,12 +196,21 @@ At the end you should see your output folder with: \
 `[database]_results/` folder: Raw and filtered search results for each database used (depends of the flavor used).\
 A `metabolic_summary_barplot` file: Summarizes the KEGG module completeness per genome (protein file).\
 A `metabolic_summary_heatmap` file: Summarizes the KEGG module completeness of all genomes in an-easier-to-understand heatmap (compared to a raw table, that is).\
-A `metabolic_summary_module_completeness.tab` file: Matrix describing the completness of all KEGG modules per genome (or protein file).
+A `metabolic_summary_module_completeness.tab` file: Matrix describing the completness of all KEGG modules per genome (protein file).
 
 This should be the end result of MicrobeAnnotator, where you can easily compare the metabolic potential of your microbial genomes and if you like, have more information of the annotation of each protein in each file. Happy annotation!
 
 ## FAQs
-Comming soon
+- How long will MicrobeAnnotator take to build the databases?
+    Well, it depends on the version of database you are building. For instance, the full version needs to download the Swissprot, Trembl, and RefSeq databases (and their associated metadata) and parse them into the SQLite database MicrobeAnnotator uses. Depending on your internet connection speed this process can take ~12h (using a single thread), including the download and processing of the data. Fortunately, you just need to do this once! Now, if you are using sword as your search method you are done, but if you are using Blast or Diamond, there is additional time required for the protein fasta files to be converted into the appropriate formats and this will range between X and XX hours. If you are running the "light" version of the program with sword as your search method, this entire process will only take ~5 minutes (depending of your internet connection speed).
+- How much space will the database take in my disk?
+    This once again depends on the verison of the program you indend to run and the search method you want to use. For reference the space required by the full database will approximatelly be:\    
+    - Protein fasta files: ~144Gb\
+    - Blast-formatted files: ~177Gb\
+    - Diamond-formatted files: ~148Gb\
+    - SQLite3 database: ~93Gb\
+    In summary, if you build the full database you need at least ~237Gb of free space in your disk. The light version only will take ~0.65Gb (with sword as search method).
+
 
 ## License
 Comming soon
