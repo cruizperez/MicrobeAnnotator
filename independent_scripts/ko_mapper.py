@@ -478,22 +478,26 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
             if metabolism_matrix_dropped_relabel.loc[module,genome] >= 80:
                 module_group_matrix.loc[module_colors[module][0],genome] += 1
     module_group_matrix_transp = module_group_matrix.T
-    module_group_matrix_transp = module_group_matrix_transp.loc[(module_group_matrix_transp >= 1).any(1)]
-    color_dict = {}
-    color_list = []
-    for pair in module_colors.values():
-        if pair[0] not in color_dict:
-            color_dict[pair[0]] = pair[1]
-    for pathway in list(module_group_matrix_transp.columns):
-        color_list.append(color_dict[pathway])
-    Figure, Axis = plt.subplots(1,1, figsize=(25,15))
-    module_group_matrix_transp.plot.bar(ax=Axis, stacked=True, color=color_list, figsize=(25,15), legend=False)
-    Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='x-small', markerscale=0.3)
-    Axis.set_xlabel("Genomes", fontsize=30)
-    Axis.set_ylabel('Number of Modules (>=80% complete)', fontsize=30)
-    Figure.suptitle('Metabolism Module Categoryper Genome', fontsize=40)
-    Figure.subplots_adjust()
-    Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
+    emptyness = (module_group_matrix_transp == 0).all()
+    if emptyness.all() == True:
+        print("There are no modules above 80%. No barplot will be generated.")
+    else:
+        module_group_matrix_transp = module_group_matrix_transp.loc[(module_group_matrix_transp >= 1).any(1)]
+        color_dict = {}
+        color_list = []
+        for pair in module_colors.values():
+            if pair[0] not in color_dict:
+                color_dict[pair[0]] = pair[1]
+        for pathway in list(module_group_matrix_transp.columns):
+            color_list.append(color_dict[pathway])
+        Figure, Axis = plt.subplots(1,1, figsize=(25,15))
+        module_group_matrix_transp.plot.bar(ax=Axis, stacked=True, color=color_list, figsize=(25,15), legend=False)
+        Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='x-small', markerscale=0.3)
+        Axis.set_xlabel("Genomes", fontsize=30)
+        Axis.set_ylabel('Number of Modules (>=80% complete)', fontsize=30)
+        Figure.suptitle('Metabolism Module Categoryper Genome', fontsize=40)
+        Figure.subplots_adjust()
+        Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
     print("Done!")
 
 def create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix):
@@ -519,7 +523,9 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_correspo
         for module in modules:
             metabolism_matrix.loc[module[0],genome] = module[1]
     metabolism_matrix_dropped = metabolism_matrix.loc[(metabolism_matrix >= 50).any(1)]
-    retained_modules = list(metabolism_matrix_dropped.index)
+    emptyness = (metabolism_matrix_dropped == 0).all()
+    if emptyness.all() == True:
+        metabolism_matrix_dropped = metabolism_matrix.loc[(metabolism_matrix >= 0).any(1)]
     colors_for_ticks = []
     colors_for_legend = {}
     metabolism_matrix_dropped_relabel = metabolism_matrix_dropped.rename(index=module_correspondence)
