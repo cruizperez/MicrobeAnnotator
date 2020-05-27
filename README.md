@@ -24,13 +24,13 @@ Comming soon.
 - Programs:
    - [Aspera Connect](https://downloads.asperasoft.com/connect2/)
    - [KofamScan](https://github.com/takaram/kofam_scan)
-   - [HMMER](http://hmmer.org/)>=3.1
-   - [Ruby](https://www.ruby-lang.org/en/)>=2.4
+   - [HMMER](http://hmmer.org/) >= 3.1
+   - [Ruby](https://www.ruby-lang.org/en/) >= 2.5
    - [GNU Parallel](https://www.gnu.org/software/parallel/)\
-Either:
-   - [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)>=2.2
-   - [Diamond](https://github.com/bbuchfink/diamond)>=0.9
-   - [Sword](https://github.com/rvaser/sword)>=1.0.4
+One of:
+   - [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/) >= 2.2
+   - [Diamond](https://github.com/bbuchfink/diamond) >= 0.9
+   - [Sword](https://github.com/rvaser/sword) >= 1.0.4
 - Python Modules:
    - matplotlib
    - seaborn >= 0.10.1
@@ -51,75 +51,110 @@ It appears we need a bunch of pre-requisites to run MicrobeAnnotator! No worries
 2. Run `bash Anaconda-latest-Linux-x86_64.sh` and follow the installation instructions.
 3. Once installed you can run `conda -V`. You should get the version of conda that you installed.
 
-Now, let's add the conda channels required to install the pre-requisites:\
-`conda config --add channels conda-forge`\
-`conda config --add channels bioconda`
+Now, let's add the conda channels required to install the pre-requisites:
 
-Then, create an environment for MicrobeAnnotator:\
-`conda create -n microbeannotator blast hmmer ruby parallel diamond sword seaborn biopython wget`\
-And activate it:\
-`conda activate microbeannotator`
+```bash
+conda config --add channels conda-forge
+conda config --add channels bioconda
+```
+
+Then, create an environment for MicrobeAnnotator:
+
+```bash
+conda create -n microbeannotator blast hmmer ruby=2.5.1 parallel diamond sword seaborn biopython pywget
+```
+
+And activate it:
+
+```bash
+conda activate microbeannotator
+```
 
 This should take care of most of the requirements except for Aspera Connect and KofamScan, which are a little more involved. Let's install those.
-- Aspera Connect\
-    To install aspera in a Linux system follow (example with version 3.9.8.176272):\
-    `wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz`\
-    `tar xvfz ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz`\
-    `bash ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.sh`\
-    (Usually it will be installed in your home under your user in `"/home/[user]/.aspera/connect/bin"`, it will show you where)\
-    Take note of this installation folder and, for your peace of mind lets add this folder to your PATH:\
-    Add the following line to your `~/.bashrc` file: `export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"`\
-    Now reload the ~/.bashrc file with: `source ~/.bashrc`
-    Now you have installed Aspera Connect!\
-- KofamScan\
-    First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[your_user]` (note your_user is a placeholder for your username):\
-    `mkdir kofamscan`\
-    `cd kofamscan`\
-    `wget ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz`\
-    `wget ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz`\
-    `wget ftp://ftp.genome.jp/pub/tools/kofamscan/kofamscan-1.2.0.tar.gz`\
-    Decompress and untar:\
-    `gunzip ko_list.gz`\
-    `tar xvfz profiles.tar.gz`\
-    `tar xvfz kofamscan-1.2.0.tar.gz`\
-    `cd kofamscan-1.2.0`
-    When you decompress and enter the kofamscan-1.2.0 folder you will find a `config-template.yml` file, which is required for KofamScan to find the databases. We need to copy it and modify by adding the correct paths to the database we just downloaded.\
-    `cp config-template.yml config.yml`\
-    Open with your favorite text editor:\
-    `vim config.yml`
-    
-    You will see something like this:\
-    `# Path to your KO-HMM database`\
-    `# A database can be a .hmm file, a .hal file or a directory in which`\
-    `# .hmm files are. Omit the extension if it is .hal or .hmm file`\
-    `# profile: /path/to/your/profile/db`
 
-    `# Path to the KO list file`\
-    `# ko_list: /path/to/your/kolist/file`
+### Aspera Connect
+To install aspera in a Linux system follow (example with version 3.9.8.176272):
 
-    `# Path to an executable file of hmmsearch`\
-    `# You do not have to set this if it is in your $PATH`\
-    `# hmmsearch: /usr/local/bin/hmmsearch`
+```bash
+wget https://download.asperasoft.com/download/sw/connect/3.9.8/ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz
+tar xvfz ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.tar.gz
+bash ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.sh
+```
 
-    `# Path to an executable file of GNU parallel`\
-    `# You do not have to set this if it is in your $PATH`\
-    `# parallel: /usr/local/bin/parallel`
+(Usually it will be installed in your home under your user in `"/home/[user]/.aspera/connect/bin"`, it will show you where)
 
-    `# Number of hmmsearch processes to be run parallelly`\
-    `cpu: 8`
-    
-    This is the information we need to edit with the path to the folder where we downloaded the data:
-    In this example we will replace:\
-    `# profile: /path/to/your/profile/db` by `profile: /home/[your_user]/kofamscan/profiles/prokaryote`\
-    Next, we replace:\
-    `# ko_list: /path/to/your/kolist/file` by `ko_list: /home/[your_user]/kofamscan/ko_list`\
-    And, given that we have already installed hmmer and parallel earlier we can ignore the other lines.\
-    Finally, you can either add the KofamScan location folder to your $PATH as before with Aspera Connect or later pass it to MicrobeAnnotator when running.\
-    Now, KofamScan is ready to be used! You can test it by running `./exec_annotation -h`.
+Take note of this installation folder and, for your peace of mind lets add this folder to your PATH:
+
+Add the following line to your `~/.bashrc` file: `export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"`
+
+Now reload the ~/.bashrc file with: `source ~/.bashrc`
+
+Now you have installed Aspera Connect!
+
+### KofamScan
+First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[your_user]` (note your_user is a placeholder for your username):
+
+```bash
+mkdir kofamscan
+cd kofamscan
+wget ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz
+wget ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz
+wget ftp://ftp.genome.jp/pub/tools/kofam_scan/kofam_scan-1.3.0.tar.gz
+
+# Decompress and untar:
+gunzip ko_list.gz
+tar xvfz profiles.tar.gz
+tar xvfz kofamscan-1.2.0.tar.gz
+cd kofamscan-1.2.0
+```
+
+When you decompress and enter the kofamscan-1.2.0 folder you will find a `config-template.yml` file, which is required for KofamScan to find the databases. We need to copy it and modify by adding the correct paths to the database we just downloaded.
+
+```bash
+cp config-template.yml config.yml
+```
+
+Open with your favorite text editor: `vim config.yml`
+
+You will see something like this:
+```yaml
+# Path to your KO-HMM database
+# A database can be a .hmm file, a .hal file or a directory in which
+# .hmm files are. Omit the extension if it is .hal or .hmm file
+# profile: /path/to/your/profile/db
+
+# Path to the KO list file
+# ko_list: /path/to/your/kolist/file
+
+# Path to an executable file of hmmsearch
+# You do not have to set this if it is in your $PATH
+# hmmsearch: /usr/local/bin/hmmsearch
+
+# Path to an executable file of GNU parallel
+# You do not have to set this if it is in your $PATH
+# parallel: /usr/local/bin/parallel
+
+# Number of hmmsearch processes to be run parallelly
+cpu: 8
+```
+
+This is the information we need to edit with the path to the folder where we downloaded the data:
+In this example we will replace: `# profile: /path/to/your/profile/db` by `profile: /home/[your_user]/kofamscan/profiles/prokaryote`
+
+Next, we replace: `# ko_list: /path/to/your/kolist/file` by `ko_list: /home/[your_user]/kofamscan/ko_list`
+
+And, given that we have already installed hmmer and parallel earlier we can ignore the other lines.
+Finally, you can either add the KofamScan location folder to your $PATH as before with Aspera Connect or later pass it to MicrobeAnnotator when running.
+
+Now, KofamScan is ready to be used! You can test it by running `./exec_annotation -h`.
 
 ### Downloading MicrobeAnnotator
 Next, we need to download MicrobeAnnotator:
-`git clone https://github.com/cruizperez/MicrobeAnnotator.git`\
+
+```bash
+git clone https://github.com/cruizperez/MicrobeAnnotator.git
+```
+
 This should download the program in the folder you are in and everything should be good to go! :)
 
 ## Usage
@@ -161,12 +196,25 @@ At the end you should see your output folder with: \
 `[database]_results/` folder: Raw and filtered search results for each database used (depends of the flavor used).\
 A `metabolic_summary_barplot` file: Summarizes the KEGG module completeness per genome (protein file).\
 A `metabolic_summary_heatmap` file: Summarizes the KEGG module completeness of all genomes in an-easier-to-understand heatmap (compared to a raw table, that is).\
-A `metabolic_summary_module_completeness.tab` file: Matrix describing the completness of all KEGG modules per genome (or protein file).
+A `metabolic_summary_module_completeness.tab` file: Matrix describing the completness of all KEGG modules per genome (protein file).
 
 This should be the end result of MicrobeAnnotator, where you can easily compare the metabolic potential of your microbial genomes and if you like, have more information of the annotation of each protein in each file. Happy annotation!
 
 ## FAQs
-Comming soon
+- How long will MicrobeAnnotator take to build the databases?\
+    Well, it depends on the version of database you are building. For instance, the full version needs to download the Swissprot, Trembl, and RefSeq databases (and their associated metadata) and parse them into the SQLite database MicrobeAnnotator uses. Depending on your internet connection speed this process can take ~12h (using a single thread), including the download and processing of the data. Fortunately, you just need to do this once! Now, if you are using sword as your search method you are done, but if you are using Blast or Diamond, there is additional time required for the protein fasta files to be converted into the appropriate formats and this will range between X and XX hours. If you are running the "light" version of the program with sword as your search method, this entire process will only take ~5 minutes (depending of your internet connection speed).
+    
+- How much space will the database take in my disk?\
+    This once again depends on the verison of the program you indend to run and the search method you want to use. For reference the space required by the full database will approximatelly be: 
+    - Protein fasta files: ~144Gb
+    - Blast-formatted files: ~177Gb
+    - Diamond-formatted files: ~148Gb
+    - SQLite3 database: ~93Gb\
+    In summary, if you build the full database you need at least ~237Gb of free space in your disk. The light version only will take ~0.65Gb (with sword as search method).
+
+- Can I use the light (--light) version of the program to annotate if I built the database using the full version?\
+    Of course! You can search and annotate your genomes (protein files) using only kofamscan and the swissprot database, i.e. the light version even if you have the full database available. However, the contrary cannot be done. If you try to perform the full search with the light version of the database, MicrobeAnnotator will not be able to find the required databases and will exit with an error. If you have anough time (and space) you can build the full database and then use the version that better suits your needs at each particular time.
+
 
 ## License
 Comming soon
