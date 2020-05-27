@@ -57,6 +57,7 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
             temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
             final_sprot_table = outfolder / "02.uniprot_sprot.table"
             uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
+            # Remove temporary files
             if Path(outfolder / "02.temp_dat_files").is_dir():
                 rmtree(outfolder / "02.temp_dat_files")
             print("Done!")
@@ -68,15 +69,16 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
             temporal_trembl_dat = outfolder / "02.temp_dat_files/uniprot_trembl.dat.gz"
             final_trembl_table = outfolder / "02.uniprot_trembl.table"
             uniprot_dat_parser.parse_uniprot_dat(temporal_trembl_dat, final_trembl_table)
-            if Path(outfolder / "02.temp_dat_files").is_dir():
-                rmtree(outfolder / "02.temp_dat_files")
             print("Done!")
             print("Parsing refseq annotation data...")
             temp_table_list = refseq_genbank_parser.table_generator_worker(genbank_files, 6)
             final_refseq_table = outfolder / "02.refseq.table"
             refseq_genbank_parser.table_merger(temp_table_list, final_refseq_table, False)
+            # Remove temporary files
             if Path(outfolder / "02.refseq.table").is_dir():
                 rmtree(outfolder / "02.refseq.table")
+            if Path(outfolder / "02.temp_dat_files").is_dir():
+                rmtree(outfolder / "02.temp_dat_files")
             print("Done!")
         step += 1
     # --------------------
