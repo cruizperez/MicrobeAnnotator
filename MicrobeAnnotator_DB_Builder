@@ -53,6 +53,7 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
     # Parse annotation files
     if step == 2:
         if not genbank_files:
+            temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
             viral_list = refseq_data_downloader.search_all_files(temp_gb_files / "viral")
             bacteria_list = refseq_data_downloader.search_all_files(temp_gb_files / "bacteria")
             archaea_list = refseq_data_downloader.search_all_files(temp_gb_files / "archaea")
