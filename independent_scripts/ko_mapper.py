@@ -89,36 +89,36 @@ def module_information_importer(input_files):
     script_path = Path(__file__)
     script_dir = script_path.parent
     data_folder = Path(script_dir).parent / "data"
+    # Import all modules from dictionaries
     regular_modules = import_module_dict(data_folder / "01.KEGG_Regular_Module_Information.pickle")
     bifurcation_modules = import_module_dict(data_folder / "02.KEGG_Bifurcating_Module_Information.pickle")
     structural_modules = import_module_dict(data_folder / "03.KEGG_Structural_Module_Information.pickle")
-    # Get genome and module names
-    module_groups = OrderedDict()
-    module_colors = OrderedDict()
-    module_names = []
+    # Get genome and module ids
+    module_information = {}
+    module_ids = []
     genome_names = []
     group_names = []
+    # Fill genome names list
     for genome_file in input_files:
-        genome_names.append(str(Path(genome_file).with_suffix('')))
+        genome_names.append(str(Path(genome_file).name))
     # Get module correspondence
-    module_correspondence = OrderedDict() 
     with open(data_folder / "01.KEGG_DB/00.Module_Names.txt") as correspondence:
         for line in correspondence:
             line = line.strip().split("\t")
-            module_correspondence[line[0]] = line[1]
-            module_names.append(line[0])
-            module_groups[line[0]] = line[2]
+            module_information[line[0]] = [line[1], line[2], line[3]]
+            # module_id_name[line[0]] = line[1]
+            module_ids.append(line[0])
+            # module_groups[line[0]] = line[2]
             if line[2] not in group_names:
                 group_names.append(line[2])
-            module_colors[line[1]] = [line[2],line[3]]
-    # Create module group matrix
+            # module_colors[line[1]] = [line[2],line[3]]
+    # Create module pathway group matrix
     module_group_matrix = pd.DataFrame(0, index=group_names, columns=genome_names)
     # Create module matrix
-    metabolism_matrix = pd.DataFrame(0, index=module_names, columns=genome_names)
-    print("Done!\n")
-    return regular_modules, bifurcation_modules, structural_modules, module_names, \
-            genome_names, metabolism_matrix, module_correspondence, module_group_matrix, \
-            module_groups, module_colors
+    metabolism_matrix = pd.DataFrame(0, index=module_ids, columns=genome_names)
+    print("Done!")
+    return regular_modules, bifurcation_modules, structural_modules, \
+           module_information, metabolism_matrix, module_group_matrix
 
 def annotation_file_parser(genome_annotation_file):
     genome_annotation = []
@@ -461,7 +461,7 @@ def global_mapper(regular_modules, bifurcating_modules, structural_modules, anno
     full_metabolic_completeness = {}
     
     for file in annotation_files:
-        genome_name = str(Path(file).with_suffix(''))
+        genome_name = str(Path(file).name)
         regular_completeness = regular_module_mapper(regular_modules, file)
         bifurcating_completeness = bifurcating_module_mapper(bifurcating_modules, file)
         structural_completeness = structural_module_mapper(structural_modules, file)
@@ -500,7 +500,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
         Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
     print("Done!")
 
-def create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix):
+def create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
     print("Creating output_file matrix and heatmap... ")
     # Check clustering asked
@@ -520,18 +520,42 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_correspo
         exit("Wrong clustering option, select between 'both', 'cols', 'rows' or don't pass this option.")
     # Extract data from metabolism matrix and color dictionary
     for genome, modules in metabolic_annotation.items():
+        # Fill metabolism matrix with completeness from the metabolic annotation dictionary
         for module in modules:
             metabolism_matrix.loc[module[0],genome] = module[1]
-    metabolism_matrix_dropped = metabolism_matrix.loc[(metabolism_matrix >= 50).any(1)]
-    emptyness = (metabolism_matrix_dropped == 0).all()
-    if emptyness.all() == True:
-        metabolism_matrix_dropped = metabolism_matrix.loc[(metabolism_matrix >= 0).any(1)]
+    # Get module id and its corresponding module name and the module and its corresponding color
+    module_id_name = {}
+    module_colors = {}
+    for module, information in module_information.items():
+        module_id_name[module] = information[0]
+        module_colors[information[0]] = (information[1],information[2])
+    # Get modules that are above 50% complete in at least one genome
+    metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= 50).any(1)]
+    table_empty = (metabolism_matrix_retained == 0).all()
+    if table_empty.all() == True:
+        metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= 0).any(1)]
     colors_for_ticks = []
     colors_for_legend = {}
-    metabolism_matrix_dropped_relabel = metabolism_matrix_dropped.rename(index=module_correspondence)
+    metabolism_matrix_retained_relabel = metabolism_matrix_retained.rename(index=module_id_name)
+    # Save original annotation table but add module names and pathway
+    module_names = []
+    module_pathways = []
+    for module in metabolism_matrix.index:
+        module_names.append(module_information[module][0])
+        module_pathways.append(module_information[module][1])
+    metabolism_matrix.insert(loc=0, column="name", value=module_names)
+    metabolism_matrix.insert(loc=1, column="pathway group", value=module_pathways)
+    metabolism_matrix.index.name = 'module'
     metabolism_matrix.to_csv(prefix + "_module_completeness.tab", sep="\t")
-    # Plot
-    heatmap = sns.clustermap(metabolism_matrix_dropped_relabel, xticklabels=True, yticklabels=True, 
+    
+    # Plot heatmap with clustering
+    # Check if clustering is possible with the number of genomes and modules
+    table_dim = metabolism_matrix_retained_relabel.shape
+    if row_cluster == True and table_dim[0] < 3:
+        row_cluster = False
+    if col_cluster == True and table_dim[1] < 3:
+        col_cluster = False
+    heatmap = sns.clustermap(metabolism_matrix_retained_relabel, xticklabels=True, yticklabels=True, 
                             figsize=(30,25), row_cluster=row_cluster, col_cluster=col_cluster, cbar_pos=(0, 0, .1, .02),
                             cbar_kws= {'orientation': 'horizontal'}, dendrogram_ratio=0.1)
     if cluster is None or cluster == 'rows':
@@ -549,8 +573,8 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_correspo
     heatmap.ax_heatmap.set_ylabel('Modules (more than 50% complete)', fontsize=30)
     plt.figlegend(loc="lower right", ncol=2, fontsize='medium')
     heatmap.savefig(prefix + "_heatmap.pdf")
-    print("Done!\n")
-    return metabolism_matrix_dropped_relabel
+    print("Done!")
+    return metabolism_matrix_retained_relabel, module_colors
 
 ################################################################################
 """---2.0 Main Function---"""
@@ -581,11 +605,10 @@ def main():
     # ----------------------------
     # Import data
     regular_modules, bifurcation_modules, structural_modules,  \
-    module_names, genome_names, metabolism_matrix, module_correspondence, \
-    module_group_matrix, module_groups, module_colors = module_information_importer(input_files)
+    module_information, metabolism_matrix, module_group_matrix = module_information_importer(input_files)
     # Map and annotate genomes
     metabolic_annotation = global_mapper(regular_modules, bifurcation_modules, structural_modules, input_files)
-    metabolism_matrix_dropped_relabel = create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix)
+    metabolism_matrix_dropped_relabel, module_colors = create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix)
     plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
     # ----------------------------
 

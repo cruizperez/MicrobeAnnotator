@@ -20,6 +20,7 @@ import multiprocessing
 from functools import partial
 from pathlib import Path
 from shutil import rmtree
+from shutil import copyfile
 from independent_scripts import protein_search
 from independent_scripts import fasta_filter_list
 from independent_scripts import sqlite3_search
@@ -83,6 +84,11 @@ def main():
                         Use only KOfamscan and swissprot databases. By default also uses refseq and
                         trembl (only use if you built both using "MicrobeAnnotator_DB_Builder").
                         '''))
+    misc_options.add_argument('--full', dest='full', action='store_true', required=False,
+                        help=textwrap.dedent('''
+                        Do not perform the iterative annotation but search all proteins against all databases
+                        (Increases computation time).
+                        '''))
     args = parser.parse_args()
 
     input_list = args.input_list
@@ -103,6 +109,7 @@ def main():
     if cluster != None:
         cluster = cluster.lower()
     plot_filename = args.plot_filename
+    full = args.full
 
     # Check user input
     if method != 'blast' and method != 'diamond' and method != 'sword':
@@ -124,10 +131,10 @@ def main():
         print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the genomes and modules'.format(plot_filename))
     else:
         exit('I do not recognize this clustering option: {}.'.format(cluster))
-    print("---------\n\n")
+    print("---------\n")
     # ----------------------------
     # Search the initial dataset with KOFamscan
-    print("Searching proteins using KOFamscan...\n")
+    print("Searching proteins using KOFamscan...")
     try:
         pool = multiprocessing.Pool(processes)
         kofam_results = pool.map(partial(protein_search.kofamscan_annotation, 
@@ -143,7 +150,7 @@ def main():
     # Filter out the proteins already annotated
     # Create dictionary with information per protein file
     # Structure: protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it]
-    print("Filtering KOFamscan results...\n")
+    print("Filtering KOFamscan results...")
     temporal_protein_folder = Path(output_dir) / "temporal_proteins"
     temporal_protein_folder.mkdir(parents=True, exist_ok=True)
     protein_file_info = {}
@@ -152,12 +159,15 @@ def main():
         outfile = str(temporal_protein_folder / (ko_result[1] + ".1it"))
         # Add first iteration protein files
         protein_file_info[ko_result[0]].append(outfile)
-        fasta_filter_list.fastA_filter_list(ko_result[0], outfile, ko_result[2], reverse=True)
+        if full == True:
+            copyfile(ko_result[0],outfile)
+        else:
+            fasta_filter_list.fastA_filter_list(ko_result[0], outfile, ko_result[2], reverse=True)
     # ----------------------------
 
     # Search proteins NOT annotated with KOFamscan against Swissprot
     # Determine database to use
-    print("Searching proteins against Swissprot...\n")
+    print("Searching proteins against Swissprot...")
     if method == "blast":
         swissprot_database = str(Path(database_folder) / "01.Protein_DB/uniprot_sprot")
     elif method == "diamond":
@@ -188,7 +198,7 @@ def main():
     del temp_dir
 
     # Search annotations in SQLite DB and append to the final annotation file
-    print("Extracting annotation data...\n")
+    print("Extracting annotation data...")
     sql_database = str(Path(database_folder) / "02.MicrobeAnnotator.db")
     for original_file, information in protein_file_info.items():
         filtered_sword_results = information[3]
@@ -222,17 +232,21 @@ def main():
                     else:
                         gene_ids_no_ko.append(match[0])
             # If there are ids with no annotations filter the iteration 1 protein file
-            if len(gene_ids_no_ko) > 0:
-                second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
+            second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
+            if full == True:
+                copyfile(protein_file_info[original_file][2],second_it_outfile)
                 protein_file_info[original_file].append(second_it_outfile)
-                fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
-                second_it_outfile, gene_ids_no_ko, reverse=True)
+            else:
+                if len(gene_ids_no_ko) > 0:
+                    protein_file_info[original_file].append(second_it_outfile)
+                    fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
+                    second_it_outfile, gene_ids_no_ko, reverse=True)
     # -----------------------
 
     # If running complete pipeline search against refseq
     if light == False:
         # Determine database to use
-        print("Searching proteins against RefSeq...\n")
+        print("Searching proteins against RefSeq...")
         if method == "blast":
             refseq_database = str(Path(database_folder) / "01.Protein_DB/refseq_protein")
         elif method == "diamond":
@@ -295,14 +309,18 @@ def main():
                         else:
                             gene_ids_no_ko.append(match[0])
                 # If there are ids with no annotations filter the iteration 1 protein file
-                if len(gene_ids_no_ko) > 0:
-                    third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
+                third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
+                if full == True:
                     protein_file_info[original_file].append(third_it_outfile)
-                    fasta_filter_list.fastA_filter_list(protein_file_info[original_file][4], 
-                    third_it_outfile, gene_ids_no_ko, reverse=True)
-                    # New structure: 
-                    # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
-                    # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
+                    copyfile(protein_file_info[original_file][2],second_it_outfile)
+                else:
+                    if len(gene_ids_no_ko) > 0:
+                        protein_file_info[original_file].append(third_it_outfile)
+                        fasta_filter_list.fastA_filter_list(protein_file_info[original_file][4], 
+                        third_it_outfile, gene_ids_no_ko, reverse=True)
+                        # New structure: 
+                        # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
+                        # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
         # Finally run remaining proteins against Trembl
         print("Searching proteins against Trembl...\n")
         if method == "blast":
@@ -368,7 +386,7 @@ def main():
         # ------------------------
 
     # Parse annotation files and summarize them
-    print("Extracting ko numbers and summarizing results...\n")
+    print("Extracting ko numbers and summarizing results...")
     annotation_files = []
     for information in protein_file_info.values():
         annotation_folder = information[1].parent
@@ -381,10 +399,9 @@ def main():
         annotation_files.append(ko_numbers)
     prefix = plot_filename
     regular_modules, bifurcation_modules, structural_modules,  \
-    module_names, genome_names, metabolism_matrix, module_correspondence, \
-    module_group_matrix, module_groups, module_colors = ko_mapper.module_information_importer(annotation_files)
+    module_information, metabolism_matrix, module_group_matrix = ko_mapper.module_information_importer(annotation_files)
     metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
-    metabolism_matrix_dropped_relabel = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_correspondence, module_colors, cluster, prefix)
+    metabolism_matrix_dropped_relabel, module_colors = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix)
     ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
     print("MicrobeAnnotator has finished succefully!")
 
