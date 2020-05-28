@@ -36,6 +36,7 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
     # Create output_file folder
     outfolder = Path(output_file_folder)
     outfolder.mkdir(parents=True, exist_ok=True)
+    genbank_files = None
     # Download information
     if step == 1:
         print("Downloading UniProt information...")
@@ -52,7 +53,7 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
 
     # Parse annotation files
     if step == 2:
-        if genbank_files not in locals():
+        if genbank_files == None:
             temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
             viral_list = refseq_data_downloader.search_all_files(temp_gb_files / "viral")
             bacteria_list = refseq_data_downloader.search_all_files(temp_gb_files / "bacteria")
