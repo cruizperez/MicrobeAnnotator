@@ -52,6 +52,11 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
 
     # Parse annotation files
     if step == 2:
+        if not genbank_files:
+            viral_list = refseq_data_downloader.search_all_files(temp_gb_files / "viral")
+            bacteria_list = refseq_data_downloader.search_all_files(temp_gb_files / "bacteria")
+            archaea_list = refseq_data_downloader.search_all_files(temp_gb_files / "archaea")
+            genbank_files = viral_list + bacteria_list + archaea_list
         if light == True:
             print("Parsing swissprot annotation data...")
             temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
