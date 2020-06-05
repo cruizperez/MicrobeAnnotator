@@ -53,12 +53,6 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
 
     # Parse annotation files
     if step == 2:
-        if genbank_files == None:
-            temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
-            viral_list = refseq_data_downloader.search_all_files(temp_gb_files / "viral")
-            bacteria_list = refseq_data_downloader.search_all_files(temp_gb_files / "bacteria")
-            archaea_list = refseq_data_downloader.search_all_files(temp_gb_files / "archaea")
-            genbank_files = viral_list + bacteria_list + archaea_list
         if light == True:
             print("Parsing swissprot annotation data...")
             temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
@@ -69,13 +63,19 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
                 rmtree(outfolder / "02.temp_dat_files")
             print("Done!")
         else:
+            if genbank_files == None:
+                temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
+                viral_list = refseq_data_downloader.search_all_files(temp_gb_files / "viral")
+                bacteria_list = refseq_data_downloader.search_all_files(temp_gb_files / "bacteria")
+                archaea_list = refseq_data_downloader.search_all_files(temp_gb_files / "archaea")
+                genbank_files = viral_list + bacteria_list + archaea_list
             print("Parsing swissprot and trembl annotation data...")
-            #temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
-            #final_sprot_table = outfolder / "02.uniprot_sprot.table"
-            #uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
-            #temporal_trembl_dat = outfolder / "02.temp_dat_files/uniprot_trembl.dat.gz"
-            #final_trembl_table = outfolder / "02.uniprot_trembl.table"
-            #uniprot_dat_parser.parse_uniprot_dat(temporal_trembl_dat, final_trembl_table)
+            temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
+            final_sprot_table = outfolder / "02.uniprot_sprot.table"
+            uniprot_dat_parser.parse_uniprot_dat(temporal_sprot_dat, final_sprot_table)
+            temporal_trembl_dat = outfolder / "02.temp_dat_files/uniprot_trembl.dat.gz"
+            final_trembl_table = outfolder / "02.uniprot_trembl.table"
+            uniprot_dat_parser.parse_uniprot_dat(temporal_trembl_dat, final_trembl_table)
             print("Done!")
             print("Parsing refseq annotation data...")
             temp_table_list = refseq_genbank_parser.table_generator_worker(genbank_files, threads)
