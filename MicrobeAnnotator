@@ -25,6 +25,7 @@ from independent_scripts import protein_search
 from independent_scripts import fasta_filter_list
 from independent_scripts import sqlite3_search
 from independent_scripts import ko_mapper
+from shutil import which
 
 ################################################################################
 """---1.0 Main Function---"""
@@ -132,6 +133,35 @@ def main():
     else:
         exit('I do not recognize this clustering option: {}.'.format(cluster))
     print("---------\n")
+
+    # Check kofamscan binary existence
+    if kofam_bin == None:
+        kofam_call = 'exec_annotation'
+    else:
+        kofam_call = str(Path(kofam_bin) / 'exec_annotation')
+    if which(kofam_call) == None:
+            if kofam_bin == None:
+                exit("KOfamscan not found in PATH, please provide the correct path to the folder with binaries")
+            else:
+                exit("KOfamscan not found in " + kofam_bin + ", please provide the correct path to the folder with binaries")
+    
+    # Check kofamscan binary existence
+    if method == 'blast':
+        call_name = 'blastp'
+    elif method == 'diamond':
+        call_name = 'diamond'
+    elif method == 'sword':
+        call_name = 'sword'
+    if method_bin == None:
+        method_call = call_name
+    else:
+        method_call = str(Path(method_bin) / call_name)
+    if which(method_call) == None:
+            if method_bin == None:
+                exit(method_call + " not found in PATH, please provide the correct path to the folder with binaries")
+            else:
+                exit(method_call + " not found in " + method_bin + ", please provide the correct path to the folder with binaries")
+
     # ----------------------------
     # Search the initial dataset with KOFamscan
     print("Searching proteins using KOFamscan...")
