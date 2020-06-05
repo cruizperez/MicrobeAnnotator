@@ -44,6 +44,11 @@ def kofamscan_annotation(protein_file, multi_argument):
         kofam_call = 'exec_annotation'
     else:
         kofam_call = str(Path(bin_path) / 'exec_annotation')
+    if which(blast_call) == None:
+            if bin_path == None:
+                exit("KOfamscan not found in PATH, please provide the correct path to the folder with binaries")
+            else:
+                exit("KOfamscan not found in " + bin_path + ", please provide the correct path to the folder with binaries")
     kofam_output_file = str(kofamscan_result_folder / (protein_file_name + '.kofam'))
     temp_folder = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(15)])
     subprocess.call([kofam_call, '-o', kofam_output_file, '--cpu', str(threads),
@@ -74,6 +79,8 @@ def kofamscan_annotation(protein_file, multi_argument):
 def kofamscan_filter(kofamscan_input, outfile):
     # Import modules
     from random import randint
+    from shutil import which
+    from sys import exit
 
     header_list = []
     kofamscan_results = {}
