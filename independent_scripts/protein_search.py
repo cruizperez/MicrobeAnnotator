@@ -199,31 +199,31 @@ def similarity_search(protein_file, multiple_arguments):
             else:
                 exit("Blastp not found in " + bin_path + ", please provide the correct path to the folder with binaries")
         else:
-            method_output_file = str(db_result_folder / protein_file_name + '.' + method)
-            subprocess.call([blast_call, '-query', protein_file, '-db', database, '-out', method_output_file,
-            '-max_target_seqs', '6', '-num_threads', str(threads), '-outfmt', '\'6 std qlen slen\''])
+            method_output_file = str(db_result_folder / (protein_file_name + '.' + method))
+            subprocess.call([blast_call, "-query", protein_file, "-db", database, "-out", method_output_file,
+            "-max_target_seqs", "6", "-num_threads", str(threads), "-outfmt", """6 std qlen slen"""])
             filtered_file = method_output_file + '.filt'
             blast_filter_slow(method_output_file, filtered_file, id_perc, bitscore, evalue, aln_percent)
             return (protein_file, filtered_file)
     elif method == 'diamond':
         if bin_path == None:
-            diamond_call = "diamond blastp"
+            diamond_call = "diamond"
         else:
-            diamond_call = str(Path(bin_path) / "diamond blastp")
-        if which(diamond_call) == None:
-            if bin_path == None:
-                exit("Diamond not found in PATH, please provide the correct path to the folder with binaries")
-            else:
-                exit("Diamond not found in " + bin_path + ", please provide the correct path to the folder with binaries")
-        else:
-            method_output_file = str(db_result_folder / protein_file_name + '.' + method)
-            subprocess.call([diamond_call, '--db', database, '--out', method_output_file, 
-            '--outfmt', "6", "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend",
-            "sstart", "send", "evalue", "bitscore", "qlen", "slen", "--threads", str(threads),
-            "--unal", "0", "--max-target-seqs", "6", "--query", protein_file])
-            filtered_file = method_output_file + '.filt'
-            blast_filter_slow(method_output_file, filtered_file, id_perc, bitscore, evalue, aln_percent)
-            return (protein_file, filtered_file)
+            diamond_call = str(Path(bin_path) / "diamond")
+        # if which(method) == None:
+        #     if bin_path == None:
+        #         exit("Diamond not found in PATH, please provide the correct path to the folder with binaries")
+        #     else:
+        #         exit("Diamond not found in " + bin_path + ", please provide the correct path to the folder with binaries")
+        # else:
+        method_output_file = str(db_result_folder / (protein_file_name + '.' + method))
+        subprocess.call([diamond_call, 'blastp', '--db', database, '--out', method_output_file, 
+        '--outfmt', "6", "qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend",
+        "sstart", "send", "evalue", "bitscore", "qlen", "slen", "--threads", str(threads),
+        "--unal", "0", "--max-target-seqs", "6", "--query", protein_file])
+        filtered_file = method_output_file + '.filt'
+        blast_filter_slow(method_output_file, filtered_file, id_perc, bitscore, evalue, aln_percent)
+        return (protein_file, filtered_file)
     elif method == 'sword':
         if bin_path == None:
             sword_call = "sword"
