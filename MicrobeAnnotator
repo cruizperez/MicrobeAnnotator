@@ -197,7 +197,7 @@ def main():
 
     # Search proteins NOT annotated with KOFamscan against Swissprot
     # Determine database to use
-    print("Searching proteins against Swissprot...")
+    print("Searching proteins against Swissprot using " + method + " ...")
     if method == "blast":
         swissprot_database = str(Path(database_folder) / "01.Protein_DB/uniprot_sprot")
     elif method == "diamond":

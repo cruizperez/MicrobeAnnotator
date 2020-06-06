@@ -475,7 +475,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
     print("Grouping by metabolism type and plotting... ")
     for module in list(metabolism_matrix_dropped_relabel.index):
         for genome in list(metabolism_matrix_dropped_relabel.columns):
-            if metabolism_matrix_dropped_relabel.loc[module,genome] >= 80:
+            if metabolism_matrix_dropped_relabel.loc[module,genome].any() >= 80:
                 module_group_matrix.loc[module_colors[module][0],genome] += 1
     module_group_matrix_transp = module_group_matrix.T
     emptyness = (module_group_matrix_transp == 0).all()
@@ -494,8 +494,8 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
         module_group_matrix_transp.plot.bar(ax=Axis, stacked=True, color=color_list, figsize=(25,15), legend=False)
         Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='x-small', markerscale=0.3)
         Axis.set_xlabel("Genomes", fontsize=30)
-        Axis.set_ylabel('Number of Modules (>=80% complete)', fontsize=30)
-        Figure.suptitle('Metabolism Module Categoryper Genome', fontsize=40)
+        Axis.set_ylabel('Number of Modules (>=80% complete in at least one genome)', fontsize=30)
+        Figure.suptitle('Metabolism Module Category per Genome', fontsize=40)
         Figure.subplots_adjust()
         Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
     print("Done!")
@@ -570,7 +570,7 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
     for pathway, color in colors_for_legend.items():
         heatmap.ax_heatmap.scatter(1,1, color=color, label=pathway, zorder=0, s=45)
     heatmap.ax_heatmap.set_xlabel("Genomes", fontsize=30)
-    heatmap.ax_heatmap.set_ylabel('Modules (more than 50% complete)', fontsize=30)
+    heatmap.ax_heatmap.set_ylabel('Modules (at least 50% complete in one genome)', fontsize=30)
     plt.figlegend(loc="lower right", ncol=2, fontsize='medium')
     heatmap.savefig(prefix + "_heatmap.pdf")
     print("Done!")
