@@ -85,7 +85,8 @@ bash ibm-aspera-connect-3.9.8.176272-linux-g2.12-64.sh
 
 Take note of this installation folder and, for your peace of mind lets add this folder to your PATH:
 
-Add the following line to your `~/.bashrc` file: `export PATH="$PATH:/home/cruizperez/.aspera/connect/bin"`
+Add the following line to your `~/.bashrc` file: `export PATH="$PATH:/home/[user]/.aspera/connect/bin"`\
+Note: Replace [user] by your username
 
 Now reload the ~/.bashrc file with: `source ~/.bashrc`
 
