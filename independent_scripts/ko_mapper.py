@@ -473,9 +473,10 @@ def global_mapper(regular_modules, bifurcating_modules, structural_modules, anno
 def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
     print("Grouping by metabolism type and plotting... ")
+    metabolism_matrix_dropped_relabel.to_csv("AAAA.tab", header=True, index=True, sep="\t")
     for module in list(metabolism_matrix_dropped_relabel.index):
         for genome in list(metabolism_matrix_dropped_relabel.columns):
-            if metabolism_matrix_dropped_relabel.loc[module,genome].any() >= 80:
+            if metabolism_matrix_dropped_relabel.loc[module,genome] >= 80:
                 module_group_matrix.loc[module_colors[module][0],genome] += 1
     module_group_matrix_transp = module_group_matrix.T
     emptyness = (module_group_matrix_transp == 0).all()
@@ -492,9 +493,11 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
             color_list.append(color_dict[pathway])
         Figure, Axis = plt.subplots(1,1, figsize=(25,15))
         module_group_matrix_transp.plot.bar(ax=Axis, stacked=True, color=color_list, figsize=(25,15), legend=False)
-        Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='x-small', markerscale=0.3)
+        Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='medium', markerscale=0.3)
         Axis.set_xlabel("Genomes", fontsize=30)
         Axis.set_ylabel('Number of Modules (>=80% complete in at least one genome)', fontsize=30)
+        Axis.tick_params(axis='x', labelsize=15)
+        Axis.tick_params(axis='y', labelsize=15)
         Figure.suptitle('Metabolism Module Category per Genome', fontsize=40)
         Figure.subplots_adjust()
         Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
@@ -555,13 +558,13 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
         row_cluster = False
     if col_cluster == True and table_dim[1] < 3:
         col_cluster = False
+    sns.set(font_scale=1.6)
     heatmap = sns.clustermap(metabolism_matrix_retained_relabel, xticklabels=True, yticklabels=True, 
-                            figsize=(30,25), row_cluster=row_cluster, col_cluster=col_cluster, cbar_pos=(0, 0, .1, .02),
-                            cbar_kws= {'orientation': 'horizontal'}, dendrogram_ratio=0.1)
-    if cluster is None or cluster == 'rows':
-        heatmap.ax_heatmap.set_title('Module Completeness', fontsize=40)
-    else:
-        heatmap.ax_col_dendrogram.set_title('Module Completeness', fontsize=40)
+                            figsize=(30,25), row_cluster=row_cluster, col_cluster=col_cluster, cbar_pos=(0.01, 1, 0.2, 0.04),
+                            cbar_kws= {'orientation': 'horizontal', 'label': 'Module Completeness (%)'}, dendrogram_ratio=0.1)
+    # cbar = heatmap.ax_cbar
+# here set the labelsize by 20
+    # cbar.set_yticklabels(labels=cbar.get_ylabel, fontdict={"fontsize":20})
     for module in heatmap.ax_heatmap.yaxis.get_ticklabels():
         colors_for_ticks.append(module_colors[module.get_text()][1])
         if module_colors[module.get_text()][0] not in colors_for_legend:
@@ -569,9 +572,11 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
     [mod.set_color(col) for (col,mod) in zip(colors_for_ticks,heatmap.ax_heatmap.yaxis.get_ticklabels())]
     for pathway, color in colors_for_legend.items():
         heatmap.ax_heatmap.scatter(1,1, color=color, label=pathway, zorder=0, s=45)
-    heatmap.ax_heatmap.set_xlabel("Genomes", fontsize=30)
-    heatmap.ax_heatmap.set_ylabel('Modules (at least 50% complete in one genome)', fontsize=30)
-    plt.figlegend(loc="lower right", ncol=2, fontsize='medium')
+    heatmap.ax_heatmap.set_xticklabels(heatmap.ax_heatmap.get_xmajorticklabels(), fontsize = 15)
+    heatmap.ax_heatmap.set_yticklabels(heatmap.ax_heatmap.get_ymajorticklabels(), fontsize = 15)
+    heatmap.ax_heatmap.set_xlabel("Genomes", fontsize=20)
+    heatmap.ax_heatmap.set_ylabel('Modules (at least 50% complete in one genome)', fontsize=20)
+    plt.figlegend(loc="upper right", ncol=2, fontsize=12)
     heatmap.savefig(prefix + "_heatmap.pdf")
     print("Done!")
     return metabolism_matrix_retained_relabel, module_colors
