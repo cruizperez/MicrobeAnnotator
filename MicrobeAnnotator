@@ -58,12 +58,12 @@ def main():
                         help='Directory where KOFamscan binaries are located. By default assumes it is in PATH.')
     search_options.add_argument('--id_perc', dest='id_perc', action='store', required=False, default=40, type=int,
                         help='Minimum identity percentage to retain a hit. By default 40.')
-    search_options.add_argument('--bitscore', dest='bitscore', action='store', required=False, default=50, type=int,
-                        help='Minimum bitscore to retain a hit. By default 50.')
+    search_options.add_argument('--bitscore', dest='bitscore', action='store', required=False, default=80, type=int,
+                        help='Minimum bitscore to retain a hit. By default 80.')
     search_options.add_argument('--evalue', dest='evalue', action='store', required=False, default=0.01, type=float,
                         help='Maximum evalue to retain a hit. By default 0.01.')
-    search_options.add_argument('--aln_percent', dest='aln_percent', action='store', required=False, default=60, type=int,
-                        help='Minimum percentage of query covered by hit alignment. By default 60.')
+    search_options.add_argument('--aln_percent', dest='aln_percent', action='store', required=False, default=70, type=int,
+                        help='Minimum percentage of query covered by hit alignment. By default 70.')
     plot_options = parser.add_argument_group('Summary abnd plotting options.')
     plot_options.add_argument('--cluster', dest='cluster', action='store', required=False,
                         help=textwrap.dedent('''
@@ -161,8 +161,20 @@ def main():
                 exit(method_call + " not found in PATH, please provide the correct path to the folder with binaries")
             else:
                 exit(method_call + " not found in " + method_bin + ", please provide the correct path to the folder with binaries")
-
     # ----------------------------
+
+    # Get the initial list of proteins per genome and store them
+    starting_proteins = {}
+    for file in input_list:
+        starting_filename = str(Path(file).name)
+        starting_proteins[starting_filename] = []
+        with open(file) as proteins:
+            for line in proteins:
+                if line.startswith(">"):
+                    line = line.strip().split()[0].replace(">", "")
+                    starting_proteins[starting_filename].append(line)
+    # ----------------------------
+
     # Search the initial dataset with KOFamscan
     print("Searching proteins using KOFamscan...")
     try:
@@ -249,6 +261,24 @@ def main():
                 for match in annotation:
                     final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
                     match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+            # If done, check which proteins were not annotated and add information on those
+            # Extract annotated proteins
+            annotated_proteins = []
+            with open(final_annotation_file, 'r') as final_annotation_fh:
+                for line in final_annotation_fh:
+                    if line.startswith("query_id"):
+                        continue
+                    else:
+                        protein = line.strip().split("\t")[0]
+                        annotated_proteins.append(protein)
+            annotated_proteins = list(set(annotated_proteins))
+            # Add missing information for unannotated proteins
+            with open(final_annotation_file, 'a') as final_annotation_fh:
+                for original_protein in starting_proteins[original_file]:
+                    if original_protein in annotated_proteins:
+                        continue
+                    else:
+                        final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
             if temporal_protein_folder.is_dir():
                 rmtree(temporal_protein_folder)
         else:
@@ -256,10 +286,9 @@ def main():
             gene_ids_no_ko = []
             with open(final_annotation_file, 'a') as final_annotation_fh:
                 for match in annotation:
-                    if match[4] != "":
-                        final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
-                        match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
-                    else:
+                    final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
+                    match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+                    if match[4] == "":
                         gene_ids_no_ko.append(match[0])
             # If there are ids with no annotations filter the iteration 1 protein file
             second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
@@ -333,10 +362,10 @@ def main():
                 # Final annotation fields:
                 # query_id protein_id product ko_number ko_product taxonomy function compartment process database
                     for match in annotation:
-                        if match[4] != "" and match[4] != "NA":
-                            final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
-                            match[1], match[2], match[4], match[5], match[3]))
-                        else:
+                        #if match[4] != "" and match[4] != "NA":
+                        final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
+                        match[1], match[2], match[4], match[5], match[3]))
+                        if match[4] == "" or match[4] == "NA":
                             gene_ids_no_ko.append(match[0])
                 # If there are ids with no annotations filter the iteration 1 protein file
                 third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
@@ -411,6 +440,24 @@ def main():
                     for match in annotation:
                         final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
                         match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+            # If done, check which proteins were not annotated and add information on those
+            # Extract annotated proteins
+            annotated_proteins = []
+            with open(final_annotation_file, 'r') as final_annotation_fh:
+                for line in final_annotation_fh:
+                    if line.startswith("query_id"):
+                        continue
+                    else:
+                        protein = line.strip().split("\t")[0]
+                        annotated_proteins.append(protein)
+            annotated_proteins = list(set(annotated_proteins))
+            # Add missing information for unannotated proteins
+            with open(final_annotation_file, 'a') as final_annotation_fh:
+                for original_protein in starting_proteins[original_file]:
+                    if original_protein in annotated_proteins:
+                        continue
+                    else:
+                        final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
         if temporal_protein_folder.is_dir():
                 rmtree(temporal_protein_folder)
         # ------------------------
@@ -427,7 +474,7 @@ def main():
                 if line[3] != "":
                     ko_present.write("{}\n".format(line[3]))
         annotation_files.append(ko_numbers)
-    prefix = plot_filename
+    prefix = str(Path(output_dir) / plot_filename)
     regular_modules, bifurcation_modules, structural_modules,  \
     module_information, metabolism_matrix, module_group_matrix = ko_mapper.module_information_importer(annotation_files)
     metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
