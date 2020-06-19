@@ -473,7 +473,6 @@ def global_mapper(regular_modules, bifurcating_modules, structural_modules, anno
 def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
     print("Grouping by metabolism type and plotting... ")
-    metabolism_matrix_dropped_relabel.to_csv("AAAA.tab", header=True, index=True, sep="\t")
     for module in list(metabolism_matrix_dropped_relabel.index):
         for genome in list(metabolism_matrix_dropped_relabel.columns):
             if metabolism_matrix_dropped_relabel.loc[module,genome] >= 80:
