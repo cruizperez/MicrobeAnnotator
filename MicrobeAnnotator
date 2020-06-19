@@ -274,7 +274,7 @@ def main():
             annotated_proteins = list(set(annotated_proteins))
             # Add missing information for unannotated proteins
             with open(final_annotation_file, 'a') as final_annotation_fh:
-                for original_protein in starting_proteins[original_file]:
+                for original_protein in starting_proteins[str(Path(original_file).name)]:
                     if original_protein in annotated_proteins:
                         continue
                     else:
@@ -453,7 +453,7 @@ def main():
             annotated_proteins = list(set(annotated_proteins))
             # Add missing information for unannotated proteins
             with open(final_annotation_file, 'a') as final_annotation_fh:
-                for original_protein in starting_proteins[original_file]:
+                for original_protein in starting_proteins[str(Path(original_file).name)]:
                     if original_protein in annotated_proteins:
                         continue
                     else:
