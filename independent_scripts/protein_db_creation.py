@@ -46,7 +46,7 @@ def blastp_db_creator(directory, path=None):
                 output_file_name = protein_file.with_suffix("")
                 database_files.append(output_file_name)
                 subprocess.call([makeblasdb_call, '-in', protein_file, '-dbtype', 'prot',
-                '-parse_seqids', '-out', output_file_name])
+                '-out', output_file_name])
     print('Done!')
     with open(Path(directory)/'blast_db.list', 'w') as db_list:
         for file in database_files:
