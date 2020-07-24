@@ -306,7 +306,7 @@ def main():
                 for match in annotation:
                     final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
                     match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
-                    if match[4] == "":
+                    if match[3] == "":
                         gene_ids_no_ko.append(match[0])
             # If there are ids with no annotations filter the iteration 1 protein file
             second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
@@ -380,10 +380,9 @@ def main():
                 # Final annotation fields:
                 # query_id protein_id product ko_number ko_product taxonomy function compartment process database
                     for match in annotation:
-                        #if match[4] != "" and match[4] != "NA":
                         final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
                         match[1], match[2], match[4], match[5], match[3]))
-                        if match[4] == "" or match[4] == "NA":
+                        if match[3] == "" or match[3] == "NA":
                             gene_ids_no_ko.append(match[0])
                 # If there are ids with no annotations filter the iteration 1 protein file
                 third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
