@@ -125,7 +125,7 @@ def main():
     elif file_list != None:
         number_files = 0
         with open(file_list) as file_list_handler:
-            for line in file_list:
+            for line in file_list_handler:
                 number_files += 1
         print('I will process a total of {} files. Of these, I will run {} in parallel with {} threads per file.'.format(
             str(number_files), str(processes), str(threads)))
