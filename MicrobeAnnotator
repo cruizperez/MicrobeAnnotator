@@ -45,7 +45,7 @@ def main():
     general_options = parser.add_argument_group('Mandatory i/o options.')
     general_options.add_argument('-i', '--input', dest='input_list', action='store', required=False, nargs='+',
                         help='Space-separated list of protein files to parse. Use -i OR -l.')
-    general_options.add_argument('-l', '--list', dest='file_list', action='store', required=False, nargs='+',
+    general_options.add_argument('-l', '--list', dest='file_list', action='store', required=False,
                         help='File with list of inputs. Use -i OR -l.')
     general_options.add_argument('-o', '--outdir', dest='output_dir', action='store', required=True,
                         help='Directory to store results.')
