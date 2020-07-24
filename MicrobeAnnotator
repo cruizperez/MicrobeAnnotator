@@ -43,8 +43,10 @@ def main():
             '''-m [search method]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     general_options = parser.add_argument_group('Mandatory i/o options.')
-    general_options.add_argument('-i', '--input', dest='input_list', action='store', required=True, nargs='+',
-                        help='Space-separated list of protein files to parse.')
+    general_options.add_argument('-i', '--input', dest='input_list', action='store', required=False, nargs='+',
+                        help='Space-separated list of protein files to parse. Use -i OR -l.')
+    general_options.add_argument('-l', '--list', dest='file_list', action='store', required=False, nargs='+',
+                        help='File with list of inputs. Use -i OR -l.')
     general_options.add_argument('-o', '--outdir', dest='output_dir', action='store', required=True,
                         help='Directory to store results.')
     general_options.add_argument('-d', '--database', dest='database_folder', action='store', required=True,
@@ -93,6 +95,7 @@ def main():
     args = parser.parse_args()
 
     input_list = args.input_list
+    file_list = args.file_list
     output_dir = args.output_dir
     database_folder = args.database_folder
     method = args.method
@@ -164,6 +167,13 @@ def main():
     # ----------------------------
 
     # Get the initial list of proteins per genome and store them
+    if input_list != None and file_list != None:
+        exit('Please provide only a file with the list of inputs "-l" OR a space-separated list of files "-i".')
+    elif file_list != None:
+        input_list = []
+        with open(file_list) as file_list_handler:
+            for line in file_list_handler:
+                input_list.append(line.strip())
     starting_proteins = {}
     for file in input_list:
         starting_filename = str(Path(file).name)
