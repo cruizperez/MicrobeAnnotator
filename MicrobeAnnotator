@@ -322,40 +322,10 @@ def main():
                     protein_file_info[original_file].append(second_it_outfile)
                     fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
                     second_it_outfile, starting_proteins[str(Path(original_file).name)], reverse=False)
-                    starting_proteins[str(Path(original_file).name)]
-                    # if len(gene_ids_no_ko) > 0:
-                    #     protein_file_info[original_file].append(second_it_outfile)
-                    #     fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
-                    #     second_it_outfile, starting_proteins[str(Path(original_file).name)], reverse=False)
-            # with open(final_annotation_file, 'r') as final_annotation_fh:
-            #     for line in final_annotation_fh:
-            #         if line.startswith("query_id"):
-            #             continue
-            #         else:
-            #             protein = line.strip().split("\t")[0]
-            #             annotated_proteins.append(protein)
-            # annotated_proteins = list(set(annotated_proteins))
-            # # Add missing information for unannotated proteins
-            # with open(final_annotation_file, 'a') as final_annotation_fh:
-            #     for original_protein in starting_proteins[str(Path(original_file).name)]:
-            #         if original_protein in annotated_proteins:
-            #             continue
-            #         else:
-            #             final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-            # if temporal_protein_folder.is_dir():
-            #     rmtree(temporal_protein_folder)
-        # else:
-        #     # Check if all annotations have ko numbers, if not, get ids to next round of iteration
-        #     gene_ids_no_ko = []
-        #     with open(final_annotation_file, 'a') as final_annotation_fh:
-        #         for match in annotation:
-        #             final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
-        #             match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
-        #             if match[3] == "":
-        #                 gene_ids_no_ko.append(match[0])
-        #     # If there are ids with no annotations filter the iteration 1 protein file
-        #     
-            
+                    # starting_proteins[str(Path(original_file).name)]
+                # New structure: 
+                # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
+                # filtered_fasta_2it]
     # -----------------------
 
     # If running complete pipeline search against refseq
@@ -406,35 +376,64 @@ def main():
                     for line in swissprot_results:
                         line = line.strip().split()
                         significant_hits.append((line[0], line[1]))
+                # If no hits were found
                 if len(significant_hits) == 0:
-                    continue
+                    third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
+                    copyfile(protein_file_info[original_file][4],third_it_outfile)
+                    protein_file_info[original_file].append(third_it_outfile)
                 else:
                     annotation = sqlite3_search.search_ids_imported(sql_database, "refseq", significant_hits)
                     # Each annotation will have:
                     # query_id gene_id product taxonomy ko_number ko_product
-                # Check if all annotations have ko numbers, if not, get ids to next round of iteration
-                gene_ids_no_ko = []
-                with open(final_annotation_file, 'a') as final_annotation_fh:
-                # Final annotation fields:
-                # query_id protein_id product ko_number ko_product taxonomy function compartment process database
-                    for match in annotation:
-                        final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
-                        match[1], match[2], match[4], match[5], match[3]))
-                        if match[3] == "" or match[3] == "NA":
-                            gene_ids_no_ko.append(match[0])
-                # If there are ids with no annotations filter the iteration 1 protein file
-                third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
-                if full == True:
-                    protein_file_info[original_file].append(third_it_outfile)
-                    copyfile(protein_file_info[original_file][2],second_it_outfile)
-                else:
-                    if len(gene_ids_no_ko) > 0:
+                    # Write the annotations found in the annotation file
+
+                    with open(final_annotation_file, 'a') as final_annotation_fh:
+                        for match in annotation:
+                            final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\trefseq\n".format(match[0],
+                            match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+                            if match[4] != "":
+                                starting_proteins[str(Path(original_file).name)].remove(match[0])
+                            print(starting_proteins[str(Path(original_file).name)])
+                    # Check which proteins were not annotated and filter for the next iteration
+                    third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
+                    if full == True:
+                        copyfile(protein_file_info[original_file][2],third_it_outfile)
                         protein_file_info[original_file].append(third_it_outfile)
-                        fasta_filter_list.fastA_filter_list(protein_file_info[original_file][4], 
-                        third_it_outfile, gene_ids_no_ko, reverse=True)
+                    else:
+                        protein_file_info[original_file].append(third_it_outfile)
+                        fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
+                        third_it_outfile, starting_proteins[str(Path(original_file).name)], reverse=False)
+                        # starting_proteins[str(Path(original_file).name)] 
                         # New structure: 
                         # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
                         # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
+
+                # # Check if all annotations have ko numbers, if not, get ids to next round of iteration
+                # gene_ids_no_ko = []
+                # with open(final_annotation_file, 'a') as final_annotation_fh:
+                # # Final annotation fields:
+                # # query_id protein_id product ko_number ko_product taxonomy function compartment process database
+                #     for match in annotation:
+                #         final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
+                #         match[1], match[2], match[4], match[5], match[3]))
+                #         if match[3] == "" or match[3] == "NA":
+                #             gene_ids_no_ko.append(match[0])
+                # # If there are ids with no annotations filter the iteration 1 protein file
+                # third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
+                # if full == True:
+                #     protein_file_info[original_file].append(third_it_outfile)
+                #     copyfile(protein_file_info[original_file][2],second_it_outfile)
+                # else:
+                    
+                #     if len(gene_ids_no_ko) > 0:
+                #         protein_file_info[original_file].append(third_it_outfile)
+                #         fasta_filter_list.fastA_filter_list(protein_file_info[original_file][4], 
+                #         third_it_outfile, gene_ids_no_ko, reverse=True)
+                #         # New structure: 
+                #         # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
+                #         # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
+
+
         # Finally run remaining proteins against Trembl
         print("Searching proteins against Trembl...\n")
         if method == "blast":
@@ -471,7 +470,7 @@ def main():
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
-        print("Extracting annotation data...\n")
+        print("Extracting Trembl annotation data...\n")
         for original_file, information in protein_file_info.items():
             if len(information) == 8:
                 filtered_sword_results = information[7]
@@ -482,39 +481,56 @@ def main():
                         line = line.strip().split()
                         significant_hits.append((line[0], line[1]))
                 if len(significant_hits) == 0:
-                    continue
+                    with open(final_annotation_file, 'a') as final_annotation_fh:
+                        for original_protein in starting_proteins[str(Path(original_file).name)]:
+                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
                 else:
                     annotation = sqlite3_search.search_ids_imported(sql_database, "trembl", significant_hits)
                     # Each annotation will have:
                     # query_id gene_id product taxonomy ko_number ko_product
+                    with open(final_annotation_file, 'a') as final_annotation_fh:
+                        for match in annotation:
+                            final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
+                            match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+                            if match[4] != "":
+                                starting_proteins[str(Path(original_file).name)].remove(match[0])
+                            print(starting_proteins[str(Path(original_file).name)])
+                    with open(final_annotation_file, 'a') as final_annotation_fh:
+                        for original_protein in starting_proteins[str(Path(original_file).name)]:
+                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                    print(starting_proteins)
                 # Check if all annotations have ko numbers, if not, get ids to next round of iteration
-                gene_ids_no_ko = []
-                with open(final_annotation_file, 'a') as final_annotation_fh:
-                # Final annotation fields:
-                # query_id protein_id product ko_number ko_product taxonomy function compartment process database
-                    for match in annotation:
-                        final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
-                        match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
-            # If done, check which proteins were not annotated and add information on those
-            # Extract annotated proteins
-            annotated_proteins = []
-            with open(final_annotation_file, 'r') as final_annotation_fh:
-                for line in final_annotation_fh:
-                    if line.startswith("query_id"):
-                        continue
-                    else:
-                        protein = line.strip().split("\t")[0]
-                        annotated_proteins.append(protein)
-            annotated_proteins = list(set(annotated_proteins))
-            # Add missing information for unannotated proteins
-            with open(final_annotation_file, 'a') as final_annotation_fh:
-                for original_protein in starting_proteins[str(Path(original_file).name)]:
-                    if original_protein in annotated_proteins:
-                        continue
-                    else:
-                        final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-        if temporal_protein_folder.is_dir():
-                rmtree(temporal_protein_folder)
+
+
+            #     gene_ids_no_ko = []
+            #     with open(final_annotation_file, 'a') as final_annotation_fh:
+            #     # Final annotation fields:
+            #     # query_id protein_id product ko_number ko_product taxonomy function compartment process database
+            #         for match in annotation:
+            #             final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
+            #             match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+            # # If done, check which proteins were not annotated and add information on those
+            # # Extract annotated proteins
+            # annotated_proteins = []
+            # with open(final_annotation_file, 'r') as final_annotation_fh:
+            #     for line in final_annotation_fh:
+            #         if line.startswith("query_id"):
+            #             continue
+            #         else:
+            #             protein = line.strip().split("\t")[0]
+            #             annotated_proteins.append(protein)
+            # annotated_proteins = list(set(annotated_proteins))
+            # # Add missing information for unannotated proteins
+            # with open(final_annotation_file, 'a') as final_annotation_fh:
+            #     for original_protein in starting_proteins[str(Path(original_file).name)]:
+            #         if original_protein in annotated_proteins:
+            #             continue
+            #         else:
+            #             final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+
+
+        # if temporal_protein_folder.is_dir():
+        #         rmtree(temporal_protein_folder)
         # ------------------------
 
     # Parse annotation files and summarize them
