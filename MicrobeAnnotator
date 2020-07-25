@@ -363,7 +363,6 @@ def main():
 
         # Search annotations in SQLite DB and append to the final annotation file
         print("Extracting RefSeq annotation data...\n")
-        print(starting_proteins)
         for original_file, information in protein_file_info.items():
             if len(information) == 6:
                 filtered_sword_results = information[5]
@@ -385,7 +384,6 @@ def main():
                     # Write the annotations found in the annotation file
 
                     with open(final_annotation_file, 'a') as final_annotation_fh:
-                        print(starting_proteins[str(Path(original_file).name)])
                         for match in annotation:
                             final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
                             match[1], match[2], match[4], match[5], match[3]))
@@ -467,7 +465,6 @@ def main():
                             match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
                             if match[4] != "":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
-                            print(starting_proteins[str(Path(original_file).name)])
                     with open(final_annotation_file, 'a') as final_annotation_fh:
                         for original_protein in starting_proteins[str(Path(original_file).name)]:
                             final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
