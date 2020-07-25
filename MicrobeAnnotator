@@ -191,7 +191,6 @@ def main():
                 if line.startswith(">"):
                     line = line.strip().split()[0].replace(">", "")
                     starting_proteins[starting_filename].append(line)
-    print(starting_proteins)
     # ----------------------------
 
     # Search the initial dataset with KOFamscan
@@ -292,7 +291,6 @@ def main():
                 # Write the annotations found in the annotation file
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for match in annotation:
-                        print(match)
                         final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
                         match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
                         if match[4] != "":
@@ -302,17 +300,14 @@ def main():
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for original_protein in starting_proteins[str(Path(original_file).name)]:
                         final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-                print(starting_proteins)
             else:
                 # Write the annotations found in the annotation file
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for match in annotation:
-                        print(match)
                         final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
                         match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
-                        if match[4] != "":
+                        if match[4] != "" and match[4] != "NA":
                             starting_proteins[str(Path(original_file).name)].remove(match[0])
-                        print(starting_proteins[str(Path(original_file).name)])
                 # Check which proteins were not annotated and filter for the next iteration
                 second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
                 if full == True:
@@ -366,7 +361,7 @@ def main():
         # --------------------------
 
         # Search annotations in SQLite DB and append to the final annotation file
-        print("Extracting refseq annotation data...\n")
+        print("Extracting RefSeq annotation data...\n")
         for original_file, information in protein_file_info.items():
             if len(information) == 6:
                 filtered_sword_results = information[5]
@@ -388,16 +383,19 @@ def main():
                     # Write the annotations found in the annotation file
 
                     with open(final_annotation_file, 'a') as final_annotation_fh:
+                    print(starting_proteins[str(Path(original_file).name)])
                         for match in annotation:
                             final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
                             match[1], match[2], match[4], match[5], match[3]))
-                            if match[4] != "":
+                            if match[4] != "" and match[4] != "NA":
+                                print(match, starting_proteins[str(Path(original_file).name)])
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
-                            print(starting_proteins[str(Path(original_file).name)])
+                                print(starting_proteins[str(Path(original_file).name)])
+                            
                     # Check which proteins were not annotated and filter for the next iteration
                     third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
                     if full == True:
-                        copyfile(protein_file_info[original_file][2],third_it_outfile)
+                        copyfile(protein_file_info[original_file][4],third_it_outfile)
                         protein_file_info[original_file].append(third_it_outfile)
                     else:
                         protein_file_info[original_file].append(third_it_outfile)
