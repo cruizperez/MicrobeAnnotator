@@ -319,7 +319,7 @@ def main():
                     protein_file_info[original_file].append(second_it_outfile)
                 else:
                     fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
-                    second_it_outfile, gene_ids_no_ko, reverse=False)
+                    second_it_outfile, starting_proteins[str(Path(original_file).name)], reverse=False)
                     # if len(gene_ids_no_ko) > 0:
                     #     protein_file_info[original_file].append(second_it_outfile)
                     #     fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
