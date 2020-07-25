@@ -475,7 +475,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
     print("Grouping by metabolism type and plotting... ")
     for module in list(metabolism_matrix_dropped_relabel.index):
         for genome in list(metabolism_matrix_dropped_relabel.columns):
-            if metabolism_matrix_dropped_relabel.loc[module,genome].any(1) >= 80:
+            if metabolism_matrix_dropped_relabel.loc[module,genome].any() >= 80:
                 module_group_matrix.loc[module_colors[module][0],genome] += 1
     module_group_matrix_transp = module_group_matrix.T
     emptyness = (module_group_matrix_transp == 0).all()
