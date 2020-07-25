@@ -389,7 +389,7 @@ def main():
 
                     with open(final_annotation_file, 'a') as final_annotation_fh:
                         for match in annotation:
-                            final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\trefseq\n".format(match[0],
+                            final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
                             match[1], match[2], match[4], match[5], match[3]))
                             if match[4] != "":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
