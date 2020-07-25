@@ -294,6 +294,7 @@ def main():
                 # Write the annotations found in the annotation file
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for match in annotation:
+                        print(match)
                         final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
                         match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
                         if match[4] != "":
