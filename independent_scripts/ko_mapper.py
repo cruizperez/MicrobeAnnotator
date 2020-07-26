@@ -480,7 +480,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
     module_group_matrix_transp = module_group_matrix.T
     emptyness = (module_group_matrix_transp == 0).all()
     if emptyness.all() == True:
-        print("There are no modules above 80%. No barplot will be generated.")
+        print("There are no modules above 80% completeness. No barplot will be generated.")
     else:
         module_group_matrix_transp = module_group_matrix_transp.loc[(module_group_matrix_transp >= 1).any(1)]
         color_dict = {}
