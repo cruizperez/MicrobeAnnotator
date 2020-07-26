@@ -532,10 +532,12 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
         module_id_name[module] = information[0]
         module_colors[information[0]] = (information[1],information[2])
     # Get modules that are above 50% complete in at least one genome
+    ylabel_text = 'Modules (at least 50% complete in at least one genome)'
     metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= 50).any(1)]
     table_empty = (metabolism_matrix_retained == 0).all()
     if table_empty.all() == True:
         metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= 0).any(1)]
+        ylabel_text = 'Modules'
     colors_for_ticks = []
     colors_for_legend = {}
     metabolism_matrix_retained_relabel = metabolism_matrix_retained.rename(index=module_id_name)
@@ -574,7 +576,7 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
     heatmap.ax_heatmap.set_xticklabels(heatmap.ax_heatmap.get_xmajorticklabels(), fontsize = 15)
     heatmap.ax_heatmap.set_yticklabels(heatmap.ax_heatmap.get_ymajorticklabels(), fontsize = 15)
     heatmap.ax_heatmap.set_xlabel("Genomes", fontsize=20)
-    heatmap.ax_heatmap.set_ylabel('Modules (at least 50% complete in one genome)', fontsize=20)
+    heatmap.ax_heatmap.set_ylabel(ylabel_text, fontsize=20)
     plt.figlegend(loc="upper right", ncol=2, fontsize=12)
     heatmap.savefig(prefix + "_heatmap.pdf")
     print("Done!")
