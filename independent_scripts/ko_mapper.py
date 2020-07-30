@@ -494,7 +494,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
         module_group_matrix_transp.plot.bar(ax=Axis, stacked=True, color=color_list, figsize=(25,15), legend=False)
         Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='medium', markerscale=0.3)
         Axis.set_xlabel("Genomes", fontsize=30)
-        Axis.set_ylabel('Number of Modules (>=80% complete in at least one genome)', fontsize=30)
+        Axis.set_ylabel('Number of Modules (>=80% complete)', fontsize=30)
         Axis.tick_params(axis='x', labelsize=15)
         Axis.tick_params(axis='y', labelsize=15)
         Figure.suptitle('Metabolism Module Category per Genome', fontsize=40)
