@@ -67,6 +67,45 @@ def refseq_fasta_downloader(output_file_folder, ascp_key = None):
                 Path.unlink(file)
     rmtree(temp_fasta_files)
     
+def refseq_fasta_downloader_wget(output_file_folder):
+    print("Downloading protein fasta files")
+    # Extract database release number 
+    release_file = urllib.request.urlopen("https://ftp.ncbi.nlm.nih.gov/refseq/release/RELEASE_NUMBER")
+    release_number = release_file.readline().decode('utf-8').strip()
+    # Create folders
+    temp_fasta_files = Path(output_file_folder) / "01.temp_proteins"
+    merged_db_folder = Path(output_file_folder) / "01.Protein_DB"
+    Path(temp_fasta_files).mkdir(parents=True, exist_ok=True)
+    Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
+    with open(merged_db_folder / "refseq_release.txt", 'w') as relinfo:
+        relinfo.write("Release number {}".format(release_number))
+    # Remove refseq fasta files if present (to avoid repeating files)
+    if Path(merged_db_folder / "refseq_protein.fasta").is_file():
+        Path(merged_db_folder / "refseq_protein.fasta").unlink()
+    # Download compressed protein files using wget
+    for domain in ["viral", "bacteria", "archaea"]:
+        file_list = []
+        ncbi_url = "https://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain
+        domain_url_info = urllib.request.urlopen(ncbi_url)
+        for line in domain_url_info:
+            line = line.decode('utf-8').strip()
+            if "protein.faa.gz" in line:
+                file_list.append(line.split('"')[1])
+        for protein_file in file_list:
+            file_url = "ftp://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain + "/" + str(protein_file)
+            outfile = temp_fasta_files + "/" + domain + "/" + str(protein_file)
+            wget.download(file_url, out=outfile)
+    # Get downloaded files
+    viral_list = search_all_files(temp_fasta_files / "viral")
+    bacteria_list = search_all_files(temp_fasta_files / "bacteria")
+    archaea_list = search_all_files(temp_fasta_files / "archaea")
+    final_list = viral_list + bacteria_list + archaea_list
+    with open(Path(merged_db_folder) / ("refseq_protein.fasta"), 'w') as merged_db:
+        for file in final_list:
+            with gzip.open(file, 'rt') as temp_file:
+                copyfileobj(temp_file,merged_db)
+                Path.unlink(file)
+    rmtree(temp_fasta_files)
 
 
 def refseq_genbank_downloader(output_file_folder, ascp_key = None):
@@ -90,6 +129,30 @@ def refseq_genbank_downloader(output_file_folder, ascp_key = None):
                     '-i', ascp_key, 'anonftp@ftp.ncbi.nlm.nih.gov:/refseq/release/archaea/',
                     temp_gb_files])
     # Get downloaded files
+    viral_list = search_all_files(temp_gb_files / "viral")
+    bacteria_list = search_all_files(temp_gb_files / "bacteria")
+    archaea_list = search_all_files(temp_gb_files / "archaea")
+    final_list = viral_list + bacteria_list + archaea_list
+    return final_list
+
+def refseq_genbank_downloader_wget(output_file_folder, ascp_key = None):
+    print("Downloading protein genbank files")
+    # Requirements
+    temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
+    Path(temp_gb_files).mkdir(parents=True, exist_ok=True)
+    # Download compressed genbank files using wget
+    for domain in ["viral", "bacteria", "archaea"]:
+        file_list = []
+        ncbi_url = "https://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain
+        domain_url_info = urllib.request.urlopen(ncbi_url)
+        for line in domain_url_info:
+            line = line.decode('utf-8').strip()
+            if "protein.gpff.gz" in line:
+                file_list.append(line.split('"')[1])
+        for genbank_file in file_list:
+            file_url = "ftp://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain + "/" + str(genbank_file)
+            outfile = temp_gb_files + "/" + domain + "/" + str(genbank_file)
+            wget.download(file_url, out=outfile)
     viral_list = search_all_files(temp_gb_files / "viral")
     bacteria_list = search_all_files(temp_gb_files / "bacteria")
     archaea_list = search_all_files(temp_gb_files / "archaea")
@@ -123,7 +186,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
             description='''This script downloads the fasta and genbank files that\n'''
             '''are needed to build the RefSeq annotation database. By default it\n'''
-            '''downloads both but you can specify either\n'''
+            '''downloads both but you can specify either.\n'''
             '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
             '''Global mandatory parameters: -f [output_file folder]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
