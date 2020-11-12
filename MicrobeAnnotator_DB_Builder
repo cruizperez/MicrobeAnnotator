@@ -32,7 +32,7 @@ import subprocess
 
 ################################################################################
 """---1.0 Define Functions---"""
-def db_duilder(output_file_folder, method, light, threads, step, path=None):
+def db_duilder(output_file_folder, method, light, threads, step, path=None, aspera):
     # Create output_file folder
     outfolder = Path(output_file_folder)
     outfolder.mkdir(parents=True, exist_ok=True)
@@ -44,9 +44,14 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None):
         uniprot_data_downloader.uniprot_dat_downloader(outfolder, light)
         print("Finished downloading UniProt data!")
         if light == False:
-            print("Downloading RefSeq information...")
-            refseq_data_downloader.refseq_fasta_downloader(outfolder)
-            genbank_files = refseq_data_downloader.refseq_genbank_downloader(outfolder)
+            if aspera == True:
+                print("Downloading RefSeq information using Aspera Connect...")
+                refseq_data_downloader.refseq_fasta_downloader(outfolder)
+                genbank_files = refseq_data_downloader.refseq_genbank_downloader(outfolder)
+            else:
+                print("Downloading RefSeq information using wget...")
+                refseq_data_downloader.refseq_fasta_downloader_wget(outfolder)
+                
             print("Finished downloading RefSeq data!")
         step += 1
     # -------------------
@@ -159,6 +164,8 @@ def main():
                         help='Step to start with. 1.Download data, 2.Parse annotation data, 3.Building SQLite DB, 4.Build protein DBs. Default 1.')
     parser.add_argument('--light', dest='light', action='store_true', required=False,
                         help='Use only KOfamscan and swissprot databases. By default also builds refseq and trembl.')
+    parser.add_argument('--no_aspera', dest='aspera', action='store_false', required=False,
+                        help='Disables download using Aspera and instead uses wget. By default uses Aspera Connect.')
     args = parser.parse_args()
 
     directory = args.directory
@@ -168,9 +175,10 @@ def main():
     light = args.light
     threads = args.threads
     step = args.step
+    aspera = args.aspera
 
     # ----------------------------
-    db_duilder(directory, method, light, threads, step, bin_path)
+    db_duilder(directory, method, light, threads, step, bin_path, aspera)
     # ----------------------------
 
 if __name__ == "__main__":
