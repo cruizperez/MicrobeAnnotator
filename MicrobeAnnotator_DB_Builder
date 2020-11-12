@@ -32,7 +32,7 @@ import subprocess
 
 ################################################################################
 """---1.0 Define Functions---"""
-def db_duilder(output_file_folder, method, light, threads, step, path=None, aspera):
+def db_duilder(output_file_folder, method, light, threads, step, aspera, path=None):
     # Create output_file folder
     outfolder = Path(output_file_folder)
     outfolder.mkdir(parents=True, exist_ok=True)
@@ -51,7 +51,7 @@ def db_duilder(output_file_folder, method, light, threads, step, path=None, aspe
             else:
                 print("Downloading RefSeq information using wget...")
                 refseq_data_downloader.refseq_fasta_downloader_wget(outfolder)
-                
+
             print("Finished downloading RefSeq data!")
         step += 1
     # -------------------
@@ -178,7 +178,7 @@ def main():
     aspera = args.aspera
 
     # ----------------------------
-    db_duilder(directory, method, light, threads, step, bin_path, aspera)
+    db_duilder(directory, method, light, threads, step, aspera, bin_path)
     # ----------------------------
 
 if __name__ == "__main__":
