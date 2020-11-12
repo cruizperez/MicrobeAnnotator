@@ -22,6 +22,7 @@ import subprocess
 from pathlib import Path
 import urllib.request
 import gzip
+import wget
 
 ################################################################################
 """---1.0 Define Functions---"""
@@ -93,13 +94,13 @@ def refseq_fasta_downloader_wget(output_file_folder):
                 file_list.append(line.split('"')[1])
         for protein_file in file_list:
             file_url = "ftp://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain + "/" + str(protein_file)
-            outfile = temp_fasta_files + "/" + domain + "/" + str(protein_file)
+            outfile = str(temp_fasta_files) + "/" + str(protein_file)
             wget.download(file_url, out=outfile)
     # Get downloaded files
-    viral_list = search_all_files(temp_fasta_files / "viral")
-    bacteria_list = search_all_files(temp_fasta_files / "bacteria")
-    archaea_list = search_all_files(temp_fasta_files / "archaea")
-    final_list = viral_list + bacteria_list + archaea_list
+    #viral_list = search_all_files(temp_fasta_files / "viral")
+    #bacteria_list = search_all_files(temp_fasta_files / "bacteria")
+    #archaea_list = search_all_files(temp_fasta_files / "archaea")
+    final_list = search_all_files(temp_fasta_files) #viral_list + bacteria_list + archaea_list
     with open(Path(merged_db_folder) / ("refseq_protein.fasta"), 'w') as merged_db:
         for file in final_list:
             with gzip.open(file, 'rt') as temp_file:
@@ -141,23 +142,33 @@ def refseq_genbank_downloader_wget(output_file_folder, ascp_key = None):
     temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
     Path(temp_gb_files).mkdir(parents=True, exist_ok=True)
     # Download compressed genbank files using wget
+    file_list = []
     for domain in ["viral", "bacteria", "archaea"]:
-        file_list = []
         ncbi_url = "https://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain
         domain_url_info = urllib.request.urlopen(ncbi_url)
         for line in domain_url_info:
             line = line.decode('utf-8').strip()
             if "protein.gpff.gz" in line:
-                file_list.append(line.split('"')[1])
-        for genbank_file in file_list:
-            file_url = "ftp://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain + "/" + str(genbank_file)
-            outfile = temp_gb_files + "/" + domain + "/" + str(genbank_file)
-            wget.download(file_url, out=outfile)
-    viral_list = search_all_files(temp_gb_files / "viral")
-    bacteria_list = search_all_files(temp_gb_files / "bacteria")
-    archaea_list = search_all_files(temp_gb_files / "archaea")
-    final_list = viral_list + bacteria_list + archaea_list
+                filename = line.split('"')[1]
+                file_url = "ftp://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain + "/" + str(filename)
+                output = str(temp_gb_files) + "/" + str(genbank_file)
+                file_list.append((file_url, output))
+        #for genbank_file in file_list:
+        #    file_url = "ftp://ftp.ncbi.nlm.nih.gov/refseq/release/" + domain + "/" + str(genbank_file)
+        #    outfile = str(temp_gb_files) + "/" + str(genbank_file)
+        #    wget.download(file_url, out=outfile)
+    #viral_list = search_all_files(temp_gb_files / "viral")
+    #bacteria_list = search_all_files(temp_gb_files / "bacteria")
+    #archaea_list = search_all_files(temp_gb_files / "archaea")
+    # Download using multiple cores
+    try:
+    final_list = search_all_files(temp_gb_files) #viral_list + bacteria_list + archaea_list
     return final_list
+
+def refseq_multiprocess_downloader(file_list):
+    file_url = file_list[0]
+    output = file_list[1]
+    wget.download(file_url, out=output)
 
 def get_aspera_key():
     path_to_ascp = which("ascp")

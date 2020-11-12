@@ -40,8 +40,8 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, path=No
     # Download information
     if step == 1:
         print("Downloading UniProt information...")
-        uniprot_data_downloader.uniprot_fasta_downloader(outfolder, light)
-        uniprot_data_downloader.uniprot_dat_downloader(outfolder, light)
+        #uniprot_data_downloader.uniprot_fasta_downloader(outfolder, light)
+        #uniprot_data_downloader.uniprot_dat_downloader(outfolder, light)
         print("Finished downloading UniProt data!")
         if light == False:
             if aspera == True:
