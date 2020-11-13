@@ -16,12 +16,15 @@ information relevant for annotation purposes.
 ################################################################################
 """---0.0 Import Modules---"""
 import gzip
+from pathlib import Path
 
 ################################################################################
 """---1.0 Define Functions---"""
 
 def parse_uniprot_dat(dat_file, output_file_table):
-    with gzip.open(dat_file, 'rt') as uniprot, open(output_file_table, 'w') as output_file:
+    output_folder = Path(output_file_table).parent
+    uniprot_to_refseq = output_folder / "03.uniprot_to_refseq.txt"
+    with gzip.open(dat_file, 'rt') as uniprot, open(output_file_table, 'w') as output_file, open(uniprot_to_refseq, 'a') as uni_to_ref:
         gene_id = ""
         accession = ""
         gene_name = ""
@@ -33,6 +36,8 @@ def parse_uniprot_dat(dat_file, output_file_table):
         process = ""
         interpro = ""
         pfam = ""
+        ec_number = ""
+        refseq_code = ""
         for line in uniprot:
             if line.startswith("ID", 0):
                 gene_id = line.split()[1]
@@ -51,24 +56,32 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 if "; F:" in line:
                     code = line.strip().split("GO:")[1]
                     code = code.split(";")[0]
-                    function = ''.join([function, ";", code])
+                    function = ''.join([function, " ", code])
                 elif "; C:" in line:
                     code = line.strip().split("GO:")[1]
                     code = code.split(";")[0]
-                    compartment = ''.join([compartment, ";", code])
+                    compartment = ''.join([compartment, " ", code])
                 elif "; P:" in line:
                     code = line.strip().split("GO:")[1]
                     code = code.split(";")[0]
-                    process = ''.join([process, ";", code])
+                    process = ''.join([process, " ", code])
             elif "DR   InterPro" in line:
                 code = line.strip().split()[2]
-                interpro = ''.join([interpro, code])
+                interpro = ''.join([interpro, " ", code])
             elif "DR   Pfam" in line:
                 code = line.strip().split()[2]
-                pfam = ''.join([pfam, code])
+                pfam = ''.join([pfam, " ", code])
+            elif line.startswith("DE") and "EC=" in line:
+                ec_code = line.strip().split()[1]
+                ec_code = ec_code.replace(";", "")
+                ec_number = ''.join([ec_number, " ", ec_code])
+            elif line.startswith("DR") and "RefSeq" in line:
+                refseq_code = line.strip().split()[2]
+                refseq_code = refseq_code.replace(";", "")
+                uni_to_ref.write("{}\t{}\n".format(gene_id, refseq_code))
             elif "//\n" in line:
-                output_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(gene_id, 
-                accession, gene_name, ko_number, organism, taxonomy, function, compartment, process, interpro, pfam))
+                output_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(gene_id, 
+                accession, gene_name, ko_number, organism, taxonomy, function, compartment, process, interpro, pfam, ec_number))
                 gene_id = ""
                 accession = ""
                 gene_name = ""
@@ -80,6 +93,8 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 process = ""
                 interpro = ""
                 pfam =""
+                ec_number = ""
+                refseq_code = ""
 
 
 ################################################################################

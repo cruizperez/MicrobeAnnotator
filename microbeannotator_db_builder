@@ -28,6 +28,7 @@ import urllib.request
 import gzip
 from shutil import which
 from shutil import rmtree
+from shutil import move
 import subprocess
 
 ################################################################################
@@ -84,6 +85,7 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, path=No
             temporal_trembl_dat = outfolder / "02.temp_dat_files/uniprot_trembl.dat.gz"
             final_trembl_table = outfolder / "02.uniprot_trembl.table"
             uniprot_dat_parser.parse_uniprot_dat(temporal_trembl_dat, final_trembl_table)
+
             print("Done!")
             print("Parsing refseq annotation data...")
             temp_table_list = refseq_genbank_parser.table_generator_worker(genbank_files, threads)
