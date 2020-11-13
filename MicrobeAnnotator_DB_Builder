@@ -40,8 +40,8 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, path=No
     # Download information
     if step == 1:
         print("Downloading UniProt information...")
-        #uniprot_data_downloader.uniprot_fasta_downloader(outfolder, light)
-        #uniprot_data_downloader.uniprot_dat_downloader(outfolder, light)
+        uniprot_data_downloader.uniprot_fasta_downloader(outfolder, light)
+        uniprot_data_downloader.uniprot_dat_downloader(outfolder, light)
         print("Finished downloading UniProt data!")
         if light == False:
             if aspera == True:
@@ -50,8 +50,8 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, path=No
                 genbank_files = refseq_data_downloader.refseq_genbank_downloader(outfolder)
             else:
                 print("Downloading RefSeq information using wget...")
-                refseq_data_downloader.refseq_fasta_downloader_wget(outfolder)
-
+                refseq_data_downloader.refseq_fasta_downloader_wget(outfolder, threads)
+                genbank_files = refseq_data_downloader.refseq_genbank_downloader_wget(outfolder, threads)
             print("Finished downloading RefSeq data!")
         step += 1
     # -------------------
@@ -68,12 +68,14 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, path=No
                 rmtree(outfolder / "02.temp_dat_files")
             print("Done!")
         else:
-            if genbank_files == None:
+            if genbank_files == None and aspera == True:
                 temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
                 viral_list = refseq_data_downloader.search_all_files(temp_gb_files / "viral")
                 bacteria_list = refseq_data_downloader.search_all_files(temp_gb_files / "bacteria")
                 archaea_list = refseq_data_downloader.search_all_files(temp_gb_files / "archaea")
                 genbank_files = viral_list + bacteria_list + archaea_list
+            elif genbank_files == None and aspera == False:
+                genbank_files = refseq_data_downloader.search_all_files(temp_gb_files)
             print("Parsing swissprot and trembl annotation data...")
             temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
             final_sprot_table = outfolder / "02.uniprot_sprot.table"
@@ -132,7 +134,7 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, path=No
             protein_db_creation.sword_db_creator(protein_folder, path)
         else:
             print("Please provide a valid db creation method.")
-            print("If you are running the MicrobeAnnotator_db_builder script this is the last step of the process.")
+            print("If you are running the microbeannotator_db_builder script this is the last step of the process.")
             print('Given that this last step failed you need to re-run this script starting from --step 4')
             print('and provide the binary folder for the selected method using the "--bin_path" option or add')
             exit('the binary to your PATH (see README for help on this).')

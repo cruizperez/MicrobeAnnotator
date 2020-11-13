@@ -35,7 +35,7 @@ def blastp_db_creator(directory, path=None):
         script_dir = script_path.parent
         stand_alone_script = script_dir / "protein_db_creation.py"
         print('Blast\'s "makeblastdb" not found in path, I cannot continue and so, I will exit.')
-        print('If you are running the MicrobeAnnotator_db_builder script this is the last step of the process.')
+        print('If you are running the microbeannotator_db_builder script this is the last step of the process.')
         print('Given that this last step failed you need to run the standalone ' + str(stand_alone_script) + ' script')
         print('and provide the binary folder for the selected method using the "--bin_path" option or add')
         print('the binary to your PATH (see README for help on this).')
@@ -64,7 +64,7 @@ def diamond_db_creator(directory, threads, path=None):
         script_dir = script_path.parent
         stand_alone_script = script_dir / "protein_db_creation.py"
         print('Diamond\'s "makedb" not found in path, I cannot continue and so, I will exit.')
-        print('If you are running the MicrobeAnnotator_db_builder script this is the last step of the process.')
+        print('If you are running the microbeannotator_db_builder script this is the last step of the process.')
         print('Given that this last step failed you need to run the standalone ' + str(stand_alone_script) + ' script')
         print('and provide the binary folder for the selected method using the "--bin_path" option or add')
         print('the binary to your PATH (see README for help on this).')

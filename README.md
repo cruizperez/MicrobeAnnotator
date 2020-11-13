@@ -164,9 +164,9 @@ First things first. There are two "flavors" of MicrobeAnnotator depending on you
 The difference between the two is that the regular implementation will make use of four different databases to annotate your proteins, i.e., the KofamScan database and the Swissprot, Trembl and RefSeq databases. On the other hand, the light version will only use KofamScan and Swissprot, which in most cases will annotate the majority of your proteins and will take way less time and space.\
 You can decide of course which version to run at any time, but for the time being let's have an example with the full version (to run the light version just add the `--light` flag when calling the script.
 
-The first step is to download and format the databases we want to use for MicrobeAnnotator. For this we will execute the `MicrobeAnnotator_DB_Builder` script within the MicrobeAnnotator folder. You can add see all options and inputs for the script with  `MicrobeAnnotator_DB_Builder -h`.\
+The first step is to download and format the databases we want to use for MicrobeAnnotator. For this we will execute the `microbeannotator_db_builder` script within the MicrobeAnnotator folder. You can add see all options and inputs for the script with  `microbeannotator_db_builder -h`.\
 Run the script as:\
-`path/to/MicrobeAnnotator/MicrobeAnnotator_DB_Builder -d MicrobeAnnotator_DB -m [blast,diamond,sword] -t [# threads]`\
+`path/to/MicrobeAnnotator/microbeannotator_db_builder -d MicrobeAnnotator_DB -m [blast,diamond,sword] -t [# threads]`\
 The options we gave the script were:\
 `-d MicrobeAnnotator_DB` that is the folder in which all databases will be downloaded and stored.\
 `-m [blast,diamond,sword]` the search method you intend to use. For instance, if you choose "blast" the program will format you database to be searched using NCBI blastp. If you noticed we already installed all three options so you can chooce either (note that sword has some specific processor requirements and might not work in older computers, but you can test it before choosing).\
