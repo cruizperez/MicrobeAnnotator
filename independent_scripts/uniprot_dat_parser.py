@@ -31,6 +31,8 @@ def parse_uniprot_dat(dat_file, output_file_table):
         function = ""
         compartment = ""
         process = ""
+        interpro = ""
+        pfam = ""
         for line in uniprot:
             if line.startswith("ID", 0):
                 gene_id = line.split()[1]
@@ -47,14 +49,26 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 ko_number = line.split()[2].replace(";", "")
             elif "DR   GO;" in line:
                 if "; F:" in line:
-                    function = ''.join([function, line.split("GO;")[1].strip(), " -- "])
+                    code = line.strip().split("GO:")[1]
+                    code = code.split(";")[0]
+                    function = ''.join([function, "; ", code])
                 elif "; C:" in line:
-                    compartment = ''.join([compartment, line.split("GO;")[1].strip(), " -- "])
+                    code = line.strip().split("GO:")[1]
+                    code = code.split(";")[0]
+                    compartment = ''.join([compartment, "; ", code])
                 elif "; P:" in line:
-                    process = ''.join([process, line.split("GO;")[1].strip(), " -- "])
+                    code = line.strip().split("GO:")[1]
+                    code = code.split(";")[0]
+                    process = ''.join([process, "; ", code])
+            elif "DR   InterPro" in line:
+                code = line.strip().split()[2]
+                interpro = ''.join([interpro, code])
+            elif "DR   Pfam" in line:
+                code = line.strip().split()[2]
+                pfam = ''.join([pfam, code])
             elif "//\n" in line:
-                output_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(gene_id, 
-                accession, gene_name, ko_number, organism, taxonomy, function, compartment, process))
+                output_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(gene_id, 
+                accession, gene_name, ko_number, organism, taxonomy, function, compartment, process, interpro, pfam))
                 gene_id = ""
                 accession = ""
                 gene_name = ""
@@ -64,6 +78,9 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 function = ""
                 compartment = ""
                 process = ""
+                interpro = ""
+                pfam =""
+
 
 ################################################################################
 """---3.0 Main Function---"""
@@ -72,7 +89,8 @@ def main():
     import argparse, sys
     # Setup parser for arguments.
     parser = argparse.ArgumentParser(description='''This script parses a Uniprot.dat file and output_files a table with\n'''
-                                                    '''the ID, Accession, Gene Name, Organism, Taxonomy, KEGG ID, Function, Compartment, and Process.\n
+                                                    '''the ID, Accession, Gene Name, Organism, Taxonomy, KEGG ID, Function,\n
+                                                    Compartment, Process, InterPro, and Pfam\n
                                                     For faster usage in alrge files use gnu parallel (read script file to see how)\n'''
                                     '''\nGlobal mandatory parameters: [Input Uniprot.dat File]\n'''
                                     '''\nOptional Database Parameters: See ''' + sys.argv[0] + ' -h')
