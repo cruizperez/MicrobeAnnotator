@@ -30,7 +30,7 @@ def create_swissprot_table(database, table):
     cursor.execute('CREATE TABLE swissprot \
         (gene_id TEXT, accession TEXT, gene_name TEXT, ko_number TEXT, \
         organism TEXT, taxonomy TEXT, function TEXT, compartment TEXT, \
-        process TEXT)')
+        process TEXT, interpro TEXT, pfam TEXT)')
     with open(table, 'r') as swissprot:
         record_counter = 0
         records = []
@@ -39,7 +39,7 @@ def create_swissprot_table(database, table):
             if record_counter == 500000:
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO swissprot VALUES(?, ?, ?, ?, ?, \
-                    ?, ?, ?, ?)', records)
+                    ?, ?, ?, ?, ?, ?)', records)
                 cursor.execute("commit")
                 record_counter = 0
                 records = []
@@ -50,7 +50,7 @@ def create_swissprot_table(database, table):
         if record_counter > 0:
             cursor.execute("begin")
             cursor.executemany('INSERT INTO swissprot VALUES(?, ?, ?, ?, ?, \
-                ?, ?, ?, ?)', records)
+                ?, ?, ?, ?, ?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
         cursor.execute('CREATE INDEX swissprot_id ON swissprot (gene_id)')
@@ -62,7 +62,7 @@ def create_trembl_table(database, table):
     cursor.execute('CREATE TABLE trembl \
         (gene_id TEXT, accession TEXT, gene_name TEXT, ko_number TEXT, \
         organism TEXT, taxonomy TEXT, function TEXT, compartment TEXT, \
-        process TEXT)')
+        process TEXT, interpro TEXT, pfam TEXT)')
     with open(table, 'r') as trembl:
         record_counter = 0
         records = []
@@ -71,7 +71,7 @@ def create_trembl_table(database, table):
             if record_counter == 500000:
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO trembl VALUES(?, ?, ?, ?, ?, \
-                    ?, ?, ?, ?)', records)
+                    ?, ?, ?, ?, ?, ?)', records)
                 cursor.execute("commit")
                 record_counter = 0
                 records = []
@@ -82,7 +82,7 @@ def create_trembl_table(database, table):
         if record_counter > 0:
             cursor.execute("begin")
             cursor.executemany('INSERT INTO trembl VALUES(?, ?, ?, ?, ?, \
-                ?, ?, ?, ?)', records)
+                ?, ?, ?, ?, ?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
         cursor.execute('CREATE INDEX trembl_id ON trembl (gene_id)')
@@ -107,7 +107,7 @@ def create_refseq_table(database, table):
     cursor.execute("DROP TABLE IF EXISTS refseq")
     cursor.execute('CREATE TABLE refseq \
         (gene_id TEXT, product TEXT, taxonomy TEXT, \
-        ko_number TEXT, ko_product TEXT)')
+        ec_number TEXT, ko_number TEXT, ko_product TEXT)')
     with open(table, 'r') as refseq:
         record_counter = 0
         records = []
@@ -115,7 +115,7 @@ def create_refseq_table(database, table):
             # Commit changes after 500000 records
             if record_counter == 500000:
                 cursor.execute("begin")
-                cursor.executemany('INSERT INTO refseq VALUES(?, ?, ?, ?, ?)', records)
+                cursor.executemany('INSERT INTO refseq VALUES(?, ?, ?, ?, ?, ?)', records)
                 cursor.execute("commit")
                 record_counter = 0
                 records = []
@@ -124,15 +124,15 @@ def create_refseq_table(database, table):
                 if line[0] in protein_annotations:
                     ko_number = protein_annotations[line[0]][0]
                     ko_product = protein_annotations[line[0]][1]
-                    records.append((line[0], line[1], line[2], ko_number, ko_product))
+                    records.append((line[0], line[1], line[2], line[3], ko_number, ko_product))
                     record_counter += 1
                 else:
-                    records.append((line[0], line[1], line[2], "NA", "NA"))
+                    records.append((line[0], line[1], line[2], line[3], "NA", "NA"))
                     record_counter += 1
         # Commit remaining records
         if record_counter > 0:
             cursor.execute("begin")
-            cursor.executemany('INSERT INTO refseq VALUES(?, ?, ?, ?, ?)', records)
+            cursor.executemany('INSERT INTO refseq VALUES(?, ?, ?, ?, ?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
         cursor.execute('CREATE INDEX refseq_id ON refseq (gene_id)')
