@@ -40,10 +40,11 @@ def table_creator(genbank_file):
     with gzip.open(genbank_file, 'rt') as uncompressed_genbank, \
     open(temporal_table, 'w') as output_file:
         for record in SeqIO.parse(uncompressed_genbank, "genbank"):
-            id = record.id
+            protein_id = record.id
             product = record.description.split("[")[0].strip()
             taxonomy = ""
             species = ""
+            ec_number = ""
             if 'organism' not in record.annotations:
                 species = 'NA'
             else:
@@ -64,7 +65,12 @@ def table_creator(genbank_file):
                                     product = 'NA'
                             else:
                                 product = feature.qualifiers['product'][0]
-            output_file.write("{}\t{}\t{}\n".format(id, product, taxonomy))
+            for feature in record.features:
+                if feature.type == "Protein" and "EC_number" in feature.qualifiers:
+                    ec_number = feature.qualifiers["EC_number"][0]
+                else:
+                    ec_number = "NA"
+            output_file.write("{}\t{}\t{}\t{}\n".format(protein_id, product, taxonomy, ec_number))
     return temporal_table
 
 

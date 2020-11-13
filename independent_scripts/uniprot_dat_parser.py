@@ -51,15 +51,15 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 if "; F:" in line:
                     code = line.strip().split("GO:")[1]
                     code = code.split(";")[0]
-                    function = ''.join([function, "; ", code])
+                    function = ''.join([function, ";", code])
                 elif "; C:" in line:
                     code = line.strip().split("GO:")[1]
                     code = code.split(";")[0]
-                    compartment = ''.join([compartment, "; ", code])
+                    compartment = ''.join([compartment, ";", code])
                 elif "; P:" in line:
                     code = line.strip().split("GO:")[1]
                     code = code.split(";")[0]
-                    process = ''.join([process, "; ", code])
+                    process = ''.join([process, ";", code])
             elif "DR   InterPro" in line:
                 code = line.strip().split()[2]
                 interpro = ''.join([interpro, code])
