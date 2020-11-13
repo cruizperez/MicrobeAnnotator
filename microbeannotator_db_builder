@@ -75,6 +75,7 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, path=No
                 archaea_list = refseq_data_downloader.search_all_files(temp_gb_files / "archaea")
                 genbank_files = viral_list + bacteria_list + archaea_list
             elif genbank_files == None and aspera == False:
+                temp_gb_files = Path(output_file_folder) / "02.temp_genbank"
                 genbank_files = refseq_data_downloader.search_all_files(temp_gb_files)
             print("Parsing swissprot and trembl annotation data...")
             temporal_sprot_dat = outfolder / "02.temp_dat_files/uniprot_sprot.dat.gz"
