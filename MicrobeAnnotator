@@ -85,7 +85,7 @@ def main():
     misc_options.add_argument('--light', dest='light', action='store_true', required=False,
                         help=textwrap.dedent('''
                         Use only KOfamscan and swissprot databases. By default also uses refseq and
-                        trembl (only use if you built both using "MicrobeAnnotator_DB_Builder").
+                        trembl (only use if you built both using "microbeannotator_db_builder").
                         '''))
     misc_options.add_argument('--full', dest='full', action='store_true', required=False,
                         help=textwrap.dedent('''
