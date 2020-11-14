@@ -16,10 +16,9 @@
 ################################################################################
 """---0.0 Import Modules---"""
 import wget
-from shutil import copyfileobj
 from pathlib import Path
-import urllib.request
 import gzip
+import sqlite3
 
 ################################################################################
 """---1.0 Define Functions---"""
