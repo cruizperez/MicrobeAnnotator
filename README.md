@@ -144,6 +144,8 @@ cpu: 8
 This is the information we need to edit with the path to the folder where we downloaded the data:
 In this example we will replace: `# profile: /path/to/your/profile/db` by `profile: /home/[your_user]/kofamscan/profiles/prokaryote`
 
+NOTE: If you need to perform Eukaryote searches, you can change the "prokaryote" part by "eukaryote".
+
 Next, we replace: `# ko_list: /path/to/your/kolist/file` by `ko_list: /home/[your_user]/kofamscan/ko_list`
 
 And, given that we have already installed hmmer and parallel earlier we can ignore the other lines.

@@ -30,7 +30,7 @@ def create_swissprot_table(database, table):
     cursor.execute('CREATE TABLE swissprot \
         (gene_id TEXT, accession TEXT, gene_name TEXT, ko_number TEXT, \
         organism TEXT, taxonomy TEXT, function TEXT, compartment TEXT, \
-        process TEXT, interpro TEXT, pfam TEXT)')
+        process TEXT, interpro TEXT, pfam TEXT, ec_number TEXT)')
     with open(table, 'r') as swissprot:
         record_counter = 0
         records = []
@@ -39,7 +39,7 @@ def create_swissprot_table(database, table):
             if record_counter == 500000:
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO swissprot VALUES(?, ?, ?, ?, ?, \
-                    ?, ?, ?, ?, ?, ?)', records)
+                    ?, ?, ?, ?, ?, ?, ?)', records)
                 cursor.execute("commit")
                 record_counter = 0
                 records = []
@@ -50,7 +50,7 @@ def create_swissprot_table(database, table):
         if record_counter > 0:
             cursor.execute("begin")
             cursor.executemany('INSERT INTO swissprot VALUES(?, ?, ?, ?, ?, \
-                ?, ?, ?, ?, ?, ?)', records)
+                ?, ?, ?, ?, ?, ?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
         cursor.execute('CREATE INDEX swissprot_id ON swissprot (gene_id)')
@@ -62,7 +62,7 @@ def create_trembl_table(database, table):
     cursor.execute('CREATE TABLE trembl \
         (gene_id TEXT, accession TEXT, gene_name TEXT, ko_number TEXT, \
         organism TEXT, taxonomy TEXT, function TEXT, compartment TEXT, \
-        process TEXT, interpro TEXT, pfam TEXT)')
+        process TEXT, interpro TEXT, pfam TEXT, ec_number)')
     with open(table, 'r') as trembl:
         record_counter = 0
         records = []
@@ -71,7 +71,7 @@ def create_trembl_table(database, table):
             if record_counter == 500000:
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO trembl VALUES(?, ?, ?, ?, ?, \
-                    ?, ?, ?, ?, ?, ?)', records)
+                    ?, ?, ?, ?, ?, ?, ?)', records)
                 cursor.execute("commit")
                 record_counter = 0
                 records = []
@@ -82,7 +82,7 @@ def create_trembl_table(database, table):
         if record_counter > 0:
             cursor.execute("begin")
             cursor.executemany('INSERT INTO trembl VALUES(?, ?, ?, ?, ?, \
-                ?, ?, ?, ?, ?, ?)', records)
+                ?, ?, ?, ?, ?, ?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
         cursor.execute('CREATE INDEX trembl_id ON trembl (gene_id)')
