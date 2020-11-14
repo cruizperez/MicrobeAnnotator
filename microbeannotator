@@ -157,6 +157,7 @@ def main():
                 exit("KOfamscan not found in " + kofam_bin + ", please provide the correct path to the folder with binaries")
     
     # Check search method binary existence
+    call_name = None
     if method == 'blast':
         call_name = 'blastp'
     elif method == 'diamond':
@@ -201,7 +202,7 @@ def main():
         multi_argument=(output_dir, threads, kofam_bin)), input_list)
         # Results as (protein_file, protein_file_name, ids_proteins_annotated, final_file)
         # Final annotation fields:
-        # query_id protein_id product ko_number ko_product taxonomy function compartment process database
+        # * query_id protein_id product ko_number ko_product taxonomy function compartment process EC InterPro Pfam database
     finally:
         pool.close()
         pool.join()
@@ -230,6 +231,7 @@ def main():
     # Search proteins NOT annotated with KOFamscan against Swissprot
     # Determine database to use
     print("Searching proteins against Swissprot using " + method + " ...")
+    swissprot_database = None
     if method == "blast":
         swissprot_database = str(Path(database_folder) / "01.Protein_DB/uniprot_sprot")
     elif method == "diamond":
@@ -276,7 +278,7 @@ def main():
                 # Write all the proteins without annotation
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for original_protein in starting_proteins[str(Path(original_file).name)]:
-                        final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                        final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
             else:
                 # Copy the first iteration proteins to the second iteration file
                 second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
@@ -286,7 +288,7 @@ def main():
             # Extract the annotations
             annotation = sqlite3_search.search_ids_imported(sql_database, "swissprot", significant_hits)
             # Each annotation will have:
-            # query_id gene_id accession product ko_number organism taxonomy function compartment process
+            # query_id gene_id accession product ko_number organism taxonomy function_GO compartment_GO process_GO interpro_id pfam_id EC_number
             if light == True:
                 # Write the annotations found in the annotation file
                 with open(final_annotation_file, 'a') as final_annotation_fh:
