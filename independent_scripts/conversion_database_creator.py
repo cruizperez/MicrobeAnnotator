@@ -176,7 +176,7 @@ def create_interpro_tables(output_folder, database, keep):
             cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
-        cursor.execute('CREATE INDEX inter_id ON interpro_to_ko (interpro_id)')
+        cursor.execute('CREATE INDEX interp_id ON interpro_to_ko (interpro_id)')
     
     # Create table with correspondence InterPro -> EC
     cursor.execute("DROP TABLE IF EXISTS interpro_to_ec")

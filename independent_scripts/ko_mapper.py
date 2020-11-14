@@ -589,11 +589,9 @@ def main():
     import argparse, sys
     # Setup parser for arguments.
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
-            description='''This script downloads the fasta and genbank files that\n'''
-            '''are needed to build the RefSeq annotation database. By default it\n'''
-            '''downloads both but you can specify either\n'''
-            '''Usage: ''' + sys.argv[0] + ''' -f [output_file folder]\n'''
-            '''Global mandatory parameters: -f [output_file folder]\n'''
+            description='''This maps KEGG KO identifiers into modules and summarizes the metabolic potential\n'''
+            '''Usage: ''' + sys.argv[0] + ''' -i [Input Files] -p [Prefix Output]\n'''
+            '''Global mandatory parameters: -i [Input Files] -p [Prefix Output]\n'''
             '''Optional Database Parameters: See ''' + sys.argv[0] + ' -h')
     parser.add_argument('-i', '--input_files', dest='input_files', nargs='+', action='store', required=True,
                         help='Space-separated list of files to parse.')
