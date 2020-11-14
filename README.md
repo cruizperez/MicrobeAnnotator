@@ -92,8 +92,10 @@ Now reload the ~/.bashrc file with: `source ~/.bashrc`
 
 Now you have installed Aspera Connect!
 
+If you cannot install Aspera Connect for some reason, MicrobeAnnotator will use another method to download your data, no worries!
+
 ### KofamScan
-First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[your_user]` (note your_user is a placeholder for your username):
+First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[your_user]` (note your_user is a placeholder for your username). In addition, note that the version of kofamscan can change in the original location (for example kofam_scan-1.3.0.tar.gz becomes kofam_scan-1.4.0.tar.gz) and therefore you need to adjust your commands to reflect this:
 
 ```bash
 mkdir kofamscan
@@ -105,11 +107,11 @@ wget ftp://ftp.genome.jp/pub/tools/kofam_scan/kofam_scan-1.3.0.tar.gz
 # Decompress and untar:
 gunzip ko_list.gz
 tar xvfz profiles.tar.gz
-tar xvfz kofamscan-1.2.0.tar.gz
-cd kofamscan-1.2.0
+tar xvfz kofamscan-1.3.0.tar.gz
+cd kofamscan-1.3.0
 ```
 
-When you decompress and enter the kofamscan-1.2.0 folder you will find a `config-template.yml` file, which is required for KofamScan to find the databases. We need to copy it and modify by adding the correct paths to the database we just downloaded.
+When you decompress and enter the kofamscan-1.3.0 folder you will find a `config-template.yml` file, which is required for KofamScan to find the databases. We need to copy it and modify by adding the correct paths to the database we just downloaded.
 
 ```bash
 cp config-template.yml config.yml
