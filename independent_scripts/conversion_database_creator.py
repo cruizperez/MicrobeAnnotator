@@ -176,7 +176,7 @@ def create_interpro_tables(output_folder, database, keep):
             cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
-        cursor.execute('CREATE INDEX interp_id ON interpro_to_ko (interpro_id)')
+    cursor.execute('CREATE INDEX interpro_index ON interpro_to_ko (interpro_id)')
     
     # Create table with correspondence InterPro -> EC
     cursor.execute("DROP TABLE IF EXISTS interpro_to_ec")
@@ -202,7 +202,7 @@ def create_interpro_tables(output_folder, database, keep):
             cursor.executemany('INSERT INTO interpro_to_ec VALUES(?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
-        cursor.execute('CREATE INDEX inter_id ON interpro_to_ec (interpro_id)')
+    cursor.execute('CREATE INDEX inter_id ON interpro_to_ec (interpro_id)')
     
     # Create table with correspondence KO -> InterPro
     cursor.execute("DROP TABLE IF EXISTS ko_to_interpro")
@@ -228,7 +228,7 @@ def create_interpro_tables(output_folder, database, keep):
             cursor.executemany('INSERT INTO ko_to_interpro VALUES(?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
-        cursor.execute('CREATE INDEX ko_id ON ko_to_interpro (ko_identifier)')
+    cursor.execute('CREATE INDEX ko_id ON ko_to_interpro (ko_identifier)')
 
     # Create table with correspondence KO -> InterPro
     cursor.execute("DROP TABLE IF EXISTS ec_to_interpro")
@@ -254,7 +254,7 @@ def create_interpro_tables(output_folder, database, keep):
             cursor.executemany('INSERT INTO ec_to_interpro VALUES(?, ?)', records)
             cursor.execute("commit")
         # Create index for faster access
-        cursor.execute('CREATE INDEX ec_id ON ec_to_interpro (ec_identifier)')
+    cursor.execute('CREATE INDEX ec_id ON ec_to_interpro (ec_identifier)')
 
     # Remove temporal files
     if keep == False:
