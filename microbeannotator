@@ -66,7 +66,7 @@ def main():
                         help='Maximum evalue to retain a hit. By default 0.01.')
     search_options.add_argument('--aln_percent', dest='aln_percent', action='store', required=False, default=70, type=int,
                         help='Minimum percentage of query covered by hit alignment. By default 70.')
-    plot_options = parser.add_argument_group('Summary abnd plotting options.')
+    plot_options = parser.add_argument_group('Summary and plotting options.')
     plot_options.add_argument('--cluster', dest='cluster', action='store', required=False,
                         help=textwrap.dedent('''
                         Cluster genomes and/or modules. Select "cols" for genomes, "rows" for modules, or "both".
@@ -92,6 +92,10 @@ def main():
                         Do not perform the iterative annotation but search all proteins against all databases
                         (Increases computation time).
                         '''))
+    misc_options.add_argument('--refine', dest='refine', action='store_true', required=False,
+                        help=textwrap.dedent('''
+                        Complement the annotations by finding links to identifiers in other databases.
+                        '''))
     args = parser.parse_args()
 
     input_list = args.input_list
@@ -114,6 +118,7 @@ def main():
         cluster = cluster.lower()
     plot_filename = args.plot_filename
     full = args.full
+    refine = args.refine
 
     # Check user input
     if method != 'blast' and method != 'diamond' and method != 'sword':
@@ -293,21 +298,21 @@ def main():
                 # Write the annotations found in the annotation file
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for match in annotation:
-                        final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
-                        match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+                        final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
+                        match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                         if match[4] != "":
                             starting_proteins[str(Path(original_file).name)].remove(match[0])
                 # Check which proteins were not annotated and add information on those
                 # Extract annotated proteins
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for original_protein in starting_proteins[str(Path(original_file).name)]:
-                        final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                        final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
             else:
                 # Write the annotations found in the annotation file
                 with open(final_annotation_file, 'a') as final_annotation_fh:
                     for match in annotation:
-                        final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
-                        match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+                        final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
+                        match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                         if match[4] != "" and match[4] != "NA":
                             starting_proteins[str(Path(original_file).name)].remove(match[0])
                 # Check which proteins were not annotated and filter for the next iteration
@@ -329,6 +334,7 @@ def main():
     if light == False:
         # Determine database to use
         print("Searching proteins against RefSeq...")
+        refseq_database = None
         if method == "blast":
             refseq_database = str(Path(database_folder) / "01.Protein_DB/refseq_protein")
         elif method == "diamond":
@@ -387,9 +393,9 @@ def main():
 
                     with open(final_annotation_file, 'a') as final_annotation_fh:
                         for match in annotation:
-                            final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\trefseq\n".format(match[0],
-                            match[1], match[2], match[4], match[5], match[3]))
-                            if match[4] != "" and match[4] != "NA":
+                            final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\tNA\tNA\tNA\t{}\trefseq\n".format(match[0],
+                            match[1], match[2], match[5], match[6], match[3], match[4]))
+                            if match[5] != "" and match[5] != "NA":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
                             
                     # Check which proteins were not annotated and filter for the next iteration
@@ -409,6 +415,7 @@ def main():
 
         # Finally run remaining proteins against Trembl
         print("Searching proteins against Trembl...\n")
+        trembl_database = None
         if method == "blast":
             trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl")
         elif method == "diamond":
@@ -456,20 +463,20 @@ def main():
                 if len(significant_hits) == 0:
                     with open(final_annotation_file, 'a') as final_annotation_fh:
                         for original_protein in starting_proteins[str(Path(original_file).name)]:
-                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
                 else:
                     annotation = sqlite3_search.search_ids_imported(sql_database, "trembl", significant_hits)
                     # Each annotation will have:
                     # query_id gene_id product taxonomy ko_number ko_product
                     with open(final_annotation_file, 'a') as final_annotation_fh:
                         for match in annotation:
-                            final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
-                            match[1], match[3], match[4], match[6], match[7], match[8], match[9]))
+                            final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
+                            match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                             if match[4] != "":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
                     with open(final_annotation_file, 'a') as final_annotation_fh:
                         for original_protein in starting_proteins[str(Path(original_file).name)]:
-                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
         if temporal_protein_folder.is_dir():
             rmtree(temporal_protein_folder)
         # ------------------------
