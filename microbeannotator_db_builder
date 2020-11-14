@@ -173,7 +173,7 @@ def main():
     parser.add_argument('--bin_path', dest='bin_path', action='store', required=False,
                         help='Path to binary folder for selected method. By defaul assumes the program is in path.')
     parser.add_argument('--step', dest='step', action='store', required=False, default=1, type=int,
-                        help='Step to start with. 1.Download data, 2.Parse annotation data, 3.Building SQLite DB, 4.Build protein DBs. Default 1.')
+                        help='Step to start with. 1.Download data, 2.Parse annotation data, 3.Building SQLite DB, 4.Build protein DBs. 5. Create interconversion tables. Default 1.')
     parser.add_argument('--light', dest='light', action='store_true', required=False,
                         help='Use only KOfamscan and swissprot databases. By default also builds refseq and trembl.')
     parser.add_argument('--no_aspera', dest='aspera', action='store_false', required=False,
