@@ -213,7 +213,7 @@ def main():
     temporal_protein_folder = Path(output_dir) / "temporal_proteins"
     temporal_protein_folder.mkdir(parents=True, exist_ok=True)
     with open(process_log_folder / "log.txt", 'w') as logfile:
-        logfile.write(process_step)
+        logfile.write("{}".format(process_step))
     # Create dictionary with information per protein file
     protein_file_info = {}
     # ----------------------------
@@ -259,7 +259,7 @@ def main():
         # Also, export dictionary with information to be imported in case of continue
         process_step += 1
         with open(process_log_folder / "log.txt", 'w') as logfile:
-            logfile.write(process_step)
+            logfile.write("{}".format(process_step))
         with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
             protein_file_info = pickle.dump(structure_file)
         # ----------------------------
@@ -365,7 +365,7 @@ def main():
         # Also, export dictionary with information to be imported in case of continue
         process_step += 1
         with open(process_log_folder / "log.txt", 'w') as logfile:
-            logfile.write(process_step)
+            logfile.write("{}".format(process_step))
         with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
             protein_file_info = pickle.dump(structure_file)
         # -----------------------
@@ -463,7 +463,7 @@ def main():
             # Also, export dictionary with information to be imported in case of continue  
             process_step += 1
             with open(process_log_folder / "log.txt", 'w') as logfile:
-                logfile.write(process_step)
+                logfile.write("{}".format(process_step))
             with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
                 protein_file_info = pickle.dump(structure_file)
         # --------------------------
@@ -545,7 +545,7 @@ def main():
                 # Also, export dictionary with information to be imported in case of continue  
                 process_step += 1
                 with open(process_log_folder / "log.txt", 'w') as logfile:
-                    logfile.write(process_step)
+                    logfile.write("{}".format(process_step))
                 with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
                     protein_file_info = pickle.dump(structure_file)
         # ------------------------
@@ -555,7 +555,7 @@ def main():
         if refine == False:
             process_step += 1
             with open(process_log_folder / "log.txt", 'w') as logfile:
-                logfile.write(process_step)
+                logfile.write("{}".format(process_step))
             with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
                 protein_file_info = pickle.dump(structure_file)
         else:
@@ -642,7 +642,7 @@ def main():
             # Also, export dictionary with information to be imported in case of continue
             process_step += 1
             with open(process_log_folder / "log.txt", 'w') as logfile:
-                logfile.write(process_step)
+                logfile.write("{}".format(process_step))
             with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
                 protein_file_info = pickle.dump(structure_file)
             print("Done!")
