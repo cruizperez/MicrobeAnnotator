@@ -181,7 +181,7 @@ def create_interpro_tables(output_folder, database, keep):
         # Create index for faster access
     cursor.execute('CREATE INDEX interpro_index_ko ON interpro_to_ko (interpro_id)')
     cursor.execute('CREATE INDEX ko_index_interpro ON interpro_to_ko (ko_identifier)')
-    
+
     # Create table with correspondence InterPro -> EC
     cursor.execute("DROP TABLE IF EXISTS interpro_to_ec")
     cursor.execute('CREATE TABLE interpro_to_ec \
@@ -208,7 +208,7 @@ def create_interpro_tables(output_folder, database, keep):
         # Create index for faster access
     cursor.execute('CREATE INDEX interpro_index_ce ON interpro_to_ec (interpro_id)')
     cursor.execute('CREATE INDEX ce_index_interpro ON interpro_to_ec (ec_identifier)')
-    
+
     # # Create table with correspondence KO -> InterPro
     # cursor.execute("DROP TABLE IF EXISTS ko_to_interpro")
     # cursor.execute('CREATE TABLE ko_to_interpro \
