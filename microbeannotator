@@ -261,7 +261,7 @@ def main():
         with open(process_log_folder / "log.txt", 'w') as logfile:
             logfile.write("{}".format(process_step))
         with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-            protein_file_info = pickle.dump(structure_file)
+            pickle.dump(protein_file_info, structure_file)
         # ----------------------------
 
     if process_step == 1:
@@ -367,7 +367,7 @@ def main():
         with open(process_log_folder / "log.txt", 'w') as logfile:
             logfile.write("{}".format(process_step))
         with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-            protein_file_info = pickle.dump(structure_file)
+            pickle.dump(protein_file_info, structure_file)
         # -----------------------
     
     
@@ -465,7 +465,7 @@ def main():
             with open(process_log_folder / "log.txt", 'w') as logfile:
                 logfile.write("{}".format(process_step))
             with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-                protein_file_info = pickle.dump(structure_file)
+                pickle.dump(protein_file_info, structure_file)
         # --------------------------
 
 
@@ -547,7 +547,7 @@ def main():
                 with open(process_log_folder / "log.txt", 'w') as logfile:
                     logfile.write("{}".format(process_step))
                 with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-                    protein_file_info = pickle.dump(structure_file)
+                    pickle.dump(protein_file_info, structure_file)
         # ------------------------
 
     # Refine annotations with ids from other databases
@@ -557,7 +557,7 @@ def main():
             with open(process_log_folder / "log.txt", 'w') as logfile:
                 logfile.write("{}".format(process_step))
             with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-                protein_file_info = pickle.dump(structure_file)
+                pickle.dump(protein_file_info, structure_file)
         else:
             import pandas as pd
             print("Improving annotations by searching matches in other databases...")
@@ -644,7 +644,7 @@ def main():
             with open(process_log_folder / "log.txt", 'w') as logfile:
                 logfile.write("{}".format(process_step))
             with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-                protein_file_info = pickle.dump(structure_file)
+                pickle.dump(protein_file_info, structure_file)
             print("Done!")
     # ------------------------
 
