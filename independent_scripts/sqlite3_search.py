@@ -42,16 +42,16 @@ def search_table(sql_database, database_table, input_list, outfile):
     # Check which columns to use for output_file
     if database_table == "swissprot" or database_table == "trembl":
         if query_present:
-            col_names = ['#Query_ID', 'Target_ID', 'Accession', 'Name', 'KO', 'Organism', 'Taxonomy',
-                        'Function_GO', 'Compartment_GO', 'Process_GO', 'InterPro', 'Pfam', 'EC_Num']
+            col_names = ['#query_id', 'target_id', 'accession', 'name', 'ko', 'organism', 'taxonomy',
+                        'function_go', 'compartment_go', 'process_go', 'interpro', 'pfam', 'ec_num']
         else:
-            col_names = ['#Target_ID', 'Accession', 'Name', 'KO', 'Organism', 'Taxonomy',
-                        'Function_GO', 'Compartment_GO', 'Process_GO', 'InterPro', 'Pfam', 'EC_Num']
+            col_names = ['#target_id', 'accession', 'name', 'ko', 'organism', 'taxonomy',
+                        'function_go', 'compartment_go', 'process_go', 'interpro', 'pfam', 'ec_num']
     elif database_table == "refseq":
         if query_present:
-            col_names = ['#Query_ID', 'Target_ID', 'Gene_Name', 'Taxonomy', 'EC_Num', 'KO', 'KO_Product']
+            col_names = ['#query_id', 'target_id', 'gene_name', 'taxonomy', 'ec_num', 'ko', 'ko_product']
         else:
-            col_names = ['#Target_ID', 'Gene_Name', 'Taxonomy', 'EC_Num', 'KO', 'KO_Product']
+            col_names = ['#target_id', 'gene_name', 'taxonomy', 'ec_num', 'KO', 'ko_product']
     # Search the DB and append results to Annotation_List
     with open(outfile, 'w') as output_file:
         output_file.write("{}\n".format("\t".join(col_names)))

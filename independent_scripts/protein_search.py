@@ -61,7 +61,7 @@ def kofamscan_annotation(protein_file, multi_argument):
     #* The final annotation will have the following columns
     #* query_id protein_id product ko_number ko_product taxonomy function compartment process EC InterPro Pfam database
     with open(filtered_output_file, 'r') as ko_annotated, open(final_file, 'w') as output:
-        output.write("query_id\tprotein_id\tproduct\tko_number\tko_product\ttaxonomy\tfunction_GO\tcompartment_GO\tprocess_GO\tEC_number\tInterPro\tPfam\tdatabase\n")
+        output.write("query_id\tprotein_id\tproduct\tko_number\tko_product\ttaxonomy\tfunction_go\tcompartment_go\tprocess_go\tec_number\tinterpro\tpfam\tdatabase\n")
         for line in ko_annotated:
             if "#" in line:
                 continue

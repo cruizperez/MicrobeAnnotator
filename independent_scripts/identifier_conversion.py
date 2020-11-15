@@ -74,14 +74,14 @@ def convert_ko_to_ec(identifier_list, sql_database, inverse):
                     ko_to_ec[identifier].append(match[1])
             return ko_to_ec
 
-def convert_interprot_to_ko(identifier_list, sql_database, inverse):
+def convert_interpro_to_ko(identifier_list, sql_database, inverse):
     conn = sqlite3.connect(sql_database)
     cursor = conn.cursor()
     interpro_to_ko = {}
     ko_to_interpro = {}
     for identifier in identifier_list:
         # If ko to interpro
-        if inverse == False:
+        if inverse == True:
             cursor.execute("SELECT * FROM interpro_to_ko WHERE ko_identifier=?", (identifier,))
             rows = cursor.fetchall()
             if len(rows) > 0:
@@ -101,14 +101,14 @@ def convert_interprot_to_ko(identifier_list, sql_database, inverse):
                     interpro_to_ko[identifier].append(match[1])
             return interpro_to_ko
 
-def convert_interprot_to_ec(identifier_list, sql_database, inverse):
+def convert_interpro_to_ec(identifier_list, sql_database, inverse):
     conn = sqlite3.connect(sql_database)
     cursor = conn.cursor()
     interpro_to_ec = {}
     ec_to_interpro = {}
     for identifier in identifier_list:
         # If ko to interpro
-        if inverse == False:
+        if inverse == True:
             cursor.execute("SELECT * FROM interpro_to_ec WHERE ec_identifier=?", (identifier,))
             rows = cursor.fetchall()
             if len(rows) > 0:
@@ -193,9 +193,9 @@ def main():
     elif ko_to_ec == True:
         corresponding_ids = convert_ko_to_ec(identifier_list, database, inverse)
     elif interpro_to_ko == True:
-        corresponding_ids = convert_interprot_to_ko(identifier_list, database, inverse)
+        corresponding_ids = convert_interpro_to_ko(identifier_list, database, inverse)
     elif interpro_to_ec == True:
-        corresponding_ids = convert_interprot_to_ec(identifier_list, database, inverse)
+        corresponding_ids = convert_interpro_to_ec(identifier_list, database, inverse)
     print("Done!")
 
     print("Writing output...")
