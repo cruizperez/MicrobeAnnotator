@@ -93,33 +93,6 @@ def create_ko_to_ec(output_folder, database, keep):
     cursor.execute('CREATE INDEX ko_id ON ko_to_ec (ko_identifier)')
     cursor.execute('CREATE INDEX ec_id ON ko_to_ec (ec_identifier)')
 
-
-    # # Create table with correspondence EC -> KO
-    # cursor.execute("DROP TABLE IF EXISTS ec_to_ko")
-    # cursor.execute('CREATE TABLE ec_to_ko \
-    #     (ec_identifier TEXT, ko_identifier TEXT)')
-    # with gzip.open(download_output, 'rt') as ko_conversion:
-    #     record_counter = 0
-    #     records = []
-    #     for line in ko_conversion:
-    #         # Commit changes after 500000 records
-    #         if record_counter == 500000:
-    #             cursor.execute("begin")
-    #             cursor.executemany('INSERT INTO ec_to_ko VALUES(?, ?)', records)
-    #             cursor.execute("commit")
-    #             record_counter = 0
-    #             records = []
-    #         else:
-    #             line = line.strip('\n').split("\t")
-    #             records.append((line[1], line[0]))
-    #             record_counter += 1
-    #     # Commit remaining records
-    #     if record_counter > 0:
-    #         cursor.execute("begin")
-    #         cursor.executemany('INSERT INTO ec_to_ko VALUES(?, ?)', records)
-    #         cursor.execute("commit")
-    #     # Create index for faster access
-    #     cursor.execute('CREATE INDEX ec_id ON ec_to_ko (ec_identifier)')
     # Remove temporal files
     if keep == False:
         if Path(download_output).is_file():
@@ -209,58 +182,6 @@ def create_interpro_tables(output_folder, database, keep):
     cursor.execute('CREATE INDEX interpro_index_ce ON interpro_to_ec (interpro_id)')
     cursor.execute('CREATE INDEX ce_index_interpro ON interpro_to_ec (ec_identifier)')
 
-    # # Create table with correspondence KO -> InterPro
-    # cursor.execute("DROP TABLE IF EXISTS ko_to_interpro")
-    # cursor.execute('CREATE TABLE ko_to_interpro \
-    #     (ko_identifier TEXT, interpro_id TEXT)')
-    # record_counter = 0
-    # records = []
-    # for interproscan, ko_id in interpro_to_ko.items():
-    #     for element in ko_id:
-    #         # Commit changes after 500000 records
-    #         if record_counter == 500000:
-    #             cursor.execute("begin")
-    #             cursor.executemany('INSERT INTO ko_to_interpro VALUES(?, ?)', records)
-    #             cursor.execute("commit")
-    #             record_counter = 0
-    #             records = []
-    #         else:
-    #             records.append((element, interproscan))
-    #             record_counter += 1
-    #     # Commit remaining records
-    #     if record_counter > 0:
-    #         cursor.execute("begin")
-    #         cursor.executemany('INSERT INTO ko_to_interpro VALUES(?, ?)', records)
-    #         cursor.execute("commit")
-    #     # Create index for faster access
-    # cursor.execute('CREATE INDEX ko_id ON ko_to_interpro (ko_identifier)')
-
-    # # Create table with correspondence KO -> InterPro
-    # cursor.execute("DROP TABLE IF EXISTS ec_to_interpro")
-    # cursor.execute('CREATE TABLE ec_to_interpro \
-    #     (ec_identifier TEXT, interpro_id TEXT)')
-    # record_counter = 0
-    # records = []
-    # for interproscan, ec_id in interpro_to_ec.items():
-    #     for element in ec_id:
-    #         # Commit changes after 500000 records
-    #         if record_counter == 500000:
-    #             cursor.execute("begin")
-    #             cursor.executemany('INSERT INTO ec_to_interpro VALUES(?, ?)', records)
-    #             cursor.execute("commit")
-    #             record_counter = 0
-    #             records = []
-    #         else:
-    #             records.append((element, interproscan))
-    #             record_counter += 1
-    #     # Commit remaining records
-    #     if record_counter > 0:
-    #         cursor.execute("begin")
-    #         cursor.executemany('INSERT INTO ec_to_interpro VALUES(?, ?)', records)
-    #         cursor.execute("commit")
-    #     # Create index for faster access
-    # cursor.execute('CREATE INDEX ec_id ON ec_to_interpro (ec_identifier)')
-
     # Remove temporal files
     if keep == False:
         if Path(download_output).is_file():
@@ -294,9 +215,18 @@ def main():
 
     # ----------------------------
     print("Creating correspondence tables...")
-    create_refseq_to_uniprot(intable, database, keep)
-    create_ko_to_ec(output, database, keep)
-    create_interpro_tables(output, database, keep)
+    try:
+        create_refseq_to_uniprot(intable, database, keep)
+    except:
+        print("Could not create RefSeq to Uniprot table.")
+    try:
+        create_ko_to_ec(output, database, keep)
+    except:
+        print("Could not create KO to EC table.")
+    try:
+        create_interpro_tables(output, database, keep)
+    except:
+        print("Could not create UniProt tables.")
     print("Done!")
     # ----------------------------
 
