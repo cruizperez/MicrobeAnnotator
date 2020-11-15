@@ -124,8 +124,21 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, keep, p
         step += 1
     # ---------------------
 
-    # Create method-specific protein databases
+    # Create interconversion tables
     if step == 4:
+        print("Building interconversion databases...")
+        print("Building RefSeq to Uniprot")
+        refseq_to_uniprot_table = str(outfolder / "03.uniprot_to_refseq.txt")
+        conversion_database_creator.create_refseq_to_uniprot(refseq_to_uniprot_table, database, keep)
+        print("Building KO to EC")
+        conversion_database_creator.create_ko_to_ec(outfolder, database, keep)
+        print("Building Interpro to EC and KO")
+        conversion_database_creator.create_interpro_tables(outfolder, database, keep)
+        step += 1
+        print("Done!")
+    
+    # Create method-specific protein databases
+    if step == 5:
         print("Building protein databases...")
         protein_folder = outfolder / "01.Protein_DB"
         if method == "blast":
@@ -141,14 +154,6 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, keep, p
             print('and provide the binary folder for the selected method using the "--bin_path" option or add')
             exit('the binary to your PATH (see README for help on this).')
         print("Done!")
-        step += 1
-    
-    if step == 5:
-        print("Building interconversion databases...")
-        refseq_to_uniprot_table = str(outfolder / "03.uniprot_to_refseq.txt")
-        conversion_database_creator.create_refseq_to_uniprot(refseq_to_uniprot_table, database, keep)
-        conversion_database_creator.create_ko_to_ec(outfolder, database, keep)
-        conversion_database_creator.create_interpro_tables(outfolder, database, keep)
         print("---------")
         print("MicrobeAnnotator has finished creating your databases! You are ready to search and annotate your proteins!")
 
@@ -173,7 +178,7 @@ def main():
     parser.add_argument('--bin_path', dest='bin_path', action='store', required=False,
                         help='Path to binary folder for selected method. By defaul assumes the program is in path.')
     parser.add_argument('--step', dest='step', action='store', required=False, default=1, type=int,
-                        help='Step to start with. 1.Download data, 2.Parse annotation data, 3.Building SQLite DB, 4.Build protein DBs. 5. Create interconversion tables. Default 1.')
+                        help='Step to start with. 1.Download data, 2.Parse annotation data, 3.Building SQLite DB, 4.Create interconversion tables, 5.Build protein DBs. Default 1.')
     parser.add_argument('--light', dest='light', action='store_true', required=False,
                         help='Use only KOfamscan and swissprot databases. By default also builds refseq and trembl.')
     parser.add_argument('--no_aspera', dest='aspera', action='store_false', required=False,
