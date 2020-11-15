@@ -16,6 +16,7 @@
 
 ################################################################################
 """---0.0 Import Modules---"""
+from independent_scripts import identifier_conversion
 import multiprocessing
 from functools import partial
 from pathlib import Path
@@ -481,6 +482,90 @@ def main():
             rmtree(temporal_protein_folder)
         # ------------------------
 
+    # Refine annotations with ids from other databases
+    if refine == True:
+        import pandas as pd
+        print("Improving annotations by searching matches in other databases...")
+        # Structure: 
+        # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
+        # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it, Trembl_Search_File]
+        final_annotation_files = []
+        for information in protein_file_info.values():
+            final_annotation_files.append(str(information[1]))
+        
+        # Process each annotation file separately
+        for annotation_file in final_annotation_files:
+            annotation_table = pd.read_csv(annotation_file, sep="\t", header=0, index_col=0)
+            # Parse Uniprot Records
+            swissprot_records = annotation_table.loc[(annotation_table['database'] == "swissprot") & (annotation_table['ko_number'] == "NA" & annotation_table['ko_number'] != ""), ]
+            # Extract records without ko numbers but with ec number
+            swissprot_records_ko = swissprot_records.loc[(swissprot_records['ko_number'] == "NA"  & annotation_table['ko_number'] != "") & (swissprot_records['ec_number'] != "NA"), ]
+            swissprot_records_ko_ids = list(swissprot_records_ko['ec_number'])
+            positive_matches = identifier_conversion.convert_ko_to_ec(swissprot_records_ko_ids, sql_database, True)
+            for identifier, matches in positive_matches.items():
+                annotation_table.loc[(annotation_table['ec_number'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
+            # Now, extract records without ko number but with interpro ids
+            swissprot_records = annotation_table.loc[(annotation_table['database'] == "swissprot") & (annotation_table['ko_number'] == "NA"  & annotation_table['ko_number'] != ""), ]
+            swissprot_records_ko = swissprot_records.loc[(swissprot_records['ko_number'] == "NA"  & annotation_table['ko_number'] != "") & (swissprot_records['interpro'] != "NA"), ]
+            swissprot_records_ko_ids = list(swissprot_records_ko['interpro'])
+            positive_matches = identifier_conversion.convert_interpro_to_ko(swissprot_records_ko_ids, sql_database, False)
+            for identifier, matches in positive_matches.items():
+                annotation_table.loc[(annotation_table['interpro'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
+            # Delete used sub-tables
+            del swissprot_records
+            del swissprot_records_ko
+            
+            # Parse Trembl Records
+            trembl_records = annotation_table.loc[(annotation_table['database'] == "trembl") & (annotation_table['ko_number'] == "NA"  & annotation_table['ko_number'] != ""), ]
+            # Extract records without ko numbers but with ec number
+            trembl_records_ko = trembl_records.loc[(trembl_records['ko_number'] == "NA"  & annotation_table['ko_number'] != "") & (trembl_records['ec_number'] != "NA"), ]
+            trembl_records_ko_ids = list(trembl_records_ko['ec_number'])
+            positive_matches = identifier_conversion.convert_ko_to_ec(trembl_records_ko_ids, sql_database, True)
+            for identifier, matches in positive_matches.items():
+                annotation_table.loc[(annotation_table['ec_number'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
+            # Now, extract records without ko number but with interpro ids
+            trembl_records = annotation_table.loc[(annotation_table['database'] == "trembl") & (annotation_table['ko_number'] == "NA"  & annotation_table['ko_number'] != ""), ]
+            trembl_records_ko = trembl_records.loc[(trembl_records['ko_number'] == "NA"  & annotation_table['ko_number'] != "") & (trembl_records['interpro'] != "NA"), ]
+            trembl_records_ko_ids = list(trembl_records_ko['interpro'])
+            positive_matches = identifier_conversion.convert_interpro_to_ko(trembl_records_ko_ids, sql_database, False)
+            for identifier, matches in positive_matches.items():
+                annotation_table.loc[(annotation_table['interpro'] == identifier) & (annotation_table['ko_number'] == "NA") , "ko_number"] = " ".join(matches)
+            del trembl_records
+            del trembl_records_ko
+
+            # Parse RefSeq Records
+            refseq_records = annotation_table.loc[(annotation_table.database == "refseq") & (annotation_table['ko_number'] == "NA"  & annotation_table['ko_number'] != ""), ]
+            # Extract records without ko numbers but with ec number
+            refseq_records_ko = refseq_records.loc[(refseq_records['ko_number'] == "NA"  & annotation_table['ko_number'] != "") & (refseq_records['ec_number'] != "NA"), ]
+            refseq_records_ko_ids = list(refseq_records_ko['ec_number'])
+            positive_matches = identifier_conversion.convert_ko_to_ec(refseq_records_ko_ids, sql_database, True)
+            for identifier, matches in positive_matches.items():
+                annotation_table.loc[(annotation_table['ec_number'] == identifier), "ko_number"] = " ".join(matches)
+            # Extract refseq ids for records with no ko
+            refseq_records = annotation_table.loc[(annotation_table.database == "refseq") & (annotation_table['ko_number'] == "NA"  & annotation_table['ko_number'] != ""), ]
+            refseq_records_ids = list(refseq_records['protein_id'])
+            refseq_records_indices = refseq_records.index
+            query_refseq_pair = list(zip(refseq_records_indices, refseq_records_ids))
+            # Convert refseq to uniprot
+            refseq_uniprot = {}
+            positive_matches = identifier_conversion.convert_refseq_to_uniprot(refseq_records_ids, sql_database, False)
+            for identifier, matches in positive_matches.items():
+                refseq_uniprot[identifier] = matches[0]
+            query_uniprot_pair = []
+            for pair in query_refseq_pair:
+                if pair[1] in refseq_uniprot:
+                    query_uniprot_pair.append((pair[refseq_records_indices], refseq_uniprot[pair[1]]))
+            # Now estract the uniprot annotations using the identifiers found in the previous step
+            uniprot_annotations = sqlite3_search.search_ids_imported(sql_database, "trembl", query_uniprot_pair)
+            # Parse results and modify the original table
+            for annotation in uniprot_annotations:
+                original_index = annotation.pop(0)
+                annotation_table.loc[original_index] = annotation
+            # Save the refined table in the original location
+            pd.DataFrame.to_csv(annotation_table, sep="\t", index=0, header=True)
+        print("Done!")
+    # ------------------------
+
     # Parse annotation files and summarize them
     print("Extracting ko numbers and summarizing results...")
     annotation_files = []
@@ -490,8 +575,13 @@ def main():
         with open(information[1], 'r') as annotations, open(ko_numbers, 'w') as ko_present:
             for line in annotations:
                 line = line.strip().split("\t")
+                # If there are multiple KOs
                 if line[3] != "":
-                    ko_present.write("{}\n".format(line[3]))
+                    if line[3].split() > 1:
+                        for element in line[3].split():
+                            ko_present.write("{}\n".format(element))
+                    else:
+                        ko_present.write("{}\n".format(line[3]))
         annotation_files.append(ko_numbers)
     prefix = str(Path(output_dir) / plot_filename)
     regular_modules, bifurcation_modules, structural_modules,  \
@@ -500,6 +590,7 @@ def main():
     metabolism_matrix_dropped_relabel, module_colors = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix)
     ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
     print("MicrobeAnnotator has finished succefully!")
+    # ------------------------
 
 if __name__ == "__main__":
     main()
