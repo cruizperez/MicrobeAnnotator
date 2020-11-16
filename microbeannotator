@@ -212,8 +212,6 @@ def main():
     process_log_folder.mkdir(parents=True, exist_ok=True)
     temporal_protein_folder = Path(output_dir) / "temporal_proteins"
     temporal_protein_folder.mkdir(parents=True, exist_ok=True)
-    with open(process_log_folder / "log.txt", 'w') as logfile:
-        logfile.write("{}".format(process_step))
     # Create dictionary with information per protein file
     protein_file_info = {}
     # ----------------------------
@@ -222,8 +220,6 @@ def main():
     if continue_run == True:
         print("Restarting from last checkpoint")
         with open(process_log_folder / "log.txt", 'r') as logfile:
-            print(logfile.readline().strip())
-            print(logfile.readline())
             process_step = int(logfile.readline().strip())
             print(process_step)
         with open(process_log_folder / "structure.pickle", 'rb') as structure_file:
