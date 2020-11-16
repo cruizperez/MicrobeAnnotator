@@ -5,8 +5,8 @@
 # Author:       Carlos A. Ruiz Perez
 # Email:        cruizperez3@gatech.edu
 # Intitution:   Georgia Institute of Technology
-# Version:      0.9
-# Date:         November 13, 2020
+# Version:      1.0.0
+# Date:         Nov 13, 2020
 
 # Description: Downloads the information necessary to create interconversion of
 # accessions and appends it into the MicrobeAnnotator database.

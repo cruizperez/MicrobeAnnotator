@@ -5,8 +5,8 @@
 # Author:       Carlos A. Ruiz Perez
 # Email:        cruizperez3@gatech.edu
 # Intitution:   Georgia Institute of Technology
-# Version:      0.9
-# Date:         March 04, 2020
+# Version:      1.0.0
+# Date:         Nov 13, 2020
 
 # Description: Parses compressed genbank files and extracts protein
 information relevant for annotation purposes.
