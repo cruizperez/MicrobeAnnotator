@@ -54,27 +54,40 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 ko_number = line.split()[2].replace(";", "")
             elif "DR   GO;" in line:
                 if "; F:" in line:
-                    code = line.strip().split("GO:")[1]
-                    code = code.split(";")[0]
-                    function = ''.join([function, " ", code])
+                    code = line.strip().split(";")[1]
+                    code = code.strip()
+                    if function == "":
+                        function = code
+                    else:
+                        function = ''.join([function, " ", code])
                 elif "; C:" in line:
-                    code = line.strip().split("GO:")[1]
-                    code = code.split(";")[0]
-                    compartment = ''.join([compartment, " ", code])
+                    code = line.strip().split(";")[1]
+                    code = code.strip()
+                    if compartment == "":
+                        compartment = code
+                    else:
+                        compartment = ''.join([compartment, " ", code])
                 elif "; P:" in line:
-                    code = line.strip().split("GO:")[1]
-                    code = code.split(";")[0]
-                    process = ''.join([process, " ", code])
+                    code = line.strip().split(";")[1]
+                    code = code.strip()
+                    if process == "":
+                        process = code
+                    else:
+                        process = ''.join([process, " ", code])
             elif "DR   InterPro" in line:
                 code = line.strip().split()[2]
                 code = code.replace(";", "")
                 if interpro == "":
-                    interprot = code
+                    interpro = code
                 else:
                     interpro = ' '.join([interpro, code])
             elif "DR   Pfam" in line:
                 code = line.strip().split()[2]
-                pfam = ''.join([pfam, " ", code])
+                code = code.replace(";", "")
+                if pfam == "":
+                    pfam = code
+                else:
+                    pfam = ' '.join([pfam, code])
             elif line.startswith("DE") and "EC=" in line:
                 ec_code = line.strip().split()[1]
                 ec_code = ec_code.replace(";", "")
@@ -90,6 +103,20 @@ def parse_uniprot_dat(dat_file, output_file_table):
             elif "//\n" in line:
                 if ko_number == "":
                     ko_number = "NA"
+                if organism == "":
+                    organism = "NA"
+                if function == "":
+                    function = "NA"
+                if compartment == "":
+                    compartment = "NA"
+                if process == "":
+                    process = "NA"
+                if interpro == "":
+                    interpro = "NA"
+                if pfam == "":
+                    pfam = "NA"
+                if ec_number == "NA":
+                    ec_number = "NA"
                 output_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(gene_id, 
                 accession, gene_name, ko_number, organism, taxonomy, function, compartment, process, interpro, pfam, ec_number))
                 gene_id = ""

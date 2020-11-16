@@ -236,7 +236,7 @@ def main():
             multi_argument=(output_dir, threads, kofam_bin)), input_list)
             # Results as (protein_file, protein_file_name, ids_proteins_annotated, final_file)
             # Final annotation fields:
-            # * query_id protein_id product ko_number ko_product taxonomy function compartment process EC InterPro Pfam database
+            # * query_id protein_id product ko_number ko_product taxonomy function_go compartment_go process_go interpro pfam ec_number database
         finally:
             pool.close()
             pool.join()
