@@ -5,8 +5,8 @@
 # Author:       Carlos A. Ruiz Perez
 # Email:        cruizperez3@gatech.edu
 # Intitution:   Georgia Institute of Technology
-# Version:      0.9
-# Date:         October 05, 2020
+# Version:      1.0.0
+# Date:         Nov 13, 2020
 
 # Description: Creates a table to KO to EC table based on KEGG information.
 # This script requires you to download the 'htext' file from

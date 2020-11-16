@@ -5,8 +5,8 @@
 # Author:       Carlos A. Ruiz Perez
 # Email:        cruizperez3@gatech.edu
 # Intitution:   Georgia Institute of Technology
-# Version:      0.9
-# Date:         March 05, 2020
+# Version:      1.0.0
+# Date:         Nov 13, 2020
 
 # Description: Builds the search databases depending on the search method
 # selected. Can be one of blast, sword or diamond. These must be in the PATH

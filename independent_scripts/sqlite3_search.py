@@ -6,8 +6,8 @@
 # Email:        cruizperez3@gatech.edu
 # Github:       https://github.com/cruizperez
 # Institution:   Georgia Institute of Technology
-# Version:      0.9
-# Date:         March 16, 2020
+# Version:      1.0.0
+# Date:         Nov 13, 2020
 
 # Description: This script parses a table with protein IDs and searches
 # these IDs in a SQL database to extract protein annotations.

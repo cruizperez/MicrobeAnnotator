@@ -222,7 +222,7 @@ This should be the end result of MicrobeAnnotator, where you can easily compare 
 
 
 ## License
-Comming soon
+See LICENSE
 
 
     
