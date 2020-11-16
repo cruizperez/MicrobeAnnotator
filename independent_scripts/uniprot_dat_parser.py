@@ -67,19 +67,29 @@ def parse_uniprot_dat(dat_file, output_file_table):
                     process = ''.join([process, " ", code])
             elif "DR   InterPro" in line:
                 code = line.strip().split()[2]
-                interpro = ''.join([interpro, " ", code])
+                code = code.replace(";", "")
+                if interpro == "":
+                    interprot = code
+                else:
+                    interpro = ' '.join([interpro, code])
             elif "DR   Pfam" in line:
                 code = line.strip().split()[2]
                 pfam = ''.join([pfam, " ", code])
             elif line.startswith("DE") and "EC=" in line:
                 ec_code = line.strip().split()[1]
                 ec_code = ec_code.replace(";", "")
-                ec_number = ''.join([ec_number, " ", ec_code])
+                ec_code = ec_code.replace("EC=", "")
+                if ec_number == "":
+                    ec_number = ec_code
+                else:
+                    ec_number = ' '.join([ec_number, ec_code])
             elif line.startswith("DR") and "RefSeq" in line:
                 refseq_code = line.strip().split()[2]
                 refseq_code = refseq_code.replace(";", "")
                 uni_to_ref.write("{}\t{}\n".format(gene_id, refseq_code))
             elif "//\n" in line:
+                if ko_number == "":
+                    ko_number = "NA"
                 output_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(gene_id, 
                 accession, gene_name, ko_number, organism, taxonomy, function, compartment, process, interpro, pfam, ec_number))
                 gene_id = ""
