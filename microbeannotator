@@ -470,85 +470,84 @@ def main():
 
 
         # Finally run remaining proteins against Trembl
-        if process_step == 3:
-            if light == True:
-                print("The light run of MicrobeAnnotator had finished succesfully!")
-                print("Summarizing those results...")
-                process_step = 5
-            else:
-                print("Searching proteins against Trembl...\n")
-                trembl_database = None
-                if method == "blast":
-                    trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl")
-                elif method == "diamond":
-                    trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.dmnd")
-                elif method == "sword":
-                    trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.fasta")
-                input_proteins = []
-                for infor in protein_file_info.values():
-                    if len(infor) == 7:
-                        input_proteins.append(infor[-1])
-                if len(input_proteins) > 0:
-                    try:
-                        pool = multiprocessing.Pool(processes)
-                        arguments_to_pass = (output_dir, 'trembl', trembl_database, method,
-                                            threads, id_perc, bitscore, evalue, aln_percent, method_bin)
-                        search_results = pool.map(partial(protein_search.similarity_search,
-                        multiple_arguments=arguments_to_pass), input_proteins)
-                        # Results as (protein_file, filtered_search_file)
-                    finally:
-                        pool.close()
-                        pool.join()
-                # Add name of filtered_search_results to protein_file_info
-                # New structure: 
-                # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
-                # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it, Trembl_Search_File]
-                temp_dir = protein_file_info.copy()
-                for result in search_results:
-                    for filename, info in temp_dir.items():
-                        if len(info) == 7 and result[0] == info[6]:
-                            protein_file_info[filename].append(result[1])
-                del temp_dir
-                # --------------------------
-
-                # Search annotations in SQLite DB and append to the final annotation file
-                print("Extracting Trembl annotation data...\n")
-                for original_file, information in protein_file_info.items():
-                    if len(information) == 8:
-                        filtered_sword_results = information[7]
-                        final_annotation_file = information[1]
-                        significant_hits = []
-                        with open(filtered_sword_results) as swissprot_results:
-                            for line in swissprot_results:
-                                line = line.strip().split()
-                                significant_hits.append((line[0], line[1]))
-                        if len(significant_hits) == 0:
-                            with open(final_annotation_file, 'a') as final_annotation_fh:
-                                for original_protein in starting_proteins[str(Path(original_file).name)]:
-                                    final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-                        else:
-                            annotation = sqlite3_search.search_ids_imported(sql_database, "trembl", significant_hits)
-                            # Each annotation will have:
-                            # query_id gene_id product taxonomy ko_number ko_product
-                            with open(final_annotation_file, 'a') as final_annotation_fh:
-                                for match in annotation:
-                                    final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
-                                    match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
-                                    if match[4] != "":
-                                        starting_proteins[str(Path(original_file).name)].remove(match[0])
-                            with open(final_annotation_file, 'a') as final_annotation_fh:
-                                for original_protein in starting_proteins[str(Path(original_file).name)]:
-                                    final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-                if temporal_protein_folder.is_dir():
-                    rmtree(temporal_protein_folder)
-                # When the process is complete, write step completed (+1) in the log folder
-                # Also, export dictionary with information to be imported in case of continue  
-                process_step += 1
-                with open(process_log_folder / "log.txt", 'w') as logfile:
-                    logfile.write("{}".format(process_step))
-                with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-                    pickle.dump(protein_file_info, structure_file)
-        # ------------------------
+    if process_step == 3:
+        if light == True:
+            print("The light run of MicrobeAnnotator had finished succesfully!")
+            print("Summarizing those results...")
+            process_step = 5
+        else:
+            print("Searching proteins against Trembl...\n")
+            trembl_database = None
+            if method == "blast":
+                trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl")
+            elif method == "diamond":
+                trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.dmnd")
+            elif method == "sword":
+                trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.fasta")
+            input_proteins = []
+            for infor in protein_file_info.values():
+                if len(infor) == 7:
+                    input_proteins.append(infor[-1])
+            if len(input_proteins) > 0:
+                try:
+                    pool = multiprocessing.Pool(processes)
+                    arguments_to_pass = (output_dir, 'trembl', trembl_database, method,
+                                        threads, id_perc, bitscore, evalue, aln_percent, method_bin)
+                    search_results = pool.map(partial(protein_search.similarity_search,
+                    multiple_arguments=arguments_to_pass), input_proteins)
+                    # Results as (protein_file, filtered_search_file)
+                finally:
+                    pool.close()
+                    pool.join()
+            # Add name of filtered_search_results to protein_file_info
+            # New structure: 
+            # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
+            # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it, Trembl_Search_File]
+            temp_dir = protein_file_info.copy()
+            for result in search_results:
+                for filename, info in temp_dir.items():
+                    if len(info) == 7 and result[0] == info[6]:
+                        protein_file_info[filename].append(result[1])
+            del temp_dir
+            # --------------------------
+            # Search annotations in SQLite DB and append to the final annotation file
+            print("Extracting Trembl annotation data...\n")
+            for original_file, information in protein_file_info.items():
+                if len(information) == 8:
+                    filtered_sword_results = information[7]
+                    final_annotation_file = information[1]
+                    significant_hits = []
+                    with open(filtered_sword_results) as swissprot_results:
+                        for line in swissprot_results:
+                            line = line.strip().split()
+                            significant_hits.append((line[0], line[1]))
+                    if len(significant_hits) == 0:
+                        with open(final_annotation_file, 'a') as final_annotation_fh:
+                            for original_protein in starting_proteins[str(Path(original_file).name)]:
+                                final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                    else:
+                        annotation = sqlite3_search.search_ids_imported(sql_database, "trembl", significant_hits)
+                        # Each annotation will have:
+                        # query_id gene_id product taxonomy ko_number ko_product
+                        with open(final_annotation_file, 'a') as final_annotation_fh:
+                            for match in annotation:
+                                final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
+                                match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
+                                if match[4] != "":
+                                    starting_proteins[str(Path(original_file).name)].remove(match[0])
+                        with open(final_annotation_file, 'a') as final_annotation_fh:
+                            for original_protein in starting_proteins[str(Path(original_file).name)]:
+                                final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+            if temporal_protein_folder.is_dir():
+                rmtree(temporal_protein_folder)
+            # When the process is complete, write step completed (+1) in the log folder
+            # Also, export dictionary with information to be imported in case of continue  
+            process_step += 1
+            with open(process_log_folder / "log.txt", 'w') as logfile:
+                logfile.write("{}".format(process_step))
+            with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
+                pickle.dump(protein_file_info, structure_file)
+    # ------------------------
 
     # Refine annotations with ids from other databases
     if process_step == 4:
