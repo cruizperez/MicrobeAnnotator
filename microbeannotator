@@ -212,6 +212,7 @@ def main():
     process_log_folder.mkdir(parents=True, exist_ok=True)
     temporal_protein_folder = Path(output_dir) / "temporal_proteins"
     temporal_protein_folder.mkdir(parents=True, exist_ok=True)
+    sql_database = str(Path(database_folder) / "02.MicrobeAnnotator.db")
     # Create dictionary with information per protein file
     protein_file_info = {}
     # ----------------------------
@@ -300,7 +301,6 @@ def main():
 
         # Search annotations in SQLite DB and append to the final annotation file
         print("Extracting Swissprot annotation data...")
-        sql_database = str(Path(database_folder) / "02.MicrobeAnnotator.db")
         for original_file, information in protein_file_info.items():
             filtered_sword_results = information[3]
             final_annotation_file = information[1]
