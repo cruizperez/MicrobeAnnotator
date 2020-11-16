@@ -94,7 +94,7 @@ def main():
                         Do not perform the iterative annotation but search all proteins against all databases
                         (Increases computation time).
                         '''))
-    misc_options.add_argument('--continue', dest='continue_run', action='store_true', required=False,
+    misc_options.add_argument('--continue_run', dest='continue_run', action='store_true', required=False,
                         help=textwrap.dedent('''
                         If something went wrong when runnin MicrobeAnnotator, try to resume from the last completed step.
                         '''))
@@ -222,6 +222,7 @@ def main():
     if continue_run == True:
         with open(process_log_folder / "log.txt", 'r') as logfile:
             process_step = int(logfile.readline().strip())
+            print(process_step)
         with open(process_log_folder / "structure.pickle", 'rb') as structure_file:
             protein_file_info = pickle.load(structure_file)
     
