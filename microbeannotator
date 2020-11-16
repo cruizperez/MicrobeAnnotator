@@ -220,7 +220,10 @@ def main():
 
     # Check if continue_run was passed, and if so, import the last step completed and the dictionary with information
     if continue_run == True:
+        print("Restarting from last checkpoint")
         with open(process_log_folder / "log.txt", 'r') as logfile:
+            print(logfile.readline().strip())
+            print(logfile.readline())
             process_step = int(logfile.readline().strip())
             print(process_step)
         with open(process_log_folder / "structure.pickle", 'rb') as structure_file:
