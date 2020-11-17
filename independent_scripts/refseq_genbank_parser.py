@@ -35,7 +35,6 @@ def table_creator(genbank_file):
     Returns:
         temporal_table -- Path to temporal table created
     """
-    print(genbank_file)
     temporal_table = Path(genbank_file).with_suffix('.temp')
     with gzip.open(genbank_file, 'rt') as uncompressed_genbank, \
     open(temporal_table, 'w') as output_file:
