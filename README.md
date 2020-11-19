@@ -18,7 +18,8 @@ The iterative approach is composed of three or five main steps (depending on the
 - Summarize the metabolic potential using KEGG modules by extracting KO numbers associated with each match in the databases used. The summary output is a matrix with module completion and two plots showing module completeness per genome (see below).
 
 ## Citation
-Comming soon.
+MicrobeAnnotator: a user-friendly, comprehensive microbial genome annotation pipeline.
+https://doi.org/10.1101/2020.07.20.211847
 
 ## Requirements:
 - Programs:
