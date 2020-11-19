@@ -27,10 +27,11 @@ Comming soon.
    - [HMMER](http://hmmer.org/) >= 3.1
    - [Ruby](https://www.ruby-lang.org/en/) >= 2.5
    - [GNU Parallel](https://www.gnu.org/software/parallel/)\
-One of:
+Either (or if you prefer all):
    - [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/) >= 2.2
    - [Diamond](https://github.com/bbuchfink/diamond) >= 0.9
    - [Sword](https://github.com/rvaser/sword) >= 1.0.4
+- Python >=3.6,<3.9
 - Python Modules:
    - matplotlib
    - seaborn >= 0.10.1

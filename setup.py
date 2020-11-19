@@ -8,9 +8,12 @@ setup(
     author='Carlos A. Ruiz Perez',
     author_email='cruizperez3@gatech.edu',
     packages=find_packages(),
+    include_package_data=True,
     use_scm_version=True,
-    setup_requires=['setuptools_scm'],
-    python_requires='>=3.5',
+    setup_requires=[
+        'setuptools_scm'],
+    python_requires='>=3.5, <3.9',
+    scripts=['microbeannotator.py', 'microbeannotator_db_builder.py'],
     entry_points={
         'console_scripts': [
             'microbeannotator=microbeannotator:main',
