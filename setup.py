@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='microbeannotator',
-    version='1.0.0',
+    version='v.1.0.0',
     description='A user friendly microbe genome annotation tool',
     url='https://github.com/cruizperez/MicrobeAnnotator',
     author='Carlos A. Ruiz Perez',
