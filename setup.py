@@ -13,7 +13,10 @@ setup(
     setup_requires=[
         'setuptools_scm'],
     python_requires='>=3.5, <3.9',
-    scripts=['microbeannotator.py', 'microbeannotator_db_builder.py'],
+    scripts=['microbeannotator.py',
+             'microbeannotator_db_builder.py', 
+             'independent_scripts/identifier_conversion.py'
+             'independent_scripts/ko_mapper.py'],
     entry_points={
         'console_scripts': [
             'microbeannotator=microbeannotator:main',
