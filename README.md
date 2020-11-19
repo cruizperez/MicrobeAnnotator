@@ -15,6 +15,7 @@ MicrobeAnnotator uses an iterative approach to annotate microbial genomes (Bacte
 The iterative approach is composed of three or five main steps (depending on the flavor of MicrobeAnnotator you run).
 - Search of initial protein dataset using KOFamscan, extraction of unannotated proteins.
 - Search of proteins extracted in the previous step using UniProt Swissprot database. Extract unannotated proteins and repeat search using RefSeq and Trembl (if running the full version).
+- In the end, the program will check those entries that had an annotation match but no KO number and will look for other database identifiers (E.C. and InterPro) in the annotation metadata and will try to link those to KO numbers to refine the annotations. 
 - Summarize the metabolic potential using KEGG modules by extracting KO numbers associated with each match in the databases used. The summary output is a matrix with module completion and two plots showing module completeness per genome (see below).
 
 ## Citation
@@ -48,6 +49,7 @@ Either (or if you prefer all):
    - pywget
 
 ## Installation
+### Conda Installation
 It appears we need a bunch of pre-requisites to run MicrobeAnnotator! No worries, their installation using Conda is quite easy. If you don't have Conda, you can install it as follows:
 1. Download Anaconda from https://www.anaconda.com/products/individual.
 2. Run `bash Anaconda-latest-Linux-x86_64.sh` and follow the installation instructions.
@@ -63,7 +65,7 @@ conda config --add channels bioconda
 Then, create an environment for MicrobeAnnotator:
 
 ```bash
-conda create -n microbeannotator blast hmmer ruby=2.5.1 parallel diamond sword seaborn biopython pywget
+conda create -n microbeannotator microbeannotator blast hmmer ruby=2.5.1 parallel diamond sword seaborn biopython pywget
 ```
 
 And activate it:
@@ -72,7 +74,16 @@ And activate it:
 conda activate microbeannotator
 ```
 
+Both main scripts (microbeannotator and microbeannotator_db_builder) should be in your path ready for use!
 This should take care of most of the requirements except for Aspera Connect and KofamScan, which are a little more involved. Let's install those.
+
+### Pip Installation
+Once you have installed the pre-requisites to run MicrobeAnnotator, or if you already had them and you are not using Conda, you can install MicrobeAnnotator using pip:
+
+```bash
+pip install microbeannotator
+```
+Both main scripts (microbeannotator and microbeannotator_db_builder) should be in your path ready for use!
 
 ### Aspera Connect
 To install aspera in a Linux system follow (example with version 3.9.8.176272):
@@ -172,11 +183,14 @@ You can decide of course which version to run at any time, but for the time bein
 
 The first step is to download and format the databases we want to use for MicrobeAnnotator. For this we will execute the `microbeannotator_db_builder` script within the MicrobeAnnotator folder. You can add see all options and inputs for the script with  `microbeannotator_db_builder -h`.\
 Run the script as:\
-`path/to/MicrobeAnnotator/microbeannotator_db_builder -d MicrobeAnnotator_DB -m [blast,diamond,sword] -t [# threads]`\
+`microbeannotator_db_builder -d MicrobeAnnotator_DB -m [blast,diamond,sword] -t [# threads]`\
 The options we gave the script were:\
 `-d MicrobeAnnotator_DB` that is the folder in which all databases will be downloaded and stored.\
 `-m [blast,diamond,sword]` the search method you intend to use. For instance, if you choose "blast" the program will format you database to be searched using NCBI blastp. If you noticed we already installed all three options so you can chooce either (note that sword has some specific processor requirements and might not work in older computers, but you can test it before choosing).\
-`-t [# threads]` will be the number of processors used to format the databases.
+`-t [# threads]` will be the number of processors used to format the databases.\
+`--step [#]` will tell MicrobeAnnotator which step to start from (for example if your run failed for some reason). The steps available are: 1. Download data, 2. Parse annotation data, 3. Building SQLite DB, 4. Create interconversion tables, and 5. Build protein DBs.\
+`--no_aspera` will tell MicrobeAnnotator that you don't have Aspera Connect installed so it will use another download method.\
+`--keep` will tell MicrobeAnnotator to not remove intermediary files (not recommended because it's not necessary and it will take more of your disk space.
 
 If you run the full version (no `--light` flag), you will need at least approximately ~230Gb of space. This can increase depending on the search method used (blast and diamond require the raw fasta databases to be further formated).
 If everything went right, you should find inside the MicrobeAnnotator_DB folder, a directory `01.Protein_DB` and a file `02.MicrobeAnnotator.db` that contain all information required by the program to search your proteins against these databases.
@@ -187,15 +201,18 @@ This is the main part of MicrobeAnnotator. Here you will search the proteins you
 This implies that you can pass multiple protein fasta files to MicrobeAnnotator and they will all be processed in a single script! Awesome right?\
 For this annotation step we will use the `MicrobeAnnotator` script (see `/path/to/MicrobeAnnotator -h` for all options).\
 Run the script as:\
-`path/to/MicrobeAnnotator -i [fasta_1.fa fasta_2.fa] -d /path/to/MicrobeAnnotator -o [output folder] -m [blast,diamond,sword] -p [# processes] -t [# threads]`\
+`microbeannotator -i [fasta_1.fa fasta_2.fa] -d /path/to/MicrobeAnnotator -o [output folder] -m [blast,diamond,sword] -p [# processes] -t [# threads]`\
 The options we gave the script were:\
 `-i [fasta_1.fa fasta_2.fa]`, the input fasta files (separated by spaces). If you have many, you can pass them as `-i $(ls *.fasta)`.\
+`-l [file]`, a file containing the files to process. If you have many files it is easier compared to `-i`\
 `-d /path/to/MicrobeAnnotator_DB`, the folder where you created the databases in the previous step.\
 `-o [output folder]`, the folder to store all results generated by MicrobeAnnotator.\
 `-m [blast,diamond,sword]` the search method you intend to use.\
 `-p [# processes]`, refers to the number of protein files to be processed simultaneously, e.g `-p 3` will process three protein files at the same time.\
 `-t [# threads]`, refers to the number of processors to use per protein file. For example `-t 5` will use five processors per each protein file.\
-Therefore, of you use `-p 2 -t 5`, you will need 10 cores (five for each protein file).
+Therefore, of you use `-p 2 -t 5`, you will need 10 cores (five for each protein file).\
+`--refine`, will tell MicrobeAnnotator to completement the initial annotations using E.C. numbers or InterPro ids and convert them to KO numbers.\
+`--continue_run`, we know that MicrobeAnnotator can fail. If you have many files it can be really frustrating having to start over (we have been there :)). That is why we added an option to resume the process from the last completed point. This is the flag that does it. 
 
 At the end you should see your output folder with: \
 `annotation_results/` folder: Where you will find the annotation tables per file and the list of KO numbers present in the file.\
@@ -221,6 +238,15 @@ This should be the end result of MicrobeAnnotator, where you can easily compare 
 
 - Can I use the light (--light) version of the program to annotate if I built the database using the full version?\
     Of course! You can search and annotate your genomes (protein files) using only kofamscan and the swissprot database, i.e. the light version even if you have the full database available. However, the contrary cannot be done. If you try to perform the full search with the light version of the database, MicrobeAnnotator will not be able to find the required databases and will exit with an error. If you have anough time (and space) you can build the full database and then use the version that better suits your needs at each particular time.
+
+- I have identifiers from other annotation tools, can I use them in MicrobeAnnotator to summarize the metabolic potential?\
+    Of course! We realize we are not the only annotation tool out there, so we have an additional script `identifier_conversion.py`, that will allow you to convert ids between databases, either to summarize within microbeannotator or to compare several annotation methods. With this script you can convert between: E.C. <-> KO, InterPro <-> KO, and InterPro <-> E.C. If you have a list of KO identifiers in the end, you can summarize them using another script `ko_mapper.py`.
+
+- I have a list of KOs obtained somewhere. Can I summarize them and skip all the annotation steps?
+    Sure! We have made an additional script that does exactly this. You will find it as `ko_mapper.py`.
+
+- I don't see my question here. Where can I ask a question?
+    You can submit a ticket in the issues tab and I will do my best to solve it and answer your question. You can also ask for features you would like to see in the future!
 
 
 ## License
