@@ -60,6 +60,7 @@ Now, let's add the conda channels required to install the pre-requisites:
 ```bash
 conda config --add channels conda-forge
 conda config --add channels bioconda
+conda config --add channels cruizperez
 ```
 
 Then, create an environment for MicrobeAnnotator:
