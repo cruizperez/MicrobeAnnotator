@@ -1,0 +1,52 @@
+{% set name = "microbeannotator" %}
+{% set version = "1.0.1" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: b81c17a6feae634d689b74d60bc72760d6f462182afd184ec5f1bf618e41807e
+
+build:
+  number: 0
+  entry_points:
+    - microbeannotator=microbeannotator:main
+    - microbeannotator_db_builder=microbeannotator_db_builder:main
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+    - setuptools_scm
+  
+  run:
+    - python
+    - pywget
+    - pandas
+    - matplotlib
+    - biopython
+    - seaborn
+
+test:
+  imports:
+    - independent_scripts
+  commands:
+    - microbeannotator --help
+    - microbeannotator_db_builder --help
+
+about:
+  home: "https://github.com/cruizperez/MicrobeAnnotator"
+  license: "Artistic License 2.0"
+  license_family: OTHER
+  license_file: 
+  summary: "A user friendly microbe genome annotation tool"
+  doc_url: 
+  dev_url: 
+
+extra:
+  recipe-maintainers:
+    - "https://github.com/cruizperez"
