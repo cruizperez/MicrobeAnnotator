@@ -2,14 +2,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='microbeannotator',
-    version='1.0.1',
+    version='1.0.2',
     description='A user friendly microbe genome annotation tool',
     url='https://github.com/cruizperez/MicrobeAnnotator',
     author='Carlos A. Ruiz Perez',
     author_email='cruizperez3@gatech.edu',
+    keywords = ['genome annotation', 'protein', 'comparative genomics'],
     packages=find_packages(),
     include_package_data=True,
-    use_scm_version=True,
+    use_scm_version=False,
     setup_requires=[
         'setuptools_scm'],
     python_requires='>=3.5, <3.9',

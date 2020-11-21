@@ -1,5 +1,5 @@
 {% set name = "microbeannotator" %}
-{% set version = "1.0.1" %}
+{% set version = "1.0.2" %}
 
 package:
   name: "{{ name|lower }}"
@@ -7,7 +7,7 @@ package:
 
 source:
   url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
-  sha256: b81c17a6feae634d689b74d60bc72760d6f462182afd184ec5f1bf618e41807e
+  sha256: 711f02242f9966e14b8c5dc4cfd8beaa016078280c13a2eb38de0cdf851a7c82
 
 build:
   number: 0
@@ -22,7 +22,7 @@ requirements:
     - python
     - setuptools
     - setuptools_scm
-  
+
   run:
     - python
     - pywget
@@ -33,6 +33,7 @@ requirements:
 
 test:
   imports:
+    - data
     - independent_scripts
   commands:
     - microbeannotator --help
