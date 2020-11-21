@@ -33,9 +33,9 @@ M00548	Benzene degradation, benzene => catechol	Aromatics degradation	#76d25b
 M00551	Benzoate degradation, benzoate => catechol -- methylbenzoate => methylcatechol	Aromatics degradation	#76d25b
 M00568	Catechol ortho-cleavage, catechol => 3-oxoadipate	Aromatics degradation	#76d25b
 M00569	Catechol meta-cleavage, catechol => acetyl-CoA -- 4-methylcatechol => propanoyl-CoA	Aromatics degradation	#76d25b
-M00623	Phthalate degradation, phthalate => protocatechuate	Aromatics degradation	#76d25b
+M00623	Phthalate degradation 1, phthalate => protocatechuate	Aromatics degradation	#76d25b
 M00624	Terephthalate degradation, terephthalate => 3,4-dihydroxybenzoate	Aromatics degradation	#76d25b
-M00636	Phthalate degradation, phthalate => protocatechuate	Aromatics degradation	#76d25b
+M00636	Phthalate degradation 2, phthalate => protocatechuate	Aromatics degradation	#76d25b
 M00637	Anthranilate degradation, anthranilate => catechol	Aromatics degradation	#76d25b
 M00638	Salicylate degradation, salicylate => gentisate	Aromatics degradation	#76d25b
 M00878	Phenylacetate degradation, phenylaxetate => acetyl-CoA--succinyl-CoA	Aromatics degradation	#76d25b

@@ -473,6 +473,7 @@ def global_mapper(regular_modules, bifurcating_modules, structural_modules, anno
 def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
     print("Grouping by metabolism type and plotting... ")
+    pd.DataFrame.to_csv(metabolism_matrix_dropped_relabel, "SALIDA", sep="\t", header=True, index=True)
     for module in list(metabolism_matrix_dropped_relabel.index):
         for genome in list(metabolism_matrix_dropped_relabel.columns):
             if metabolism_matrix_dropped_relabel.loc[module,genome] >= 80:
@@ -536,7 +537,8 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
     metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= 50).any(1)]
     table_empty = (metabolism_matrix_retained == 0).all()
     if table_empty.all() == True:
-        metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= 0).any(1)]
+        print("There are no modules above 50% completeness. Plotting all modules regardless of completeness.")
+        metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix > 0).any(1)]
         ylabel_text = 'Modules'
     colors_for_ticks = []
     colors_for_legend = {}
