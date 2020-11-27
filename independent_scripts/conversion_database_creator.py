@@ -59,6 +59,7 @@ def create_refseq_to_uniprot(input_table, database_to_append, keep):
 
 def create_ko_to_ec(output_folder, database, keep):
     # Download information
+    Path(output_folder)
     download_output = str(output_folder / "02.KO_to_EC_identifiers.txt.gz")
     wget.download("http://enve-omics.ce.gatech.edu/data/public_microbeannotator/02.KO_to_EC_identifiers.txt.gz",
                             out=download_output)
@@ -100,6 +101,7 @@ def create_ko_to_ec(output_folder, database, keep):
     
 def create_interpro_tables(output_folder, database, keep):
     # Download information
+    Path(output_folder)
     download_output = str(output_folder / "interpro_metadata.xml.gz")
     wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz",
                             out=download_output)
@@ -275,14 +277,14 @@ def main():
         create_refseq_to_uniprot(intable, database, keep)
     except:
         print("Could not create RefSeq to Uniprot table.")
-    try:
-        create_ko_to_ec(output, database, keep)
-    except:
-        print("Could not create KO to EC table.")
-    try:
-        create_interpro_tables(output, database, keep)
-    except:
-        print("Could not create UniProt tables.")
+    #try:
+    create_ko_to_ec(output, database, keep)
+    #except:
+    #    print("Could not create KO to EC table.")
+    #try:
+    create_interpro_tables(output, database, keep)
+    #except:
+    #    print("Could not create UniProt tables.")
     print("Done!")
     # ----------------------------
 
