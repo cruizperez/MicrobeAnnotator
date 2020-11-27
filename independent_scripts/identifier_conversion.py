@@ -107,7 +107,7 @@ def convert_interpro_to_ec(identifier_list, sql_database, inverse):
     interpro_to_ec = {}
     ec_to_interpro = {}
     for identifier in identifier_list:
-        # If ko to interpro
+        # If ec to interpro
         if inverse == True:
             cursor.execute("SELECT * FROM interpro_to_ec WHERE ec_identifier=?", (identifier,))
             rows = cursor.fetchall()
@@ -117,7 +117,7 @@ def convert_interpro_to_ec(identifier_list, sql_database, inverse):
                     # Append ko matches
                     ec_to_interpro[identifier].append(match[0])
             return ec_to_interpro
-        # Else search interpro to ko
+        # Else search interpro to ec
         else:
             cursor.execute("SELECT * FROM interpro_to_ec WHERE interpro_id=?", (identifier,))
             rows = cursor.fetchall()
