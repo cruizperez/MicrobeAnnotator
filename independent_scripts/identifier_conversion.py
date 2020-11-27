@@ -54,7 +54,7 @@ def convert_ko_to_ec(identifier_list, sql_database, inverse):
     ec_to_ko = {}
     for identifier in identifier_list:
         # If ec to ko
-        if inverse == False:
+        if inverse == True:
             cursor.execute("SELECT * FROM ko_to_ec WHERE ec_identifier=?", (identifier,))
             rows = cursor.fetchall()
             if len(rows) > 0:
