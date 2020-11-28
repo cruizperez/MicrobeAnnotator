@@ -253,6 +253,11 @@ def main():
             protein_file_info[ko_result[0]].append(outfile)
             if full == True:
                 copyfile(ko_result[0],outfile)
+                for protein in ko_result[2]:
+                    try:
+                        starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                    except:
+                        continue
             else:
                 for protein in ko_result[2]:
                     starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
@@ -333,7 +338,7 @@ def main():
                         for match in annotation:
                             final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
                             match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
-                            if match[4] != "":
+                            if match[4] != "" and match[4] != "NA":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
                     # Check which proteins were not annotated and add information on those
                     # Extract annotated proteins
@@ -349,6 +354,11 @@ def main():
                             if full == False:
                                 if match[4] != "" and match[4] != "NA":
                                     starting_proteins[str(Path(original_file).name)].remove(match[0])
+                            else:
+                                try:
+                                    starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                except:
+                                    continue
                     # Check which proteins were not annotated and filter for the next iteration
                     second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
                     if full == True:
@@ -444,10 +454,15 @@ def main():
                             for match in annotation:
                                 final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\tNA\tNA\t{}\trefseq\n".format(match[0],
                                 match[1], match[2], match[5], match[6], match[3], match[4]))
-                                if full == False:
-                                    if match[5] != "" and match[5] != "NA":
+                                if match[5] != "" and match[5] != "NA":
+                                    if full == False:
                                         starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                
+                                    else:
+                                        try:
+                                            starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                        except:
+                                            continue
+
                         # Check which proteins were not annotated and filter for the next iteration
                         third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
                         if full == True:
@@ -536,7 +551,14 @@ def main():
                             for match in annotation:
                                 final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
                                 match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
-                                if match[4] != "":
+                                if match[4] != "" and match[4] != "NA":
+                                    if full == False:
+                                        starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                    else:
+                                        try:
+                                            starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                        except:
+                                            continue
                                     starting_proteins[str(Path(original_file).name)].remove(match[0])
                         with open(final_annotation_file, 'a') as final_annotation_fh:
                             for original_protein in starting_proteins[str(Path(original_file).name)]:
