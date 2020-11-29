@@ -41,6 +41,7 @@ def table_creator(genbank_file):
         for record in SeqIO.parse(uncompressed_genbank, "genbank"):
             protein_id = record.id
             product = record.description.split("[")[0].strip()
+            product = product.lower()
             taxonomy = ""
             species = ""
             ec_number = ""

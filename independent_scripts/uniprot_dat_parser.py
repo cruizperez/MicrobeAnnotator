@@ -43,9 +43,10 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 gene_id = line.split()[1]
             elif "AC  " in line:
                 accession = line.split()[1].replace(";","")
-            elif "RecName" in line:
+            elif line.startswith("DE") and "Full=" in line:
                 gene_name = line.split("Full=")[1]
                 gene_name = gene_name.split("{")[0].strip().replace(";","")
+                gene_name = gene_name.lower()
             elif "OS  " in line:
                 organism = ' '.join([organism, line.split("OS")[1].strip()]).replace(".","")
             elif "OC  " in line:
