@@ -559,7 +559,6 @@ def main():
                                             starting_proteins[str(Path(original_file).name)].remove(match[0])
                                         except:
                                             continue
-                                    starting_proteins[str(Path(original_file).name)].remove(match[0])
                         with open(final_annotation_file, 'a') as final_annotation_fh:
                             for original_protein in starting_proteins[str(Path(original_file).name)]:
                                 final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
