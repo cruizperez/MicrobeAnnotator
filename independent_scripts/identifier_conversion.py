@@ -26,7 +26,7 @@ def convert_refseq_to_uniprot(identifier_list, sql_database, inverse):
     uniprot_to_refseq = {}
     for identifier in identifier_list:
         # If uniprot to refseq
-        if inverse == False:
+        if inverse == True:
             cursor.execute("SELECT * FROM refseq_to_uniprot WHERE uniprot_id=?", (identifier,))
             rows = cursor.fetchall()
             if len(rows) > 0:
@@ -34,7 +34,6 @@ def convert_refseq_to_uniprot(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append refseq matches
                     uniprot_to_refseq[identifier].append(match[0])
-            return uniprot_to_refseq
         # Else search refseq to uniprot
         else:
             cursor.execute("SELECT * FROM refseq_to_uniprot WHERE refseq_id=?", (identifier,))
@@ -44,7 +43,10 @@ def convert_refseq_to_uniprot(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append uniprot matches
                     refseq_to_uniprot[identifier].append(match[1])
-            return refseq_to_uniprot
+    if inverse == False:
+        return refseq_to_uniprot
+    else:
+        return uniprot_to_refseq
 
 
 def convert_ko_to_ec(identifier_list, sql_database, inverse):
@@ -62,7 +64,6 @@ def convert_ko_to_ec(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append ko matches
                     ec_to_ko[identifier].append(match[0])
-            return ec_to_ko
         # Else search ko to ec
         else:
             cursor.execute("SELECT * FROM ko_to_ec WHERE ko_identifier=?", (identifier,))
@@ -72,8 +73,12 @@ def convert_ko_to_ec(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append ec matches
                     ko_to_ec[identifier].append(match[1])
-            return ko_to_ec
+    if inverse == False:
+        return ko_to_ec
+    else:
+        return ec_to_ko
 
+#! Check if this one must be removed
 def convert_interpro_to_ko(identifier_list, sql_database, inverse):
     conn = sqlite3.connect(sql_database)
     cursor = conn.cursor()
@@ -89,7 +94,6 @@ def convert_interpro_to_ko(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append ko matches
                     ko_to_interpro[identifier].append(match[0])
-            return ko_to_interpro
         # Else search interpro to ko
         else:
             cursor.execute("SELECT * FROM interpro_to_ko WHERE interpro_id=?", (identifier,))
@@ -99,7 +103,10 @@ def convert_interpro_to_ko(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append ec matches
                     interpro_to_ko[identifier].append(match[1])
-            return interpro_to_ko
+    if inverse == False:
+        return interpro_to_ko
+    else:
+        return ko_to_interpro
 
 def convert_interpro_to_ec(identifier_list, sql_database, inverse):
     conn = sqlite3.connect(sql_database)
@@ -116,7 +123,6 @@ def convert_interpro_to_ec(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append ko matches
                     ec_to_interpro[identifier].append(match[0])
-            return ec_to_interpro
         # Else search interpro to ec
         else:
             cursor.execute("SELECT * FROM interpro_to_ec WHERE interpro_id=?", (identifier,))
@@ -126,7 +132,10 @@ def convert_interpro_to_ec(identifier_list, sql_database, inverse):
                 for match in rows:
                     # Append ec matches
                     interpro_to_ec[identifier].append(match[1])
-            return interpro_to_ec
+    if inverse == False:
+        return interpro_to_ec
+    else:
+        return ec_to_interpro
 
 
 ################################################################################
