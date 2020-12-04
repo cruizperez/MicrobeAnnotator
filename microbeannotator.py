@@ -200,6 +200,7 @@ def main():
     for file in input_list:
         starting_filename = str(Path(file).name)
         starting_proteins[starting_filename] = []
+        unannotated_proteins[starting_filename] = []
         with open(Path(file)) as proteins:
             for line in proteins:
                 if line.startswith(">"):
