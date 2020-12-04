@@ -68,7 +68,9 @@ def kofamscan_annotation(protein_file, multi_argument):
                 continue
             else:
                 line = line.strip().split("\t")
-                if "hypothetical" not in line[6].lower():
+                if "hypothetical" not in line[6].lower() and \
+                    "uncharacterized" not in line[6].lower() and \
+                    "unknown function" not in line[6].lower():
                     ids_proteins_annotated.append(line[1])
                 else:
                     ids_hypothetical_proteins.append(line[1])
