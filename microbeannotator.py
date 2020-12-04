@@ -350,9 +350,15 @@ def main():
                             match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                             if match[4] != "" and match[4] != "NA":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                try:
+                                    unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                except ValueError:
+                                    continue
                             elif match[3] != "":
-                                unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                try:
+                                    unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                except ValueError:
+                                    continue
                     # Check which proteins were not annotated and add information on those
                     # Extract annotated proteins
                     with open(final_annotation_file, 'a') as final_annotation_fh:
