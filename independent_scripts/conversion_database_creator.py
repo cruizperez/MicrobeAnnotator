@@ -140,56 +140,31 @@ def create_interpro_tables(output_folder, database, keep):
     # Connect with the database
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    # Create table with correspondence InterPro -> KO
-    cursor.execute("DROP TABLE IF EXISTS interpro_to_ko")
-    cursor.execute('CREATE TABLE interpro_to_ko \
-        (interpro_id TEXT, ko_identifier TEXT)')
-    record_counter = 0
-    records = []
-    for interproscan, ko_id in interpro_to_ko.items():
-        for ko_indentifier_record in ko_id:
-            # Commit changes after 500000 records
-            if record_counter == 500000:
-                cursor.execute("begin")
-                cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
-                cursor.execute("commit")
-                record_counter = 0
-                records = []
-            else:
-                records.append((interproscan, ko_indentifier_record))
-                record_counter += 1
-            # Commit remaining records
-            if record_counter > 0:
-                cursor.execute("begin")
-                cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
-                cursor.execute("commit")
-    # Create index for faster access
-    cursor.execute('CREATE INDEX interpro_index_ko ON interpro_to_ko (interpro_id)')
-
-    # Create table with correspondence KO -> Interpro
-    # cursor.execute("DROP TABLE IF EXISTS ko_to_interpro")
-    # cursor.execute('CREATE TABLE ko_to_interpro \
-    #     (ko_identifier TEXT, interpro_id TEXT)')
+    # # Create table with correspondence InterPro -> KO
+    # cursor.execute("DROP TABLE IF EXISTS interpro_to_ko")
+    # cursor.execute('CREATE TABLE interpro_to_ko \
+    #     (interpro_id TEXT, ko_identifier TEXT)')
     # record_counter = 0
     # records = []
-    # for ko_id, interproscan in ko_to_interpro.items():
-    #     # Commit changes after 500000 records
-    #     if record_counter == 500000:
-    #         cursor.execute("begin")
-    #         cursor.executemany('INSERT INTO ko_to_interpro VALUES(?, ?)', records)
-    #         cursor.execute("commit")
-    #         record_counter = 0
-    #         records = []
-    #     else:
-    #         records.append((ko_id, " ".join(interproscan)))
-    #         record_counter += 1
-    #     # Commit remaining records
-    #     if record_counter > 0:
-    #         cursor.execute("begin")
-    #         cursor.executemany('INSERT INTO ko_to_interpro VALUES(?, ?)', records)
-    #         cursor.execute("commit")
-    #     # Create index for faster access
-    # cursor.execute('CREATE INDEX ko_index_interpro ON ko_to_interpro (ko_identifier)')
+    # for interproscan, ko_id in interpro_to_ko.items():
+    #     for ko_indentifier_record in ko_id:
+    #         # Commit changes after 500000 records
+    #         if record_counter == 500000:
+    #             cursor.execute("begin")
+    #             cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
+    #             cursor.execute("commit")
+    #             record_counter = 0
+    #             records = []
+    #         else:
+    #             records.append((interproscan, ko_indentifier_record))
+    #             record_counter += 1
+    #         # Commit remaining records
+    #         if record_counter > 0:
+    #             cursor.execute("begin")
+    #             cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
+    #             cursor.execute("commit")
+    # # Create index for faster access
+    # cursor.execute('CREATE INDEX interpro_index_ko ON interpro_to_ko (interpro_id)')
 
     # Create table with correspondence InterPro -> EC
     cursor.execute("DROP TABLE IF EXISTS interpro_to_ec")
@@ -216,31 +191,6 @@ def create_interpro_tables(output_folder, database, keep):
                 cursor.execute("commit")
     # Create index for faster access
     cursor.execute('CREATE INDEX interpro_index_ce ON interpro_to_ec (interpro_id)')
-
-    # Create table with correspondence EC -> Interpro
-    # cursor.execute("DROP TABLE IF EXISTS ec_to_interpro")
-    # cursor.execute('CREATE TABLE ec_to_interpro \
-    #     (ec_identifier TEXT, interpro_id TEXT)')
-    # record_counter = 0
-    # records = []
-    # for ec_id, interproscan in ec_to_interpro.items():
-    #     # Commit changes after 500000 records
-    #     if record_counter == 500000:
-    #         cursor.execute("begin")
-    #         cursor.executemany('INSERT INTO ec_to_interpro VALUES(?, ?)', records)
-    #         cursor.execute("commit")
-    #         record_counter = 0
-    #         records = []
-    #     else:
-    #         records.append((ec_id, " ".join(interproscan)))
-    #         record_counter += 1
-    #     # Commit remaining records
-    #     if record_counter > 0:
-    #         cursor.execute("begin")
-    #         cursor.executemany('INSERT INTO ec_to_interpro VALUES(?, ?)', records)
-    #         cursor.execute("commit")
-    #     # Create index for faster access
-    # cursor.execute('CREATE INDEX ce_index_interpro ON ec_to_interpro (ec_identifier)')
 
     # Remove temporal files
     if keep == False:
