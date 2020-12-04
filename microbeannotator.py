@@ -196,6 +196,7 @@ def main():
             for line in file_list_handler:
                 input_list.append(line.strip())
     starting_proteins = {}
+    unannotated_proteins = {}
     for file in input_list:
         starting_filename = str(Path(file).name)
         starting_proteins[starting_filename] = []
@@ -204,6 +205,7 @@ def main():
                 if line.startswith(">"):
                     line = line.strip().split()[0].replace(">", "")
                     starting_proteins[starting_filename].append(line)
+                    unannotated_proteins[starting_filename].append(line)
     # ----------------------------
 
     # Create log folder to track process and folder to store temporal proteins
@@ -234,7 +236,7 @@ def main():
             pool = multiprocessing.Pool(processes)
             kofam_results = pool.map(partial(protein_search.kofamscan_annotation, 
             multi_argument=(output_dir, threads, kofam_bin)), input_list)
-            # Results as (protein_file, protein_file_name, ids_proteins_annotated, final_file)
+            # Results as (protein_file, protein_file_name, ids_proteins_annotated, final_file, ids_hypothetical_proteins)
             # Final annotation fields:
             # * query_id protein_id product ko_number ko_product taxonomy function_go compartment_go process_go interpro pfam ec_number database
         finally:
@@ -258,9 +260,16 @@ def main():
                         starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
                     except:
                         continue
+                for protein in ko_result[4]:
+                    try:
+                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                    except:
+                        continue
             else:
                 for protein in ko_result[2]:
                     starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                for protein in ko_result[4]:
+                    unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
                 fasta_filter_list.fastA_filter_list(ko_result[0], outfile, ko_result[2], reverse=True)
         # When the process is complete, write step completed (+1) in the log folder
         # Also, export dictionary with information to be imported in case of continue
@@ -320,7 +329,7 @@ def main():
                 if light == True:
                     # Write all the proteins without annotation
                     with open(final_annotation_file, 'a') as final_annotation_fh:
-                        for original_protein in starting_proteins[str(Path(original_file).name)]:
+                        for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                             final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
                 else:
                     # Copy the first iteration proteins to the second iteration file
@@ -340,10 +349,13 @@ def main():
                             match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                             if match[4] != "" and match[4] != "NA":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                            elif match[3] != "":
+                                unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                     # Check which proteins were not annotated and add information on those
                     # Extract annotated proteins
                     with open(final_annotation_file, 'a') as final_annotation_fh:
-                        for original_protein in starting_proteins[str(Path(original_file).name)]:
+                        for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                             final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
                 else:
                     # Write the annotations found in the annotation file
