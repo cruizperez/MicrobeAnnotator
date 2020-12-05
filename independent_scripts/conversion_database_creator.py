@@ -113,7 +113,7 @@ def create_interpro_tables(output_folder, database, keep):
         for line in infile:
             if line.startswith("<interpro id="):
                 interpro_id = line.strip().split('"')[1]
-            elif "db_xref" in line and "EC" in line:
+            elif 'db_xref db="EC"' in line:
                 identifier = line.strip().split('"')[3]
                 ec_identifier.append(identifier)
             elif line.startswith("</interpro>"):
@@ -134,14 +134,15 @@ def create_interpro_tables(output_folder, database, keep):
     for interproscan, ec_id in interpro_to_ec.items():
         print(interproscan, ec_id)
         for ec_id_record in ec_id:
-            # Commit changes after 500000 records
-            if record_counter == 500000:
+            # Commit changes after 5000 records
+            if record_counter == 5000:
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO interpro_to_ec VALUES(?, ?)', records)
                 cursor.execute("commit")
                 record_counter = 0
                 records = []
             else:
+                print(interproscan, ec_id_record)
                 records.append((interproscan, ec_id_record))
                 record_counter += 1
             # Commit remaining records
