@@ -141,6 +141,7 @@ def create_interpro_tables(output_folder, database, keep):
                 cursor.execute("commit")
                 record_counter = 0
                 records = []
+                print(records)
             else:
                 print(interproscan, ec_id_record)
                 records.append((interproscan, ec_id_record))
