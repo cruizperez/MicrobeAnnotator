@@ -132,10 +132,10 @@ def create_interpro_tables(output_folder, database, keep):
     record_counter = 0
     records = []
     for interproscan, ec_id in interpro_to_ec.items():
-        print(interproscan, ec_id)
         for ec_id_record in ec_id:
             # Commit changes after 5000 records
             if record_counter == 5000:
+                print(records)
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO interpro_to_ec VALUES(?, ?)', records)
                 cursor.execute("commit")
@@ -143,7 +143,6 @@ def create_interpro_tables(output_folder, database, keep):
                 records = []
                 print(records)
             else:
-                print(interproscan, ec_id_record)
                 records.append((interproscan, ec_id_record))
                 record_counter += 1
             # Commit remaining records
