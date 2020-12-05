@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
-
+from independent_scripts import version
 setup(
     name='microbeannotator',
-    version='1.0.3',
+    version=version,
     description='A user friendly microbe genome annotation tool',
     url='https://github.com/cruizperez/MicrobeAnnotator',
     author='Carlos A. Ruiz Perez',
@@ -20,8 +20,8 @@ setup(
              'independent_scripts/ko_mapper.py'],
     entry_points={
         'console_scripts': [
-            'microbeannotator=microbeannotator:main',
-            'microbeannotator_db_builder=microbeannotator_db_builder:main',
+            'microbeannotator = microbeannotator:main',
+            'microbeannotator_db_builder = microbeannotator_db_builder:main',
         ],
     },
 )

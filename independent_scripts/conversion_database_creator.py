@@ -75,7 +75,7 @@ def create_ko_to_ec(output_folder, database, keep):
         records = []
         for line in ko_conversion:
             # Commit changes after 500000 records
-            if record_counter == 500000:
+            if record_counter == 50000:
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO ko_to_ec VALUES(?, ?)', records)
                 cursor.execute("commit")
@@ -103,8 +103,8 @@ def create_interpro_tables(output_folder, database, keep):
     # Download information
     output_folder = Path(output_folder)
     download_output = str(output_folder / "interpro_metadata.xml.gz")
-    # wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz",
-    #                         out=download_output)
+    wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz",
+                            out=download_output)
     interpro_to_ec = {}
     # Parse file information into dictionaries to merge into the SQLite database
     with gzip.open(download_output, 'rt') as infile:

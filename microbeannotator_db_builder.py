@@ -22,6 +22,7 @@ from independent_scripts import uniprot_dat_parser
 from independent_scripts import refseq_genbank_parser
 from independent_scripts import sqlite3_database_builder
 from independent_scripts import protein_db_creation
+from independent_scripts import version
 from pathlib import Path
 from shutil import rmtree
 
@@ -129,20 +130,13 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, keep, p
         print("Building interconversion databases...")
         interconversion_database = outfolder / "03.Conversion.db"
         # print("Building RefSeq to Uniprot")
-        # try:
-        #     refseq_to_uniprot_table = str(outfolder / "03.uniprot_to_refseq.txt")
-        #     conversion_database_creator.create_refseq_to_uniprot(refseq_to_uniprot_table, interconversion_database, keep)
-        # except:
-        #     print("Could not create RefSeq to Uniprot table.")
-        # print("Building KO to EC")
-        # try:
-        #     conversion_database_creator.create_ko_to_ec(outfolder, interconversion_database, keep)
-        # except:
-        #     print("Could not create KO to EC table.")
+        refseq_to_uniprot_table = str(outfolder / "03.uniprot_to_refseq.txt")
+        conversion_database_creator.create_refseq_to_uniprot(refseq_to_uniprot_table, interconversion_database, keep)
+        print("Building KO to EC")
+        conversion_database_creator.create_ko_to_ec(outfolder, interconversion_database, keep)
         print("Building Interpro to EC")
         conversion_database_creator.create_interpro_tables(outfolder, interconversion_database, keep)
-        # except:
-        #     print("Could not create UniProt tables.")
+
         step += 1
         print("Done!")
     
@@ -194,6 +188,8 @@ def main():
                         help='Disables download using Aspera and instead uses wget. By default uses Aspera Connect.')
     parser.add_argument('--keep', dest='keep', action='store_true', required=False,
                         help='Keep intermediate files, can increase disk requirement (not necessary and therefore not recommended)')
+    parser.add_argument('--version', action='version',  version='MicrobeAnnotator v{}'.format(version),
+                        help='Shows MicrobeAnnotator version')
     args = parser.parse_args()
 
     directory = args.directory
