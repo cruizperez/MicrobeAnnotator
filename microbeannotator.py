@@ -256,26 +256,25 @@ def main():
             protein_file_info[ko_result[0]].append(outfile)
             if full == True:
                 copyfile(ko_result[0],outfile)
-                for protein in ko_result[2]:
-                    try:
-                        starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
-                    except:
-                        pass
+                # Remove annotated and hypothetical from the unannotated list for the end
                 for protein in ko_result[4]:
-                    try:
+                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
                         unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
-                    except:
-                        pass
                 for protein in ko_result[2]:
-                    try:
+                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
                         unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
-                    except:
-                        pass
             else:
+                # Remove annotated from list of starting that will pass to the next step
                 for protein in ko_result[2]:
-                    starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                    if protein in starting_proteins[str(Path(ko_result[0]).name)]:
+                        starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                # Remove annotated and hypothetical from the unannotated list for the end
                 for protein in ko_result[4]:
-                    unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
+                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                for protein in ko_result[2]:
+                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
+                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
                 fasta_filter_list.fastA_filter_list(ko_result[0], outfile, ko_result[2], reverse=True)
         # When the process is complete, write step completed (+1) in the log folder
         # Also, export dictionary with information to be imported in case of continue
@@ -355,15 +354,11 @@ def main():
                             match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                             if match[4] != "" and match[4] != "NA":
                                 starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                try:
+                                if match[0] in unannotated_proteins[str(Path(original_file).name)]:
                                     unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                except ValueError:
-                                    pass
                             elif match[3] != "":
-                                try:
+                                if match[0] in unannotated_proteins[str(Path(original_file).name)]:
                                     unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                except ValueError:
-                                    pass
                     # Check which proteins were not annotated and add information on those
                     # Extract annotated proteins
                     with open(final_annotation_file, 'a') as final_annotation_fh:
@@ -377,20 +372,18 @@ def main():
                             match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                             if full == False:
                                 if match[4] != "" and match[4] != "NA":
+                                    # Remove record with KO from those passing to the next step and the final list of unannotated
                                     starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                    try:
+                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
                                         unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                    except ValueError:
-                                        pass
-                            else:
-                                try:
-                                    starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                except ValueError:
-                                    pass
-                                try:
-                                    unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                except ValueError:
-                                    pass
+                                elif match[3] != "":
+                                    # If match is annotated remove from final list
+                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
+                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                            else: # Remove annotated from the final unannotated list
+                                if match[3] != "":
+                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
+                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                     # Check which proteins were not annotated and filter for the next iteration
                     second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
                     if full == True:
@@ -486,22 +479,20 @@ def main():
                             for match in annotation:
                                 final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\tNA\tNA\t{}\trefseq\n".format(match[0],
                                 match[1], match[2], match[5], match[6], match[3], match[4]))
-                                if match[5] != "" and match[5] != "NA":
-                                    if full == False:
+                                if full == False:
+                                    if match[5] != "" and match[5] != "NA":
+                                        # Remove record with KO from those passing to the next step and the final list of unannotated
                                         starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                        try:
+                                        if match[0] in unannotated_proteins[str(Path(original_file).name)]:
                                             unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                        except ValueError:
-                                            pass
-                                    else:
-                                        try:
-                                            starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                        except:
-                                            pass
-                                        try:
+                                    elif match[2] != "":
+                                        # If match is annotated remove from final list
+                                        if match[0] in unannotated_proteins[str(Path(original_file).name)]:
                                             unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                        except ValueError:
-                                            pass
+                                else: # Remove annotated from the final unannotated list
+                                    if match[2] != "":
+                                        if match[0] in unannotated_proteins[str(Path(original_file).name)]:
+                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
 
                         # Check which proteins were not annotated and filter for the next iteration
                         third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
@@ -592,21 +583,15 @@ def main():
                                 final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
                                 match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
                                 if match[4] != "" and match[4] != "NA":
-                                    if full == False:
-                                        starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                        try:
-                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                        except ValueError:
-                                            pass
-                                    else:
-                                        try:
-                                            starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                        except:
-                                            pass
-                                        try:
-                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                        except ValueError:
-                                            pass
+                                    # Remove record with KO from those passing to the next step and the final list of unannotated
+                                    starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
+                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                elif match[3] != "":
+                                    # If match is annotated remove from final list
+                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
+                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                
                         with open(final_annotation_file, 'a') as final_annotation_fh:
                             for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                                 final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
@@ -653,15 +638,6 @@ def main():
                     if len(positive_matches) > 0:
                         for identifier, matches in positive_matches.items():
                             annotation_table.loc[(annotation_table['ec_number'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
-                # Now, extract records without ko number but with interpro ids
-                swissprot_records = annotation_table.loc[(annotation_table['database'] == "swissprot") & (annotation_table['ko_number'] == "NA"), ]
-                swissprot_records_ko = swissprot_records.loc[(swissprot_records['ko_number'] == "NA") & (swissprot_records['interpro'] != "NA"), ]
-                swissprot_records_ko_ids = list(swissprot_records_ko['interpro'])
-                if len(swissprot_records_ko_ids) > 0:
-                    positive_matches = identifier_conversion.convert_interpro_to_ko(swissprot_records_ko_ids, interconversion_database, False)
-                    if len(positive_matches) > 0:
-                        for identifier, matches in positive_matches.items():
-                            annotation_table.loc[(annotation_table['interpro'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
                 # Delete used sub-tables
                 del swissprot_records
                 del swissprot_records_ko
@@ -676,15 +652,7 @@ def main():
                     if len(positive_matches) > 0:
                         for identifier, matches in positive_matches.items():
                             annotation_table.loc[(annotation_table['ec_number'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
-                # Now, extract records without ko number but with interpro ids
-                trembl_records = annotation_table.loc[(annotation_table['database'] == "trembl") & (annotation_table['ko_number'] == "NA"), ]
-                trembl_records_ko = trembl_records.loc[(trembl_records['ko_number'] == "NA") & (trembl_records['interpro'] != "NA"), ]
-                trembl_records_ko_ids = list(trembl_records_ko['interpro'])
-                if len(trembl_records_ko_ids) > 0:
-                    positive_matches = identifier_conversion.convert_interpro_to_ko(trembl_records_ko_ids, interconversion_database, False)
-                    if len(positive_matches) > 0:
-                        for identifier, matches in positive_matches.items():
-                            annotation_table.loc[(annotation_table['interpro'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
+                # Delete used sub-tables
                 del trembl_records
                 del trembl_records_ko
 
