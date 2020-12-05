@@ -117,7 +117,8 @@ def create_interpro_tables(output_folder, database, keep):
                 identifier = line.strip().split('"')[3]
                 ec_identifier.append(identifier)
             elif line.startswith("</interpro>"):
-                interpro_to_ec[interpro_id] = list(set(ec_identifier))
+                if len(ec_identifier) > 0:
+                    interpro_to_ec[interpro_id] = list(set(ec_identifier))
                 interpro_id = ""
                 ec_identifier = []
     
