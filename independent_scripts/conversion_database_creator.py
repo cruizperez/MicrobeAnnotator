@@ -103,8 +103,8 @@ def create_interpro_tables(output_folder, database, keep):
     # Download information
     output_folder = Path(output_folder)
     download_output = str(output_folder / "interpro_metadata.xml.gz")
-    wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz",
-                            out=download_output)
+    # wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz",
+    #                         out=download_output)
     interpro_to_ec = {}
     # Parse file information into dictionaries to merge into the SQLite database
     with gzip.open(download_output, 'rt') as infile:
@@ -134,7 +134,7 @@ def create_interpro_tables(output_folder, database, keep):
     for interproscan, ec_id in interpro_to_ec.items():
         for ec_id_record in ec_id:
             # Commit changes after 5000 records
-            if record_counter == 5000:
+            if record_counter == 100:
                 print(records)
                 cursor.execute("begin")
                 cursor.executemany('INSERT INTO interpro_to_ec VALUES(?, ?)', records)
