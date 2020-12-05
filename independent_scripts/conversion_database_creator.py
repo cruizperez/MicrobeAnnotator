@@ -120,6 +120,10 @@ def create_interpro_tables(output_folder, database, keep):
                 interpro_to_ec[interpro_id] = list(set(ec_identifier))
                 interpro_id = ""
                 ec_identifier = []
+    
+    print(len(interpro_to_ec))
+    for interproscan, ec_id in interpro_to_ec.items():
+        print(interproscan, len(ec_id))
     # Connect with the database
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
