@@ -145,11 +145,11 @@ def create_interpro_tables(output_folder, database, keep):
             else:
                 records.append((interproscan, ec_id_record))
                 record_counter += 1
-            # Commit remaining records
-            if record_counter > 0:
-                cursor.execute("begin")
-                cursor.executemany('INSERT INTO interpro_to_ec VALUES(?, ?)', records)
-                cursor.execute("commit")
+    # Commit remaining records
+    if record_counter > 0:
+        cursor.execute("begin")
+        cursor.executemany('INSERT INTO interpro_to_ec VALUES(?, ?)', records)
+        cursor.execute("commit")
     # Create index for faster access
     cursor.execute('CREATE INDEX interpro_index_ce ON interpro_to_ec (interpro_id)')
 
