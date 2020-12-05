@@ -106,65 +106,23 @@ def create_interpro_tables(output_folder, database, keep):
     wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz",
                             out=download_output)
     interpro_to_ec = {}
-    interpro_to_ko = {}
-    #ec_to_interpro = {}
-    #ko_to_interpro = {}
     # Parse file information into dictionaries to merge into the SQLite database
     with gzip.open(download_output, 'rt') as infile:
         interpro_id = ""
         ec_identifier = []
-        ko_identifier = []
         for line in infile:
             if line.startswith("<interpro id="):
                 interpro_id = line.strip().split('"')[1]
             elif "db_xref" in line and "EC" in line:
                 identifier = line.strip().split('"')[3]
                 ec_identifier.append(identifier)
-                # if ec_identifier in ec_to_interpro:
-                #     ec_to_interpro[ec_identifier].append(interpro_id)
-                # else:
-                #     ec_to_interpro[ec_identifier] = [interpro_id]
-            elif "db_xref" in line and "KEGG" in line:
-                identifier = line.strip().split('"')[3]
-                ko_identifier.append(identifier)
-                # if ec_identifier in ko_to_interpro:
-                #     ko_to_interpro[ec_identifier].append(interpro_id)
-                # else:
-                #     ko_to_interpro[ec_identifier] = [interpro_id]
             elif line.startswith("</interpro>"):
-                interpro_to_ec[interpro_id] = ec_identifier
-                interpro_to_ko[interpro_id] = ko_identifier
+                interpro_to_ec[interpro_id] = list(set(ec_identifier))
                 interpro_id = ""
                 ec_identifier = []
-                ko_identifier = []
     # Connect with the database
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-    # # Create table with correspondence InterPro -> KO
-    # cursor.execute("DROP TABLE IF EXISTS interpro_to_ko")
-    # cursor.execute('CREATE TABLE interpro_to_ko \
-    #     (interpro_id TEXT, ko_identifier TEXT)')
-    # record_counter = 0
-    # records = []
-    # for interproscan, ko_id in interpro_to_ko.items():
-    #     for ko_indentifier_record in ko_id:
-    #         # Commit changes after 500000 records
-    #         if record_counter == 500000:
-    #             cursor.execute("begin")
-    #             cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
-    #             cursor.execute("commit")
-    #             record_counter = 0
-    #             records = []
-    #         else:
-    #             records.append((interproscan, ko_indentifier_record))
-    #             record_counter += 1
-    #         # Commit remaining records
-    #         if record_counter > 0:
-    #             cursor.execute("begin")
-    #             cursor.executemany('INSERT INTO interpro_to_ko VALUES(?, ?)', records)
-    #             cursor.execute("commit")
-    # # Create index for faster access
-    # cursor.execute('CREATE INDEX interpro_index_ko ON interpro_to_ko (interpro_id)')
 
     # Create table with correspondence InterPro -> EC
     cursor.execute("DROP TABLE IF EXISTS interpro_to_ec")
