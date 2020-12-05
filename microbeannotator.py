@@ -16,7 +16,6 @@
 
 ################################################################################
 """---0.0 Import Modules---"""
-from independent_scripts import identifier_conversion
 import multiprocessing
 from functools import partial
 from pathlib import Path
@@ -26,8 +25,10 @@ from independent_scripts import protein_search
 from independent_scripts import fasta_filter_list
 from independent_scripts import sqlite3_search
 from independent_scripts import ko_mapper
+from independent_scripts import identifier_conversion
 from shutil import which
 import pickle
+from independent_scripts import version
 
 ################################################################################
 """---1.0 Main Function---"""
@@ -102,6 +103,8 @@ def main():
                         help=textwrap.dedent('''
                         Complement the annotations by finding links to identifiers in other databases.
                         '''))
+    misc_options.add_argument('--version', action='version',  version='MicrobeAnnotator v{}'.format(version),
+                        help=textwrap.dedent('''Shows MicrobeAnnotator version'''))
     args = parser.parse_args()
 
     input_list = args.input_list
