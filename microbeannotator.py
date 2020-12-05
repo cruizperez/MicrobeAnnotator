@@ -260,17 +260,17 @@ def main():
                     try:
                         starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
                     except:
-                        continue
+                        pass
                 for protein in ko_result[4]:
                     try:
                         unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
                     except:
-                        continue
+                        pass
                 for protein in ko_result[2]:
                     try:
                         unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
                     except:
-                        continue
+                        pass
             else:
                 for protein in ko_result[2]:
                     starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
@@ -358,12 +358,12 @@ def main():
                                 try:
                                     unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                 except ValueError:
-                                    continue
+                                    pass
                             elif match[3] != "":
                                 try:
                                     unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                 except ValueError:
-                                    continue
+                                    pass
                     # Check which proteins were not annotated and add information on those
                     # Extract annotated proteins
                     with open(final_annotation_file, 'a') as final_annotation_fh:
@@ -381,16 +381,16 @@ def main():
                                     try:
                                         unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                     except ValueError:
-                                        continue
+                                        pass
                             else:
                                 try:
                                     starting_proteins[str(Path(original_file).name)].remove(match[0])
                                 except ValueError:
-                                    continue
+                                    pass
                                 try:
                                     unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                 except ValueError:
-                                    continue
+                                    pass
                     # Check which proteins were not annotated and filter for the next iteration
                     second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
                     if full == True:
@@ -492,16 +492,16 @@ def main():
                                         try:
                                             unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                         except ValueError:
-                                            continue
+                                            pass
                                     else:
                                         try:
                                             starting_proteins[str(Path(original_file).name)].remove(match[0])
                                         except:
-                                            continue
+                                            pass
                                         try:
                                             unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                         except ValueError:
-                                            continue
+                                            pass
 
                         # Check which proteins were not annotated and filter for the next iteration
                         third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
@@ -597,16 +597,16 @@ def main():
                                         try:
                                             unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                         except ValueError:
-                                            continue
+                                            pass
                                     else:
                                         try:
                                             starting_proteins[str(Path(original_file).name)].remove(match[0])
                                         except:
-                                            continue
+                                            pass
                                         try:
                                             unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                                         except ValueError:
-                                            continue
+                                            pass
                         with open(final_annotation_file, 'a') as final_annotation_fh:
                             for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                                 final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))

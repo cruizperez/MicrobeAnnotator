@@ -128,18 +128,18 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, keep, p
     if step == 4:
         print("Building interconversion databases...")
         interconversion_database = outfolder / "03.Conversion.db"
-        print("Building RefSeq to Uniprot")
-        try:
-            refseq_to_uniprot_table = str(outfolder / "03.uniprot_to_refseq.txt")
-            conversion_database_creator.create_refseq_to_uniprot(refseq_to_uniprot_table, interconversion_database, keep)
-        except:
-            print("Could not create RefSeq to Uniprot table.")
-        print("Building KO to EC")
-        try:
-            conversion_database_creator.create_ko_to_ec(outfolder, interconversion_database, keep)
-        except:
-            print("Could not create KO to EC table.")
-        print("Building Interpro to EC and KO")
+        # print("Building RefSeq to Uniprot")
+        # try:
+        #     refseq_to_uniprot_table = str(outfolder / "03.uniprot_to_refseq.txt")
+        #     conversion_database_creator.create_refseq_to_uniprot(refseq_to_uniprot_table, interconversion_database, keep)
+        # except:
+        #     print("Could not create RefSeq to Uniprot table.")
+        # print("Building KO to EC")
+        # try:
+        #     conversion_database_creator.create_ko_to_ec(outfolder, interconversion_database, keep)
+        # except:
+        #     print("Could not create KO to EC table.")
+        print("Building Interpro to EC")
         try:
             conversion_database_creator.create_interpro_tables(outfolder, interconversion_database, keep)
         except:
