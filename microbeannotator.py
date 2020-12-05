@@ -266,6 +266,11 @@ def main():
                         unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
                     except:
                         continue
+                for protein in ko_result[2]:
+                    try:
+                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
+                    except:
+                        continue
             else:
                 for protein in ko_result[2]:
                     starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
