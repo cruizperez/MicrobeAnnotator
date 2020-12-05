@@ -78,36 +78,6 @@ def convert_ko_to_ec(identifier_list, sql_database, inverse):
     else:
         return ec_to_ko
 
-#! Check if this one must be removed
-def convert_interpro_to_ko(identifier_list, sql_database, inverse):
-    conn = sqlite3.connect(sql_database)
-    cursor = conn.cursor()
-    interpro_to_ko = {}
-    ko_to_interpro = {}
-    for identifier in identifier_list:
-        # If ko to interpro
-        if inverse == True:
-            cursor.execute("SELECT * FROM interpro_to_ko WHERE ko_identifier=?", (identifier,))
-            rows = cursor.fetchall()
-            if len(rows) > 0:
-                ko_to_interpro[identifier] = []
-                for match in rows:
-                    # Append ko matches
-                    ko_to_interpro[identifier].append(match[0])
-        # Else search interpro to ko
-        else:
-            cursor.execute("SELECT * FROM interpro_to_ko WHERE interpro_id=?", (identifier,))
-            rows = cursor.fetchall()
-            if len(rows) > 0:
-                interpro_to_ko[identifier] = []
-                for match in rows:
-                    # Append ec matches
-                    interpro_to_ko[identifier].append(match[1])
-    if inverse == False:
-        return interpro_to_ko
-    else:
-        return ko_to_interpro
-
 def convert_interpro_to_ec(identifier_list, sql_database, inverse):
     conn = sqlite3.connect(sql_database)
     cursor = conn.cursor()
