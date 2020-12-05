@@ -121,14 +121,10 @@ def create_interpro_tables(output_folder, database, keep):
                     interpro_to_ec[interpro_id] = list(set(ec_identifier))
                 interpro_id = ""
                 ec_identifier = []
-    
-    print(len(interpro_to_ec))
-    for interproscan, ec_id in interpro_to_ec.items():
-        print(interproscan, len(ec_id))
+
     # Connect with the database
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
-
     # Create table with correspondence InterPro -> EC
     cursor.execute("DROP TABLE IF EXISTS interpro_to_ec")
     cursor.execute('CREATE TABLE interpro_to_ec \
@@ -136,6 +132,7 @@ def create_interpro_tables(output_folder, database, keep):
     record_counter = 0
     records = []
     for interproscan, ec_id in interpro_to_ec.items():
+        print(interproscan, ec_id)
         for ec_id_record in ec_id:
             # Commit changes after 500000 records
             if record_counter == 500000:
