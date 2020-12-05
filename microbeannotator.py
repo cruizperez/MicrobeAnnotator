@@ -373,10 +373,18 @@ def main():
                             if full == False:
                                 if match[4] != "" and match[4] != "NA":
                                     starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                    try:
+                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                    except ValueError:
+                                        continue
                             else:
                                 try:
                                     starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                except:
+                                except ValueError:
+                                    continue
+                                try:
+                                    unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                except ValueError:
                                     continue
                     # Check which proteins were not annotated and filter for the next iteration
                     second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
@@ -476,10 +484,18 @@ def main():
                                 if match[5] != "" and match[5] != "NA":
                                     if full == False:
                                         starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                        try:
+                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                        except ValueError:
+                                            continue
                                     else:
                                         try:
                                             starting_proteins[str(Path(original_file).name)].remove(match[0])
                                         except:
+                                            continue
+                                        try:
+                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                        except ValueError:
                                             continue
 
                         # Check which proteins were not annotated and filter for the next iteration
@@ -560,7 +576,7 @@ def main():
                             significant_hits.append((line[0], line[1]))
                     if len(significant_hits) == 0:
                         with open(final_annotation_file, 'a') as final_annotation_fh:
-                            for original_protein in starting_proteins[str(Path(original_file).name)]:
+                            for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                                 final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
                     else:
                         annotation = sqlite3_search.search_ids_imported(sql_database, "trembl", significant_hits)
@@ -573,13 +589,21 @@ def main():
                                 if match[4] != "" and match[4] != "NA":
                                     if full == False:
                                         starting_proteins[str(Path(original_file).name)].remove(match[0])
+                                        try:
+                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                        except ValueError:
+                                            continue
                                     else:
                                         try:
                                             starting_proteins[str(Path(original_file).name)].remove(match[0])
                                         except:
                                             continue
+                                        try:
+                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                        except ValueError:
+                                            continue
                         with open(final_annotation_file, 'a') as final_annotation_fh:
-                            for original_protein in starting_proteins[str(Path(original_file).name)]:
+                            for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                                 final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
             if temporal_protein_folder.is_dir():
                 rmtree(temporal_protein_folder)
