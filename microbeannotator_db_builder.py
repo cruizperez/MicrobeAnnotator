@@ -140,10 +140,9 @@ def db_duilder(output_file_folder, method, light, threads, step, aspera, keep, p
         # except:
         #     print("Could not create KO to EC table.")
         print("Building Interpro to EC")
-        try:
-            conversion_database_creator.create_interpro_tables(outfolder, interconversion_database, keep)
-        except:
-            print("Could not create UniProt tables.")
+        conversion_database_creator.create_interpro_tables(outfolder, interconversion_database, keep)
+        # except:
+        #     print("Could not create UniProt tables.")
         step += 1
         print("Done!")
     
