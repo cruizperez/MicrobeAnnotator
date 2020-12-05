@@ -75,7 +75,6 @@ def kofamscan_annotation(protein_file, multi_argument):
                 else:
                     ids_hypothetical_proteins.append(line[1])
                 output.write("{}\tNA\tNA\t{}\t{}\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tkofamscan\n".format(line[1], line[2], line[6]))
-
     return (protein_file, protein_file_name, ids_proteins_annotated, final_file, ids_hypothetical_proteins)
 
 
