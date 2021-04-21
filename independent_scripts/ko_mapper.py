@@ -472,6 +472,7 @@ def global_mapper(regular_modules, bifurcating_modules, structural_modules, anno
 
 def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
+    matplotlib.use('Agg')
     print("Grouping by metabolism type and plotting... ")
     for module in list(metabolism_matrix_dropped_relabel.index):
         for genome in list(metabolism_matrix_dropped_relabel.columns):
@@ -504,6 +505,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
 
 def create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
+    matplotlib.use('Agg')
     print("Creating output_file matrix and heatmap... ")
     # Check clustering asked
     if cluster is None:
