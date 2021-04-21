@@ -1,9 +1,9 @@
-from selenium import webdriver
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
 import pickle
 import ast
+import requests
 
 
 """ Script to download and parse KEGG information and store it in data """
@@ -18,17 +18,24 @@ def download_kegg_modules(module_name_file, chrome_driver):
             line = line.strip().split("\t")
             module_ids.append(line[0])
             module_names[line[0]] = line[1]
-    driver = webdriver.Chrome(chrome_driver)
     # Access KEGG and download module information
     for identifier in module_ids:
         url = "https://www.kegg.jp/kegg-bin/show_module?" + identifier
-        driver.get(url)
-        content = driver.page_source
-        soup = BeautifulSoup(content, features="lxml")
-        # title = soup.findAll('b')[0].get_text()
-        formula = soup.findAll('td')[7].get_text().strip()
-        module_components_raw[identifier] = formula
-    driver.close()
+        site_request = requests.get(url)
+        soup = BeautifulSoup(site_request.text, "html.parser")
+        module_definition = ""
+        module_definition_bool = False
+        definition = soup.find(class_ = 'definition')
+        for line in (definition.text).splitlines():
+            if line.strip() == "":
+                continue
+            elif module_definition_bool == True:
+                module_definition = line.strip()
+                module_definition_bool = False
+            elif line.strip() == 'Definition':
+                module_definition_bool = True
+        print(module_definition)
+        module_components_raw[identifier] = module_definition
     return module_components_raw
 
 
@@ -109,6 +116,7 @@ def create_final_regular_dictionary(module_steps_parsed, module_components_raw, 
                     elif char == ",":
                         if count >= 2:
                             temp_string += char
+                            print(step)
                         else:
                             temp_string += " "
                     else:

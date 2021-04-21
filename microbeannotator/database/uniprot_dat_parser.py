@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-########################################################################
+# ==============================================================================
 # Author:       Carlos A. Ruiz Perez
 # Email:        cruizperez3@gatech.edu
 # Intitution:   Georgia Institute of Technology
@@ -10,21 +10,40 @@
 
 # Description: Parses compressed dat files and extracts protein
 information relevant for annotation purposes.
-########################################################################
+# ==============================================================================
 """
 
-################################################################################
-"""---0.0 Import Modules---"""
-import gzip
+# ==============================================================================
+# Import modules
+# ==============================================================================
+from microbeannotator.utilities.logging import setup_logger
+
 from pathlib import Path
+from sys import argv
 
-################################################################################
-"""---1.0 Define Functions---"""
+import argparse
+import gzip
+# ==============================================================================
 
-def parse_uniprot_dat(dat_file, output_file_table):
-    output_folder = Path(output_file_table).parent
-    uniprot_to_refseq = output_folder / "03.uniprot_to_refseq.txt"
-    with gzip.open(dat_file, 'rt') as uniprot, open(output_file_table, 'w') as output_file, open(uniprot_to_refseq, 'a') as uni_to_ref:
+
+# ==============================================================================
+# Initalize logger
+# ==============================================================================
+logger = setup_logger(__name__)
+# ==============================================================================
+
+
+# ==============================================================================
+# Define functions
+# ==============================================================================
+# Function to parse UniProt dat files
+def parse_uniprot_dat(dat_file: Path, output_file_table: Path):
+    output_folder = output_file_table.parent
+    uniprot_to_refseq = Path(output_folder) / "uniprot_to_refseq.txt"
+    logger.info(f"Parsing {dat_file} and storing in {output_file_table}")
+    with gzip.open(dat_file, 'rt') as uniprot, \
+        open(output_file_table, 'w') as output_file, \
+        open(uniprot_to_refseq, 'a') as uni_to_ref:
         gene_id = ""
         accession = ""
         gene_name = ""
@@ -48,9 +67,11 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 gene_name = gene_name.split("{")[0].strip().replace(";","")
                 gene_name = gene_name.lower()
             elif "OS  " in line:
-                organism = ' '.join([organism, line.split("OS")[1].strip()]).replace(".","")
+                line = line.split("OS")[1].strip()
+                organism = ' '.join([organism, line]).replace(".","")
             elif "OC  " in line:
-                taxonomy = ' '.join([taxonomy, line.split("OC")[1].strip()]).replace(".","")
+                line = line.split("OC")[1].strip()
+                taxonomy = ' '.join([taxonomy, line]).replace(".","")
             elif "DR   KO;" in line:
                 ko_number = line.split()[2].replace(";", "")
             elif "DR   GO;" in line:
@@ -118,8 +139,10 @@ def parse_uniprot_dat(dat_file, output_file_table):
                     pfam = "NA"
                 if ec_number == "NA":
                     ec_number = "NA"
-                output_file.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(gene_id, 
-                accession, gene_name, ko_number, organism, taxonomy, function, compartment, process, interpro, pfam, ec_number))
+                output_file.write(
+                    f"{gene_id}\t{accession}\t{gene_name}\t{ko_number}\t"
+                    f"{organism}\t{taxonomy}\t{function}\t{compartment}\t"
+                    f"{process}\t{interpro}\t{pfam}\t{ec_number}\n")
                 gene_id = ""
                 accession = ""
                 gene_name = ""
@@ -133,28 +156,52 @@ def parse_uniprot_dat(dat_file, output_file_table):
                 pfam =""
                 ec_number = ""
                 refseq_code = ""
+    logger.info(f"Finished")
+
+    return uniprot_to_refseq
+# ==============================================================================
 
 
-################################################################################
-"""---3.0 Main Function---"""
-
+# ==============================================================================
+# Define main function
+# ==============================================================================
 def main():
-    import argparse, sys
     # Setup parser for arguments.
-    parser = argparse.ArgumentParser(description='''This script parses a Uniprot.dat file and output_files a table with\n'''
-                                                    '''the ID, Accession, Gene Name, Organism, Taxonomy, KEGG ID, Function,\n
-                                                    Compartment, Process, InterPro, and Pfam\n
-                                                    For faster usage in alrge files use gnu parallel (read script file to see how)\n'''
-                                    '''\nGlobal mandatory parameters: [Input Uniprot.dat File]\n'''
-                                    '''\nOptional Database Parameters: See ''' + sys.argv[0] + ' -h')
-    parser.add_argument('-i', '--input', dest='input_dat', action='store', required=True, help='Uniprot.dat file to parse')
-    parser.add_argument('-o', '--output_file', dest='output_file_table', action='store', required=False, help='output_file table')
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=(
+            f"This script parses a UniProt.dat file and returns a \n"
+            f"tab-separated table with: \n"
+            f"GeneID - Accession - Gene Name - KO Number - Organism - "
+            f"Taxonomy - Function GO - Compartment GO - Process GO - "
+            f"InterPro ID - Pfam ID - EC Number\n"
+            f"Mandatory parameters: -i [input .dat file] -o [output table]\n"
+            f"Optional parameters: See {argv[0]} -h\n"))
+    # Setup mandatory arguments
+    mandatory_arguments = parser.add_argument_group("Mandatory")
+    mandatory_arguments.add_argument(
+        '-i', '--input', dest='input_dat', action='store',
+        required=True, help='Uniprot.dat file to parse')
+    mandatory_arguments.add_argument(
+        '-o', '--output_file', dest='output_file_table',action='store',
+        required=True, help='output_file table')
+    # If no arguments are provided
+    if len(argv) == 1:
+        parser.print_help()
+        exit(0)
+    arguments = parser.parse_args()
 
-    input_dat = args.input_dat
-    output_file_table = args.output_file_table
-
+    # Parse arguments
+    input_dat = arguments.input_dat
+    output_file_table = arguments.output_file_table
+    # Run functions
     parse_uniprot_dat(input_dat, output_file_table)
+# ==============================================================================
 
+
+# ==============================================================================
+# Run main function
+# ==============================================================================
 if __name__ == "__main__":
     main()
+# ==============================================================================

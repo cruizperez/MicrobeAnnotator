@@ -21,14 +21,14 @@ from functools import partial
 from pathlib import Path
 from shutil import rmtree
 from shutil import copyfile
-from independent_scripts import protein_search
-from independent_scripts import fasta_filter_list
-from independent_scripts import sqlite3_search
-from independent_scripts import ko_mapper
-from independent_scripts import identifier_conversion
+from microbeannotator.pipeline import protein_search
+from microbeannotator.pipeline import fasta_filter_list
+from microbeannotator.pipeline import sqlite3_search
+from microbeannotator.pipeline import ko_mapper
+from microbeannotator.pipeline import identifier_conversion
 from shutil import which
 import pickle
-from independent_scripts import version
+from microbeannotator import version
 
 ################################################################################
 """---1.0 Main Function---"""

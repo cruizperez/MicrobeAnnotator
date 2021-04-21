@@ -1,0 +1,444 @@
+#!/usr/bin/env python
+
+"""
+# ==============================================================================
+# Author:       Carlos A. Ruiz-Perez
+# Email:        cruizperez3@gatech.edu
+# Institution:  Georgia Institute of Technology
+# Date:         11 April 2021
+
+# Description: Downloads all data required to build the search databases.
+# Parses the annotation information and creates the method-specific DBs.
+# ==============================================================================
+"""
+
+# ==============================================================================
+# Import modules
+# ==============================================================================
+from microbeannotator.database import conversion_database_creator as convert
+from microbeannotator.database import uniprot_data_downloader as uniprot
+from microbeannotator.database import sqlite3_database_builder as sqlite
+from microbeannotator.database import uniprot_dat_parser as dat_parser
+from microbeannotator.database import refseq_data_downloader as refseq
+from microbeannotator.database import refseq_genbank_parser as genbank
+from microbeannotator.database import protein_db_creation as protein
+from microbeannotator.database import kofam_profile_parser as kofam
+from microbeannotator.utilities.logging import setup_logger
+from microbeannotator import version
+
+from shutil import rmtree
+from pathlib import Path
+from typing import Dict
+from sys import argv
+
+import argparse
+# ==============================================================================
+
+
+# ==============================================================================
+# Initalize logger
+# ==============================================================================
+logger = setup_logger(__name__)
+# ==============================================================================
+
+
+# ==============================================================================
+# Define functions
+# ==============================================================================
+# Function to coordinate the download and building of databases
+def database_duilder(
+    database_directory: Path,
+    method: str,
+    light: bool,
+    threads: int,
+    step: int,
+    single_step: bool,
+    aspera: bool,
+    keep_temp: bool,
+    binary_path: Path = None
+) -> None:
+    """[summary]
+
+    Args:
+        database_directory (Path): [description]
+        method (str): [description]
+        light (bool): [description]
+        threads (int): [description]
+        step (int): [description]
+        aspera (bool): [description]
+        keep (bool): [description]
+        binary_path (Path, optional): [description]. Defaults to None.
+    """
+    logger.info(f"This is MicrobeAnnotator v{version}")
+    logger.info(f"I will download and format the databases I use.")
+    # Create output_file folder
+    logger.info("Creating database folders")
+    database_directory.mkdir(parents=True, exist_ok=True)
+    genbank_files = None
+    sql_database = database_directory / "microbeannotator.db"
+    sql_database = str(sql_database)
+    # Create dictionary with final location of files
+    database_files: Dict = {}
+    # Download kofam profile information
+    if step == 1:
+        logger.info(f"Step 1")
+        ko_profile_metadata, ko_profiles_path = kofam.kofam_downloader(
+            database_directory)
+        # Add files to final location dictionary
+        database_files['KO_profiles'] = str(ko_profiles_path)
+        database_files['KO_profile_metadata'] = str(ko_profile_metadata)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Process KOfam profiles
+    if step == 2:
+        logger.info(f"Step 2")
+        kofam.kofam_formatter(ko_profiles_path)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Download Swissprot Proteins
+    if step == 3:
+        logger.info(f"Step 3")
+        swissprot_fasta = uniprot.swissprot_fasta_downloader(database_directory)
+        database_files['Swissprot_Fasta'] = str(swissprot_fasta)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Download Swissprot Annotations
+    if step == 4:
+        logger.info(f"Step 4")
+        swissprot_dat = uniprot.swissprot_dat_downloader(database_directory)
+        database_files['Swissprot_annotations'] = str(swissprot_dat)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Parse Swissprot Annotations
+    if step == 5:
+        logger.info(f"Step 5")
+        try:
+            swissprot_dat
+        except NameError:
+            swissprot_dat = database_directory / (
+                f"temp_swissprot_dat_files/uniprot_sprot.dat.gz")
+        final_sprot_table = database_directory / "uniprot_swissprot.table"
+        refseq_to_uniprot = dat_parser.parse_uniprot_dat(
+            swissprot_dat, final_sprot_table)
+        database_files['Swissprot_annotation_table'] = str(final_sprot_table)
+        if single_step:
+            step = 15
+        elif light:
+            step = 12
+        else:
+            step += 1
+    # Download TrEMBL Proteins
+    if step == 6:
+        logger.info(f"Step 6")
+        trembl_fasta = uniprot.trembl_fasta_downloader(database_directory)
+        database_files['TrEMBL_Fasta'] = str(trembl_fasta)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Download TrEMBL Annotations
+    if step == 7:
+        logger.info(f"Step 7")
+        trembl_dat = uniprot.trembl_dat_downloader(database_directory)
+        database_files['TrEMBL_annotations'] = str(trembl_dat)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Parse TrEMBL Annotations
+    if step == 8:
+        logger.info(f"Step 8")
+        try:
+            trembl_dat
+        except NameError:
+            trembl_dat = database_directory / (
+                f"temp_trembl_dat_files/uniprot_trembl.dat.gz")
+        final_trembl_table = database_directory / "uniprot_trembl.table"
+        dat_parser.parse_uniprot_dat(trembl_dat, final_trembl_table)
+        database_files['TrEMBL_annotation_table'] = str(final_trembl_table)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Download RefSeq Proteins
+    if step == 9:
+        logger.info(f"Step 9")
+        if aspera:
+            refseq_prot = refseq.refseq_fasta_downloader(database_directory)
+        else:
+            refseq_prot = refseq.refseq_fasta_downloader_wget(
+                database_directory)
+        database_files['RefSeq_Fasta'] = str(refseq_prot)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Download RefSeq Genbank Annotations
+    if step == 10:
+        logger.info(f"Step 10")
+        if aspera:
+            temp_gb_dir, genbank_files = refseq.refseq_genbank_downloader(
+                database_directory
+            )
+        else:
+            temp_gb_dir, genbank_files = refseq.refseq_genbank_downloader_wget(
+                database_directory
+            )
+        database_files['RefSeq_GenBank'] = str(temp_gb_dir)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Parse RefSeq GenBank Annotations
+    if step == 11:
+        logger.info(f"Step 11")
+        try:
+            genbank_files
+        except NameError:
+            if aspera:
+                temp_gb_dir = database_directory / "temp_genbank"
+                viral_list = refseq.search_all_files(temp_gb_dir / "viral")
+                bacteria_list = refseq.search_all_files(temp_gb_dir / "bacteria")
+                archaea_list = refseq.search_all_files(temp_gb_dir / "archaea")
+                genbank_files = viral_list + bacteria_list + archaea_list
+            else:
+                temp_gb_dir = database_directory / "temp_genbank"
+                genbank_files = refseq.search_all_files(temp_gb_dir)
+        temp_table_list = genbank.table_generator_worker(genbank_files, threads)
+        final_refseq_table = database_directory / "refseq_genbank.table"
+        genbank.table_merger(temp_table_list, final_refseq_table)
+        database_files['RefSeq_annotation_table'] = str(final_refseq_table)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Merge Annotations into SQLite Database
+    if step == 12:
+        logger.info(f"Step 12")
+        if light == True:
+            try:
+                final_sprot_table
+            except NameError:
+                final_sprot_table = database_directory / "uniprot_swissprot.table"
+            if final_sprot_table.is_file():
+                sqlite.create_swissprot_table(sql_database, final_sprot_table)
+            else:
+                logger.error(
+                    f"Swissprot annotation table {final_sprot_table} "
+                    f"does not exist, please make sure it exists or "
+                    f"re-create it using --step 5."
+                )
+        else:
+            try:
+                final_sprot_table
+            except NameError:
+                final_sprot_table = database_directory / "uniprot_swissprot.table"
+            try:
+                final_trembl_table
+            except NameError:
+                final_trembl_table = database_directory / "uniprot_trembl.table"
+            try:
+                final_refseq_table
+            except NameError:
+                final_refseq_table = database_directory / "refseq_genbank.table"
+            if final_sprot_table.is_file() and \
+                final_trembl_table.is_file() and \
+                final_refseq_table.is_file():
+                sqlite.create_swissprot_table(sql_database, final_sprot_table)
+                sqlite.create_trembl_table(sql_database, final_trembl_table)
+                sqlite.create_refseq_table(sql_database, final_refseq_table)
+            else:
+                logger.error(
+                    f"One or some annotation tables do not exist:"
+                    f"- Swissprot annotation table: {final_sprot_table} "
+                    f"- TrEMBL annotation table: {final_trembl_table} "
+                    f"- RefSeq annotation table: {final_refseq_table} "
+                    f"please make they exist or re-create "
+                    f"them using the appropriate step(s)."
+                )
+        database_files['SQLite_database'] = str(sql_database)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Create tables for interconversion of ids
+    if step == 13:
+        logger.info(f"Step 13")
+        try:
+            refseq_to_uniprot
+        except NameError:
+            refseq_to_uniprot = database_directory / "refseq_to_uniprot.txt"
+        interconversion_database = database_directory / "conversion.db"
+        convert.create_refseq_to_uniprot(
+            refseq_to_uniprot, interconversion_database)
+        temp_ko_to_ec = convert.create_ko_to_ec(
+            database_directory, interconversion_database)
+        temp_interpro_table = convert.create_interpro_tables(
+            database_directory, interconversion_database)
+        database_files['Conversion_database'] = str(interconversion_database)
+        database_files['KO-to-EC_table'] = str(temp_ko_to_ec)
+        database_files['InterPro_table'] = str(temp_interpro_table)
+        if single_step:
+            step = 15
+        else:
+            step += 1
+    # Create method-specific protein databases
+    if step == 14:
+        logger.info(f"Step 14")
+        protein_folder = database_directory / "protein_db"
+        if method == "blast":
+            protein.blastp_db_creator(protein_folder, binary_path)
+        elif method == "diamond":
+            protein.diamond_db_creator(protein_folder, threads, binary_path)
+        elif method == "sword":
+            protein.sword_db_creator(protein_folder, binary_path)
+        else:
+            logger.error(
+            f"Search method not recognized. Must be blast, diamond, or sword.")
+            exit(1)
+    # Perform cleaning step to remove temporal files
+    if step == 15:
+        logger.info(f"Step 15")
+        if keep_temp:
+            logger.info(
+                f"MicrobeAnnotator has finished creating your databases!\n"
+                f"You are ready to search and annotate your proteins!\n"
+                f"The files downloaded and processed are located in:\n")
+            for file, path in database_files.items():
+                file = file.replace('_', ' ')
+                path = str(path)
+                print(f"{file}:\t{path}")
+        else:
+            logger.info(f"Cleaning temporary files")
+            Path(database_files['Swissprot_annotations']).unlink()
+            Path(database_files['Swissprot_annotation_table']).unlink()
+            Path(database_files['TrEMBL_annotations']).unlink()
+            Path(database_files['TrEMBL_annotation_table']).unlink()
+            rmtree(str(database_files['RefSeq_GenBank']))
+            Path(database_files['RefSeq_annotation_table']).unlink()
+            del database_files['Swissprot_annotations']
+            del database_files['Swissprot_annotation_table']
+            del database_files['TrEMBL_annotations']
+            del database_files['TrEMBL_annotation_table']
+            del database_files['RefSeq_GenBank']
+            del database_files['RefSeq_annotation_table']
+            logger.info(f"Finished")
+            logger.info(
+                f"MicrobeAnnotator has finished creating your databases!\n"
+                f"You are ready to search and annotate your proteins!\n"
+                f"The files downloaded and processed are located in:\n")
+            for file, path in database_files.items():
+                file = file.replace('_', ' ')
+                path = str(path)
+                print(f"{file}:\t{path}")
+# ==============================================================================
+
+
+# ==============================================================================
+# Define main function
+# ==============================================================================
+def main():
+    # Setup parser for arguments.
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=(
+            f"This script coordinates the build process of the search\n"
+            f"and annotation databases used in MicrobeAnnotator.\n"
+            f"Mandatory parameters: -d [database dir] -m [method/tool]\n"
+            f"Optional parameters: See {argv[0]} -h"))
+    # Setup mandatory arguments
+    mandatory_arguments = parser.add_argument_group("Mandatory")
+    mandatory_arguments.add_argument(
+        '-d', '--database', dest='database', action='store', required=True,
+        help='Directory where database will be created.')
+    mandatory_arguments.add_argument(
+        '-m', '--method', dest='method', action='store', required=True,
+        help='Search (and DB creation) method, one of blast, diamond or sword')
+    # Setup optional arguments
+    optional_arguments = parser.add_argument_group("Optional")
+    optional_arguments.add_argument(
+        '--light', dest='light', action='store_true', required=False,
+        help=(
+            f'Use only kofam and swissprot databases.\n'
+            f'By default also builds refseq and trembl.'))
+    optional_arguments.add_argument(
+        '-t', '--threads', dest='threads', action='store', required=False,
+        default=1, type=int,
+        help='Threads to use (when possible). By default 1.')
+    optional_arguments.add_argument(
+        '--bin_path', dest='bin_path', action='store', required=False,
+        help=(
+            f'Path to binary folder for selected method.\n'
+            f'By defaul assumes the program is in path.'))
+    optional_arguments.add_argument(
+        '--step', dest='step', action='store', required=False,
+        default=1, type=int,
+        help=(
+            f"Step to start with (Default 1). The possible steps are:\n"
+            f"Step 1. Download KOfam profiles\n"
+            f"Step 2. Parse KOfam profiles\n"
+            f"Step 3. Dowload Swissprot proteins\n"
+            f"Step 4. Download Swissprot annotations\n"
+            f"Step 5. Process Swissprot annotations\n"
+            f"Step 6. Dowload TrEMBL proteins\n"
+            f"Step 7. Download TrEMBL annotations\n"
+            f"Step 8. Process TrEMBL annotations\n"
+            f"Step 9. Dowload RefSeq proteins\n"
+            f"Step 10. Download RefSeq annotations\n"
+            f"Step 11. Process RefSeq annotations\n"
+            f"Step 12. Create SQLite annotation DB\n"
+            f"Step 13. Create ID interconversion DB\n"
+            f"Step 14. Create method/tool-specific DBs\n"
+            f"Step 11. Process RefSeq annotations\n"))
+    optional_arguments.add_argument(
+        '--single_step', dest='single_step', action='store_true',
+        required=False, help='Run a single step and exit.')
+    optional_arguments.add_argument(
+        '--no_aspera', dest='aspera', action='store_false', required=False,
+        help=(
+            f'Disables download using Aspera and instead uses wget.\n'
+            f'By default uses Aspera Connect.'))
+    optional_arguments.add_argument(
+        '--keep_temp', dest='keep_temp', action='store_true', required=False,
+        help='Keep intermediate files, (can increase disk requirement)')
+    optional_arguments.add_argument(
+        '--version', action='version',  version='MicrobeAnnotator v{}'.format(version),
+        help='Shows MicrobeAnnotator version')
+    # If no arguments are provided
+    if len(argv) == 1:
+        parser.print_help()
+        exit(0)
+    arguments = parser.parse_args()
+
+    # Parse arguments
+    database = Path(arguments.database)
+    method = arguments.method
+    method = method.lower()
+    bin_path = arguments.bin_path
+    light = arguments.light
+    threads = arguments.threads
+    step = arguments.step
+    aspera = arguments.aspera
+    keep_temp = arguments.keep_temp
+    single_step = arguments.single_step
+    # Run functions
+    database_duilder(
+        database, method, light, threads, step,
+        single_step, aspera, keep_temp, bin_path)
+# ==============================================================================
+
+
+# ==============================================================================
+# Run main function
+# ==============================================================================
+if __name__ == "__main__":
+    main()
+# ==============================================================================
