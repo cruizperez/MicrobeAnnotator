@@ -79,6 +79,7 @@ def kofam_downloader(outdir: Path) -> Tuple[Path, Path]:
     try:
         wget.download("ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz",
                             out=str(ko_profiles_path))
+        logger.info("Extracting profiles")
         subprocess.call(['tar', 'xfz', str(ko_profiles_path),
         '-C', str(db_dir)])
         ko_profiles_path.unlink()
@@ -143,7 +144,7 @@ def kofam_formatter(ko_profiles_path_extr: Path) -> None:
                     with open(ko_profiles_path_extr / file, 'r') as temporal:
                         shutil.copyfileobj(temporal, output)
                     (ko_profiles_path_extr / file).unlink()
-            file_list.append(ko_profiles_path_extr/ f"{name}_{file_counter}.model")
+            file_list.append(f"{name}_{file_counter}.model")
             file_counter += 1
         with open(ko_profiles_path_extr / f"{name}.list", 'w') as output:
             for file in file_list:
@@ -178,7 +179,6 @@ def parse_profiles(profile_info_path: Path) -> Dict[str, namedtuple]:
                 else:
                     profile_data[line[0]] = Profile(
                         float(line[1]),line[2], line[11])
-    logger.info("Finished")
 
     return profile_data
 # ==============================================================================
