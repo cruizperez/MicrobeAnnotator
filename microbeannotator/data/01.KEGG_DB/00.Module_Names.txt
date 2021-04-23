@@ -1,0 +1,394 @@
+M00015	Proline biosynthesis, glutamate => proline	Arginine and proline metabolism	#8a3222
+M00028	Ornithine biosynthesis, glutamate => ornithine	Arginine and proline metabolism	#8a3222
+M00029	Urea cycle	Arginine and proline metabolism	#8a3222
+M00047	Creatine pathway	Arginine and proline metabolism	#8a3222
+M00763	Ornithine biosynthesis, mediated by LysW, glutamate => ornithine	Arginine and proline metabolism	#8a3222
+M00844	Arginine biosynthesis, ornithine => arginine	Arginine and proline metabolism	#8a3222
+M00845	Arginine biosynthesis, glutamate => acetylcitrulline => arginine	Arginine and proline metabolism	#8a3222
+M00879	Arginine succinyltransferase pathway, arginine => glutamate	Arginine and proline metabolism	#8a3222
+M00022	Shikimate pathway, phosphoenolpyruvate + erythrose-4P => chorismate	Aromatic amino acid metabolism	#8641b6
+M00023	Tryptophan biosynthesis, chorismate => tryptophan	Aromatic amino acid metabolism	#8641b6
+M00024	Phenylalanine biosynthesis, chorismate => phenylalanine	Aromatic amino acid metabolism	#8641b6
+M00025	Tyrosine biosynthesis, chorismate => tyrosine	Aromatic amino acid metabolism	#8641b6
+M00037	Melatonin biosynthesis, tryptophan => serotonin => melatonin	Aromatic amino acid metabolism	#8641b6
+M00038	Tryptophan metabolism, tryptophan => kynurenine => 2-aminomuconate	Aromatic amino acid metabolism	#8641b6
+M00040	Tyrosine biosynthesis, prephanate => pretyrosine => tyrosine	Aromatic amino acid metabolism	#8641b6
+M00042	Catecholamine biosynthesis, tyrosine => dopamine => noradrenaline => adrenaline	Aromatic amino acid metabolism	#8641b6
+M00043	Thyroid hormone biosynthesis, tyrosine => triiodothyronine--thyroxine	Aromatic amino acid metabolism	#8641b6
+M00044	Tyrosine degradation, tyrosine => homogentisate	Aromatic amino acid metabolism	#8641b6
+M00533	Homoprotocatechuate degradation, homoprotocatechuate => 2-oxohept-3-enedioate	Aromatic amino acid metabolism	#8641b6
+M00545	Trans-cinnamate degradation, trans-cinnamate => acetyl-CoA	Aromatic amino acid metabolism	#8641b6
+M00418	Toluene degradation, anaerobic, toluene => benzoyl-CoA	Aromatics degradation	#76d25b
+M00419	Cymene degradation, p-cymene => p-cumate	Aromatics degradation	#76d25b
+M00534	Naphthalene degradation, naphthalene => salicylate	Aromatics degradation	#76d25b
+M00537	Xylene degradation, xylene => methylbenzoate	Aromatics degradation	#76d25b
+M00538	Toluene degradation, toluene => benzoate	Aromatics degradation	#76d25b
+M00539	Cumate degradation, p-cumate => 2-oxopent-4-enoate + 2-methylpropanoate	Aromatics degradation	#76d25b
+M00540	Benzoate degradation, cyclohexanecarboxylic acid =>pimeloyl-CoA	Aromatics degradation	#76d25b
+M00541	Benzoyl-CoA degradation, benzoyl-CoA => 3-hydroxypimeloyl-CoA	Aromatics degradation	#76d25b
+M00543	Biphenyl degradation, biphenyl => 2-oxopent-4-enoate + benzoate	Aromatics degradation	#76d25b
+M00544	Carbazole degradation, carbazole => 2-oxopent-4-enoate + anthranilate	Aromatics degradation	#76d25b
+M00547	Benzene--toluene degradation, benzene => catechol -- toluene => 3-methylcatechol	Aromatics degradation	#76d25b
+M00548	Benzene degradation, benzene => catechol	Aromatics degradation	#76d25b
+M00551	Benzoate degradation, benzoate => catechol -- methylbenzoate => methylcatechol	Aromatics degradation	#76d25b
+M00568	Catechol ortho-cleavage, catechol => 3-oxoadipate	Aromatics degradation	#76d25b
+M00569	Catechol meta-cleavage, catechol => acetyl-CoA -- 4-methylcatechol => propanoyl-CoA	Aromatics degradation	#76d25b
+M00623	Phthalate degradation 1, phthalate => protocatechuate	Aromatics degradation	#76d25b
+M00624	Terephthalate degradation, terephthalate => 3,4-dihydroxybenzoate	Aromatics degradation	#76d25b
+M00636	Phthalate degradation 2, phthalate => protocatechuate	Aromatics degradation	#76d25b
+M00637	Anthranilate degradation, anthranilate => catechol	Aromatics degradation	#76d25b
+M00638	Salicylate degradation, salicylate => gentisate	Aromatics degradation	#76d25b
+M00878	Phenylacetate degradation, phenylaxetate => acetyl-CoA--succinyl-CoA	Aromatics degradation	#76d25b
+M00142	NADH:ubiquinone oxidoreductase, mitochondria	ATP synthesis	#cdd346
+M00143	NADH dehydrogenase (ubiquinone) Fe-S protein--flavoprotein complex, mitochondria	ATP synthesis	#cdd346
+M00144	NADH:quinone oxidoreductase, prokaryotes	ATP synthesis	#cdd346
+M00145	NAD(P)H:quinone oxidoreductase, chloroplasts and cyanobacteria	ATP synthesis	#cdd346
+M00146	NADH dehydrogenase (ubiquinone) 1 alpha subcomplex	ATP synthesis	#cdd346
+M00147	NADH dehydrogenase (ubiquinone) 1 beta subcomplex	ATP synthesis	#cdd346
+M00148	Succinate dehydrogenase (ubiquinone)	ATP synthesis	#cdd346
+M00149	Succinate dehydrogenase, prokaryotes	ATP synthesis	#cdd346
+M00150	Fumarate reductase, prokaryotes	ATP synthesis	#cdd346
+M00151	Cytochrome bc1 complex respiratory unit	ATP synthesis	#cdd346
+M00152	Cytochrome bc1 complex	ATP synthesis	#cdd346
+M00153	Cytochrome bd ubiquinol oxidase	ATP synthesis	#cdd346
+M00154	Cytochrome c oxidase	ATP synthesis	#cdd346
+M00155	Cytochrome c oxidase, prokaryotes	ATP synthesis	#cdd346
+M00156	Cytochrome c oxidase, cbb3-type	ATP synthesis	#cdd346
+M00157	F-type ATPase, prokaryotes and chloroplasts	ATP synthesis	#cdd346
+M00158	F-type ATPase, eukaryotes	ATP synthesis	#cdd346
+M00159	V-type ATPase, prokaryotes	ATP synthesis	#cdd346
+M00160	V-type ATPase, eukaryotes	ATP synthesis	#cdd346
+M00162	Cytochrome b6f complex	ATP synthesis	#cdd346
+M00416	Cytochrome aa3-600 menaquinol oxidase	ATP synthesis	#cdd346
+M00417	Cytochrome o ubiquinol oxidase	ATP synthesis	#cdd346
+M00672	Penicillin biosynthesis, aminoadipate + cycteine + valine => penicillin	Beta-Lactam biosynthesis	#3b2882
+M00673	Cephamycin C biosynthesis, aminoadipate + cycteine + valine => cephamycin C	Beta-Lactam biosynthesis	#3b2882
+M00674	Clavaminate biosynthesis, arginine + glyceraldehyde-3P => clavaminate	Beta-Lactam biosynthesis	#3b2882
+M00675	Carbapenem-3-carboxylate biosynthesis, pyrroline-5-carboxylate + malonyl-CoA => carbapenem-3-carboxylate	Beta-Lactam biosynthesis	#3b2882
+M00736	Nocardicin A biosynthesis, L-pHPG + arginine + serine => nocardicin A	Beta-Lactam biosynthesis	#3b2882
+M00039	Monolignol biosynthesis, phenylalanine--tyrosine => monolignol	Biosynthesis of other secondary metabolites	#cbde82
+M00137	Flavanone biosynthesis, phenylalanine => naringenin	Biosynthesis of other secondary metabolites	#cbde82
+M00138	Flavonoid biosynthesis, naringenin => pelargonidin	Biosynthesis of other secondary metabolites	#cbde82
+M00370	Glucosinolate biosynthesis, tryptophan => glucobrassicin	Biosynthesis of other secondary metabolites	#cbde82
+M00661	Paspaline biosynthesis, geranylgeranyl-PP + indoleglycerol phosphate => paspaline	Biosynthesis of other secondary metabolites	#cbde82
+M00785	Cycloserine biosynthesis, arginine--serine => cycloserine	Biosynthesis of other secondary metabolites	#cbde82
+M00786	Fumitremorgin alkaloid biosynthesis, tryptophan + proline => fumitremorgin C--A	Biosynthesis of other secondary metabolites	#cbde82
+M00787	Bacilysin biosynthesis, prephenate => bacilysin	Biosynthesis of other secondary metabolites	#cbde82
+M00788	Terpentecin biosynthesis, GGAP => terpentecin	Biosynthesis of other secondary metabolites	#cbde82
+M00789	Rebeccamycin biosynthesis, tryptophan => rebeccamycin	Biosynthesis of other secondary metabolites	#cbde82
+M00790	Pyrrolnitrin biosynthesis, tryptophan => pyrrolnitrin	Biosynthesis of other secondary metabolites	#cbde82
+M00805	Staurosporine biosynthesis, tryptophan => staurosporine	Biosynthesis of other secondary metabolites	#cbde82
+M00808	Violacein biosynthesis, tryptophan => violacein	Biosynthesis of other secondary metabolites	#cbde82
+M00814	Acarbose biosynthesis, sedoheptulopyranose-7P => acarbose	Biosynthesis of other secondary metabolites	#cbde82
+M00815	Validamycin A biosynthesis, sedoheptulopyranose-7P => validamycin A	Biosynthesis of other secondary metabolites	#cbde82
+M00819	Pentalenolactone biosynthesis, farnesyl-PP => pentalenolactone	Biosynthesis of other secondary metabolites	#cbde82
+M00835	Pyocyanine biosynthesis, chorismate => pyocyanine	Biosynthesis of other secondary metabolites	#cbde82
+M00837	Prodigiosin biosynthesis, L-proline => prodigiosin	Biosynthesis of other secondary metabolites	#cbde82
+M00838	Undecylprodigiosin biosynthesis, L-proline => undecylprodigiosin	Biosynthesis of other secondary metabolites	#cbde82
+M00848	Aurachin biosynthesis, anthranilate => aurachin A	Biosynthesis of other secondary metabolites	#cbde82
+M00875	Staphyloferrin B biosynthesis, L-serine => staphyloferrin B	Biosynthesis of other secondary metabolites	#cbde82
+M00876	Staphyloferrin A biosynthesis, L-ornithine => staphyloferrin A	Biosynthesis of other secondary metabolites	#cbde82
+M00877	Kanosamine biosynthesis glucose 6-phosphate => kanosamine	Biosynthesis of other secondary metabolites	#cbde82
+M00019	Valine--isoleucine biosynthesis, pyruvate => valine -- 2-oxobutanoate => isoleucine	Branched-chain amino acid metabolism	#656cdb
+M00036	Leucine degradation, leucine => acetoacetate + acetyl-CoA	Branched-chain amino acid metabolism	#656cdb
+M00432	Leucine biosynthesis, 2-oxoisovalerate => 2-oxoisocaproate	Branched-chain amino acid metabolism	#656cdb
+M00535	Isoleucine biosynthesis, pyruvate => 2-oxobutanoate	Branched-chain amino acid metabolism	#656cdb
+M00570	Isoleucine biosynthesis, threonine => 2-oxobutanoate => isoleucine	Branched-chain amino acid metabolism	#656cdb
+M00165	Reductive pentose phosphate cycle (Calvin cycle)	Carbon fixation	#408937
+M00166	Reductive pentose phosphate cycle, ribulose-5P => glyceraldehyde-3P	Carbon fixation	#408937
+M00167	Reductive pentose phosphate cycle, glyceraldehyde-3P => ribulose-5P	Carbon fixation	#408937
+M00168	CAM (Crassulacean acid metabolism), dark	Carbon fixation	#408937
+M00169	CAM (Crassulacean acid metabolism), light	Carbon fixation	#408937
+M00170	C4-dicarboxylic acid cycle, phosphoenolpyruvate carboxykinase type	Carbon fixation	#408937
+M00171	C4-dicarboxylic acid cycle, NAD - malic enzyme type	Carbon fixation	#408937
+M00172	C4-dicarboxylic acid cycle, NADP - malic enzyme type	Carbon fixation	#408937
+M00173	Reductive citrate cycle (Arnon-Buchanan cycle)	Carbon fixation	#408937
+M00374	Dicarboxylate-hydroxybutyrate cycle	Carbon fixation	#408937
+M00375	Hydroxypropionate-hydroxybutylate cycle	Carbon fixation	#408937
+M00376	3-Hydroxypropionate bi-cycle	Carbon fixation	#408937
+M00377	Reductive acetyl-CoA pathway (Wood-Ljungdahl pathway)	Carbon fixation	#408937
+M00579	Phosphate acetyltransferase-acetate kinase pathway, acetyl-CoA => acetate	Carbon fixation	#408937
+M00620	Incomplete reductive citrate cycle, acetyl-CoA => oxoglutarate	Carbon fixation	#408937
+M00001	Glycolysis (Embden-Meyerhof pathway), glucose => pyruvate	Central carbohydrate metabolism	#c644a5
+M00002	Glycolysis, core module involving three-carbon compounds	Central carbohydrate metabolism	#c644a5
+M00003	Gluconeogenesis, oxaloacetate => fructose-6P	Central carbohydrate metabolism	#c644a5
+M00004	Pentose phosphate pathway (Pentose phosphate cycle)	Central carbohydrate metabolism	#c644a5
+M00005	PRPP biosynthesis, ribose 5P => PRPP	Central carbohydrate metabolism	#c644a5
+M00006	Pentose phosphate pathway, oxidative phase, glucose 6P => ribulose 5P	Central carbohydrate metabolism	#c644a5
+M00007	Pentose phosphate pathway, non-oxidative phase, fructose 6P => ribose 5P	Central carbohydrate metabolism	#c644a5
+M00008	Entner-Doudoroff pathway, glucose-6P => glyceraldehyde-3P + pyruvate	Central carbohydrate metabolism	#c644a5
+M00009	Citrate cycle (TCA cycle, Krebs cycle)	Central carbohydrate metabolism	#c644a5
+M00010	Citrate cycle, first carbon oxidation, oxaloacetate => 2-oxoglutarate	Central carbohydrate metabolism	#c644a5
+M00011	Citrate cycle, second carbon oxidation, 2-oxoglutarate => oxaloacetate	Central carbohydrate metabolism	#c644a5
+M00307	Pyruvate oxidation, pyruvate => acetyl-CoA	Central carbohydrate metabolism	#c644a5
+M00308	Semi-phosphorylative Entner-Doudoroff pathway, gluconate => glycerate-3P	Central carbohydrate metabolism	#c644a5
+M00309	Non-phosphorylative Entner-Doudoroff pathway, gluconate--galactonate => glycerate	Central carbohydrate metabolism	#c644a5
+M00580	Pentose phosphate pathway, archaea, fructose 6P => ribose 5P	Central carbohydrate metabolism	#c644a5
+M00633	Semi-phosphorylative Entner-Doudoroff pathway, gluconate--galactonate => glycerate-3P	Central carbohydrate metabolism	#c644a5
+M00112	Tocopherol--tocotorienol biosynthesis	Cofactor and vitamin metabolism	#5fda98
+M00115	NAD biosynthesis, aspartate => NAD	Cofactor and vitamin metabolism	#5fda98
+M00116	Menaquinone biosynthesis, chorismate => menaquinol	Cofactor and vitamin metabolism	#5fda98
+M00117	Ubiquinone biosynthesis, prokaryotes, chorismate => ubiquinone	Cofactor and vitamin metabolism	#5fda98
+M00119	Pantothenate biosynthesis, valine--L-aspartate => pantothenate	Cofactor and vitamin metabolism	#5fda98
+M00120	Coenzyme A biosynthesis, pantothenate => CoA	Cofactor and vitamin metabolism	#5fda98
+M00121	Heme biosynthesis, plants and bacteria, glutamate => heme	Cofactor and vitamin metabolism	#5fda98
+M00122	Cobalamin biosynthesis, cobinamide => cobalamin	Cofactor and vitamin metabolism	#5fda98
+M00123	Biotin biosynthesis, pimeloyl-ACP--CoA => biotin	Cofactor and vitamin metabolism	#5fda98
+M00124	Pyridoxal biosynthesis, erythrose-4P => pyridoxal-5P	Cofactor and vitamin metabolism	#5fda98
+M00125	Riboflavin biosynthesis, GTP => riboflavin--FMN--FAD	Cofactor and vitamin metabolism	#5fda98
+M00126	Tetrahydrofolate biosynthesis, GTP => THF	Cofactor and vitamin metabolism	#5fda98
+M00127	Thiamine biosynthesis, AIR => thiamine-P--thiamine-2P	Cofactor and vitamin metabolism	#5fda98
+M00128	Ubiquinone biosynthesis, eukaryotes, 4-hydroxybenzoate => ubiquinone	Cofactor and vitamin metabolism	#5fda98
+M00140	C1-unit interconversion, prokaryotes	Cofactor and vitamin metabolism	#5fda98
+M00141	C1-unit interconversion, eukaryotes	Cofactor and vitamin metabolism	#5fda98
+M00572	Pimeloyl-ACP biosynthesis, BioC-BioH pathway, malonyl-ACP => pimeloyl-ACP	Cofactor and vitamin metabolism	#5fda98
+M00573	Biotin biosynthesis, BioI pathway, long-chain-acyl-ACP => pimeloyl-ACP => biotin	Cofactor and vitamin metabolism	#5fda98
+M00577	Biotin biosynthesis, BioW pathway, pimelate => pimeloyl-CoA => biotin	Cofactor and vitamin metabolism	#5fda98
+M00622	Nicotinate degradation, nicotinate => fumarate	Cofactor and vitamin metabolism	#5fda98
+M00810	Nicotine degradation, pyridine pathway, nicotine => 2,6-dihydroxypyridine--succinate semialdehyde	Cofactor and vitamin metabolism	#5fda98
+M00811	Nicotine degradation, pyrrolidine pathway, nicotine => succinate semialdehyde	Cofactor and vitamin metabolism	#5fda98
+M00836	Coenzyme F430 biosynthesis, sirohydrochlorin => coenzyme F430	Cofactor and vitamin metabolism	#5fda98
+M00840	Tetrahydrofolate biosynthesis, mediated by ribA and trpF, GTP => THF	Cofactor and vitamin metabolism	#5fda98
+M00841	Tetrahydrofolate biosynthesis, mediated by PTPS, GTP => THF	Cofactor and vitamin metabolism	#5fda98
+M00842	Tetrahydrobiopterin biosynthesis, GTP => BH4	Cofactor and vitamin metabolism	#5fda98
+M00843	L-threo-Tetrahydrobiopterin biosynthesis, GTP => L-threo-BH4	Cofactor and vitamin metabolism	#5fda98
+M00846	Siroheme biosynthesis, glutamate => siroheme	Cofactor and vitamin metabolism	#5fda98
+M00847	Heme biosynthesis, archaea, siroheme => heme	Cofactor and vitamin metabolism	#5fda98
+M00868	Heme biosynthesis, animals and fungi, glycine => heme	Cofactor and vitamin metabolism	#5fda98
+M00880	Molybdenum cofactor biosynthesis, GTP => molybdenum cofactor	Cofactor and vitamin metabolism	#5fda98
+M00017	Methionine biosynthesis, apartate => homoserine => methionine	Cysteine and methionine metabolism	#782975
+M00021	Cysteine biosynthesis, serine => cysteine	Cysteine and methionine metabolism	#782975
+M00034	Methionine salvage pathway	Cysteine and methionine metabolism	#782975
+M00035	Methionine degradation	Cysteine and methionine metabolism	#782975
+M00338	Cysteine biosynthesis, homocysteine + serine => cysteine	Cysteine and methionine metabolism	#782975
+M00368	Ethylene biosynthesis, methionine => ethylene	Cysteine and methionine metabolism	#782975
+M00609	Cysteine biosynthesis, methionine => cysteine	Cysteine and methionine metabolism	#782975
+M00625	Methicillin resistance	Drug resistance	#869534
+M00627	beta-Lactam resistance, Bla system	Drug resistance	#869534
+M00639	Multidrug resistance, efflux pump MexCD-OprJ	Drug resistance	#869534
+M00641	Multidrug resistance, efflux pump MexEF-OprN	Drug resistance	#869534
+M00642	Multidrug resistance, efflux pump MexJK-OprM	Drug resistance	#869534
+M00643	Multidrug resistance, efflux pump MexXY-OprM	Drug resistance	#869534
+M00649	Multidrug resistance, efflux pump AdeABC	Drug resistance	#869534
+M00651	Vancomycin resistance, D-Ala-D-Lac type	Drug resistance	#869534
+M00652	Vancomycin resistance, D-Ala-D-Ser type	Drug resistance	#869534
+M00696	Multidrug resistance, efflux pump AcrEF-TolC	Drug resistance	#869534
+M00697	Multidrug resistance, efflux pump MdtEF-TolC	Drug resistance	#869534
+M00698	Multidrug resistance, efflux pump BpeEF-OprC	Drug resistance	#869534
+M00700	Multidrug resistance, efflux pump AbcA	Drug resistance	#869534
+M00702	Multidrug resistance, efflux pump NorB	Drug resistance	#869534
+M00704	Tetracycline resistance, efflux pump Tet38	Drug resistance	#869534
+M00705	Multidrug resistance, efflux pump MepA	Drug resistance	#869534
+M00714	Multidrug resistance, efflux pump QacA	Drug resistance	#869534
+M00718	Multidrug resistance, efflux pump MexAB-OprM	Drug resistance	#869534
+M00725	Cationic antimicrobial peptide (CAMP) resistance, dltABCD operon	Drug resistance	#869534
+M00726	Cationic antimicrobial peptide (CAMP) resistance, lysyl-phosphatidylglycerol (L-PG) synthase MprF	Drug resistance	#869534
+M00730	Cationic antimicrobial peptide (CAMP) resistance, VraFG transporter	Drug resistance	#869534
+M00744	Cationic antimicrobial peptide (CAMP) resistance, protease PgtE	Drug resistance	#869534
+M00745	Imipenem resistance, repression of porin OprD	Drug resistance	#869534
+M00746	Multidrug resistance, repression of porin OmpF	Drug resistance	#869534
+M00769	Multidrug resistance, efflux pump MexPQ-OpmE	Drug resistance	#869534
+M00851	Carbapenem resistance	Drug resistance	#869534
+M00824	9-membered enediyne core biosynthesis, malonyl-CoA => 3-hydroxyhexadeca-4,6,8,10,12,14-hexaenoyl-ACP => 9-membered enediyne core	Enediyne biosynthesis	#d27bde
+M00825	10-membered enediyne core biosynthesis, malonyl-CoA => 3-hydroxyhexadeca-4,6,8,10,12,14-hexaenoyl-ACP => 10-membered enediyne core	Enediyne biosynthesis	#d27bde
+M00826	C-1027 benzoxazolinate moiety biosynthesis, chorismate => benzoxazolinyl-CoA	Enediyne biosynthesis	#d27bde
+M00827	C-1027 beta-amino acid moiety biosynthesis, tyrosine => 3-chloro-4,5-dihydroxy-beta-phenylalanyl-PCP	Enediyne biosynthesis	#d27bde
+M00828	Maduropeptin beta-hydroxy acid moiety biosynthesis, tyrosine => 3-(4-hydroxyphenyl)-3-oxopropanoyl-PCP	Enediyne biosynthesis	#d27bde
+M00829	3,6-Dimethylsalicylyl-CoA biosynthesis, malonyl-CoA => 6-methylsalicylate => 3,6-dimethylsalicylyl-CoA	Enediyne biosynthesis	#d27bde
+M00830	Neocarzinostatin naphthoate moiety biosynthesis, malonyl-CoA => 2-hydroxy-5-methyl-1-naphthoate => 2-hydroxy-7-methoxy-5-methyl-1-naphthoyl-CoA	Enediyne biosynthesis	#d27bde
+M00831	Kedarcidin 2-hydroxynaphthoate moiety biosynthesis, malonyl-CoA => 3,6,8-trihydroxy-2-naphthoate => 3-hydroxy-7,8-dimethoxy-6-isopropoxy-2-naphthoyl-CoA	Enediyne biosynthesis	#d27bde
+M00832	Kedarcidin 2-aza-3-chloro-beta-tyrosine moiety biosynthesis, azatyrosine => 2-aza-3-chloro-beta-tyrosyl-PCP	Enediyne biosynthesis	#d27bde
+M00833	Calicheamicin biosynthesis, calicheamicinone => calicheamicin	Enediyne biosynthesis	#d27bde
+M00834	Calicheamicin orsellinate moiety biosynthesis, malonyl-CoA => orsellinate-ACP => 5-iodo-2,3-dimethoxyorsellinate-ACP	Enediyne biosynthesis	#d27bde
+M00082	Fatty acid biosynthesis, initiation	Fatty acid metabolism	#d9a344
+M00083	Fatty acid biosynthesis, elongation	Fatty acid metabolism	#d9a344
+M00085	Fatty acid elongation in mitochondria	Fatty acid metabolism	#d9a344
+M00086	beta-Oxidation, acyl-CoA synthesis	Fatty acid metabolism	#d9a344
+M00087	beta-Oxidation	Fatty acid metabolism	#d9a344
+M00415	Fatty acid elongation in endoplasmic reticulum	Fatty acid metabolism	#d9a344
+M00861	beta-Oxidation, peroxisome, VLCFA	Fatty acid metabolism	#d9a344
+M00873	Fatty acid biosynthesis in mitochondria, animals	Fatty acid metabolism	#d9a344
+M00874	Fatty acid biosynthesis in mitochondria, fungi	Fatty acid metabolism	#d9a344
+M00055	N-glycan precursor biosynthesis	Glycan biosynthesis	#588cd6
+M00056	O-glycan biosynthesis, mucin type core	Glycan biosynthesis	#588cd6
+M00065	GPI-anchor biosynthesis, core oligosaccharide	Glycan biosynthesis	#588cd6
+M00068	Glycosphingolipid biosynthesis, globo-series, LacCer => Gb4Cer	Glycan biosynthesis	#588cd6
+M00069	Glycosphingolipid biosynthesis, ganglio series, LacCer => GT3	Glycan biosynthesis	#588cd6
+M00070	Glycosphingolipid biosynthesis, lacto-series, LacCer => Lc4Cer	Glycan biosynthesis	#588cd6
+M00071	Glycosphingolipid biosynthesis, neolacto-series, LacCer => nLc4Cer	Glycan biosynthesis	#588cd6
+M00072	N-glycosylation by oligosaccharyltransferase	Glycan biosynthesis	#588cd6
+M00073	N-glycan precursor trimming	Glycan biosynthesis	#588cd6
+M00074	N-glycan biosynthesis, high-mannose type	Glycan biosynthesis	#588cd6
+M00075	N-glycan biosynthesis, complex type	Glycan biosynthesis	#588cd6
+M00872	O-glycan biosynthesis, mannose type (core M3)	Glycan biosynthesis	#588cd6
+M00057	Glycosaminoglycan biosynthesis, linkage tetrasaccharide	Glycosaminoglycan metabolism	#d66432
+M00058	Glycosaminoglycan biosynthesis, chondroitin sulfate backbone	Glycosaminoglycan metabolism	#d66432
+M00059	Glycosaminoglycan biosynthesis, heparan sulfate backbone	Glycosaminoglycan metabolism	#d66432
+M00076	Dermatan sulfate degradation	Glycosaminoglycan metabolism	#d66432
+M00077	Chondroitin sulfate degradation	Glycosaminoglycan metabolism	#d66432
+M00078	Heparan sulfate degradation	Glycosaminoglycan metabolism	#d66432
+M00079	Keratan sulfate degradation	Glycosaminoglycan metabolism	#d66432
+M00026	Histidine biosynthesis, PRPP => histidine	Histidine metabolism	#66d7bf
+M00045	Histidine degradation, histidine => N-formiminoglutamate => glutamate	Histidine metabolism	#66d7bf
+M00066	Lactosylceramide biosynthesis	Lipid metabolism	#d53e55
+M00067	Sulfoglycolipids biosynthesis, ceramide--1-alkyl-2-acylglycerol => sulfatide--seminolipid	Lipid metabolism	#d53e55
+M00088	Ketone body biosynthesis, acetyl-CoA => acetoacetate--3-hydroxybutyrate--acetone	Lipid metabolism	#d53e55
+M00089	Triacylglycerol biosynthesis	Lipid metabolism	#d53e55
+M00090	Phosphatidylcholine (PC) biosynthesis, choline => PC	Lipid metabolism	#d53e55
+M00091	Phosphatidylcholine (PC) biosynthesis, PE => PC	Lipid metabolism	#d53e55
+M00092	Phosphatidylethanolamine (PE) biosynthesis, ethanolamine => PE	Lipid metabolism	#d53e55
+M00093	Phosphatidylethanolamine (PE) biosynthesis, PA => PS => PE	Lipid metabolism	#d53e55
+M00094	Ceramide biosynthesis	Lipid metabolism	#d53e55
+M00098	Acylglycerol degradation	Lipid metabolism	#d53e55
+M00099	Sphingosine biosynthesis	Lipid metabolism	#d53e55
+M00100	Sphingosine degradation	Lipid metabolism	#d53e55
+M00113	Jasmonic acid biosynthesis	Lipid metabolism	#d53e55
+M00060	KDO2-lipid A biosynthesis, Raetz pathway, LpxL-LpxM type	Lipopolysaccharide metabolism	#83d2de
+M00063	CMP-KDO biosynthesis	Lipopolysaccharide metabolism	#83d2de
+M00064	ADP-L-glycero-D-manno-heptose biosynthesis	Lipopolysaccharide metabolism	#83d2de
+M00866	KDO2-lipid A biosynthesis, Raetz pathway, non-LpxL-LpxM type	Lipopolysaccharide metabolism	#83d2de
+M00867	KDO2-lipid A modification pathway	Lipopolysaccharide metabolism	#83d2de
+M00016	Lysine biosynthesis, succinyl-DAP pathway, aspartate => lysine	Lysine metabolism	#d84e8b
+M00030	Lysine biosynthesis, AAA pathway, 2-oxoglutarate => 2-aminoadipate => lysine	Lysine metabolism	#d84e8b
+M00031	Lysine biosynthesis, mediated by LysW, 2-aminoadipate => lysine	Lysine metabolism	#d84e8b
+M00032	Lysine degradation, lysine => saccharopine => acetoacetyl-CoA	Lysine metabolism	#d84e8b
+M00433	Lysine biosynthesis, 2-oxoglutarate => 2-oxoadipate	Lysine metabolism	#d84e8b
+M00525	Lysine biosynthesis, acetyl-DAP pathway, aspartate => lysine	Lysine metabolism	#d84e8b
+M00526	Lysine biosynthesis, DAP dehydrogenase pathway, aspartate => lysine	Lysine metabolism	#d84e8b
+M00527	Lysine biosynthesis, DAP aminotransferase pathway, aspartate => lysine	Lysine metabolism	#d84e8b
+M00773	Tylosin biosynthesis, methylmalonyl-CoA + malonyl-CoA => tylactone => tylosin	Macrolide biosynthesis	#2e4b26
+M00774	Erythromycin biosynthesis, propanoyl-CoA + methylmalonyl-CoA => deoxyerythronolide B => erythromycin A--B	Macrolide biosynthesis	#2e4b26
+M00775	Oleandomycin biosynthesis, malonyl-CoA + methylmalonyl-CoA => 8,8a-deoxyoleandolide => oleandomycin	Macrolide biosynthesis	#2e4b26
+M00776	Pikromycin--methymycin biosynthesis, methylmalonyl-CoA + malonyl-CoA => narbonolide--10-deoxymethynolide => pikromycin--methymycin	Macrolide biosynthesis	#2e4b26
+M00777	Avermectin biosynthesis, 2-methylbutanoyl-CoA--isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a--1b aglycone => avermectin A1a--B1a--A1b--B1b	Macrolide biosynthesis	#2e4b26
+M00611	Oxygenic photosynthesis in plants and cyanobacteria	Metabolic capacity	#9378c3
+M00612	Anoxygenic photosynthesis in purple bacteria	Metabolic capacity	#9378c3
+M00613	Anoxygenic photosynthesis in green nonsulfur bacteria	Metabolic capacity	#9378c3
+M00614	Anoxygenic photosynthesis in green sulfur bacteria	Metabolic capacity	#9378c3
+M00615	Nitrate assimilation	Metabolic capacity	#9378c3
+M00616	Sulfate-sulfur assimilation	Metabolic capacity	#9378c3
+M00617	Methanogen	Metabolic capacity	#9378c3
+M00618	Acetogen	Metabolic capacity	#9378c3
+M00174	Methane oxidation, methanotroph, methane => formaldehyde	Methane metabolism	#9e7336
+M00344	Formaldehyde assimilation, xylulose monophosphate pathway	Methane metabolism	#9e7336
+M00345	Formaldehyde assimilation, ribulose monophosphate pathway	Methane metabolism	#9e7336
+M00346	Formaldehyde assimilation, serine pathway	Methane metabolism	#9e7336
+M00356	Methanogenesis, methanol => methane	Methane metabolism	#9e7336
+M00357	Methanogenesis, acetate => methane	Methane metabolism	#9e7336
+M00358	Coenzyme M biosynthesis	Methane metabolism	#9e7336
+M00378	F420 biosynthesis	Methane metabolism	#9e7336
+M00422	Acetyl-CoA pathway, CO2 => acetyl-CoA	Methane metabolism	#9e7336
+M00563	Methanogenesis, methylamine--dimethylamine--trimethylamine => methane	Methane metabolism	#9e7336
+M00567	Methanogenesis, CO2 => methane	Methane metabolism	#9e7336
+M00608	2-Oxocarboxylic acid chain extension, 2-oxoglutarate => 2-oxoadipate => 2-oxopimelate => 2-oxosuberate	Methane metabolism	#9e7336
+M00175	Nitrogen fixation, nitrogen => ammonia	Nitrogen metabolism	#2c2351
+M00528	Nitrification, ammonia => nitrite	Nitrogen metabolism	#2c2351
+M00529	Denitrification, nitrate => nitrogen	Nitrogen metabolism	#2c2351
+M00530	Dissimilatory nitrate reduction, nitrate => ammonia	Nitrogen metabolism	#2c2351
+M00531	Assimilatory nitrate reduction, nitrate => ammonia	Nitrogen metabolism	#2c2351
+M00804	Complete nitrification, comammox, ammonia => nitrite => nitrate	Nitrogen metabolism	#2c2351
+M00027	GABA (gamma-Aminobutyrate) shunt	Other amino acid metabolism	#c5d7a9
+M00118	Glutathione biosynthesis, glutamate => glutathione	Other amino acid metabolism	#c5d7a9
+M00369	Cyanogenic glycoside biosynthesis, tyrosine => dhurrin	Other amino acid metabolism	#c5d7a9
+M00012	Glyoxylate cycle	Other carbohydrate metabolism	#872b4e
+M00013	Malonate semialdehyde pathway, propanoyl-CoA => acetyl-CoA	Other carbohydrate metabolism	#872b4e
+M00014	Glucuronate pathway (uronate pathway)	Other carbohydrate metabolism	#872b4e
+M00061	D-Glucuronate degradation, D-glucuronate => pyruvate + D-glyceraldehyde 3P	Other carbohydrate metabolism	#872b4e
+M00081	Pectin degradation	Other carbohydrate metabolism	#872b4e
+M00114	Ascorbate biosynthesis, plants, glucose-6P => ascorbate	Other carbohydrate metabolism	#872b4e
+M00129	Ascorbate biosynthesis, animals, glucose-1P => ascorbate	Other carbohydrate metabolism	#872b4e
+M00130	Inositol phosphate metabolism, PI=> PIP2 => Ins(1,4,5)P3 => Ins(1,3,4,5)P4	Other carbohydrate metabolism	#872b4e
+M00131	Inositol phosphate metabolism, Ins(1,3,4,5)P4 => Ins(1,3,4)P3 => myo-inositol	Other carbohydrate metabolism	#872b4e
+M00132	Inositol phosphate metabolism, Ins(1,3,4)P3 => phytate	Other carbohydrate metabolism	#872b4e
+M00373	Ethylmalonyl pathway	Other carbohydrate metabolism	#872b4e
+M00532	Photorespiration	Other carbohydrate metabolism	#872b4e
+M00549	Nucleotide sugar biosynthesis, glucose => UDP-glucose	Other carbohydrate metabolism	#872b4e
+M00550	Ascorbate degradation, ascorbate => D-xylulose-5P	Other carbohydrate metabolism	#872b4e
+M00552	D-galactonate degradation, De Ley-Doudoroff pathway, D-galactonate => glycerate-3P	Other carbohydrate metabolism	#872b4e
+M00554	Nucleotide sugar biosynthesis, galactose => UDP-galactose	Other carbohydrate metabolism	#872b4e
+M00565	Trehalose biosynthesis, D-glucose 1P => trehalose	Other carbohydrate metabolism	#872b4e
+M00630	D-Galacturonate degradation (fungi), D-galacturonate => glycerol	Other carbohydrate metabolism	#872b4e
+M00631	D-Galacturonate degradation (bacteria), D-galacturonate => pyruvate + D-glyceraldehyde 3P	Other carbohydrate metabolism	#872b4e
+M00632	Galactose degradation, Leloir pathway, galactose => alpha-D-glucose-1P	Other carbohydrate metabolism	#872b4e
+M00740	Methylaspartate cycle	Other carbohydrate metabolism	#872b4e
+M00741	Propanoyl-CoA metabolism, propanoyl-CoA => succinyl-CoA	Other carbohydrate metabolism	#872b4e
+M00761	Undecaprenylphosphate alpha-L-Ara4N biosynthesis, UDP-GlcA => undecaprenyl phosphate alpha-L-Ara4N	Other carbohydrate metabolism	#872b4e
+M00854	Glycogen biosynthesis, glucose-1P => glycogen--starch	Other carbohydrate metabolism	#872b4e
+M00855	Glycogen degradation, glycogen => glucose-6P	Other carbohydrate metabolism	#872b4e
+M00097	beta-Carotene biosynthesis, GGAP => beta-carotene	Other terpenoid biosynthesis	#6e9368
+M00371	Castasterone biosynthesis, campesterol => castasterone	Other terpenoid biosynthesis	#6e9368
+M00372	Abscisic acid biosynthesis, beta-carotene => abscisic acid	Other terpenoid biosynthesis	#6e9368
+M00363	EHEC pathogenicity signature, Shiga toxin	Pathogenicity	#66406d
+M00542	EHEC--EPEC pathogenicity signature, T3SS and effectors	Pathogenicity	#66406d
+M00564	Helicobacter pylori pathogenicity signature, cagA pathogenicity island	Pathogenicity	#66406d
+M00574	Pertussis pathogenicity signature, pertussis toxin	Pathogenicity	#66406d
+M00575	Pertussis pathogenicity signature, T1SS	Pathogenicity	#66406d
+M00576	ETEC pathogenicity signature, heat-labile and heat-stable enterotoxins	Pathogenicity	#66406d
+M00850	Vibrio cholerae pathogenicity signature, cholera toxins	Pathogenicity	#66406d
+M00852	Vibrio cholerae pathogenicity signature, toxin coregulated pilus	Pathogenicity	#66406d
+M00853	ETEC pathogenicity signature, colonization factors	Pathogenicity	#66406d
+M00856	Salmonella enterica pathogenicity signature, typhoid toxin	Pathogenicity	#66406d
+M00857	Salmonella enterica pathogenicity signature, Vi antigen	Pathogenicity	#66406d
+M00859	Bacillus anthracis pathogenicity signature, anthrax toxin	Pathogenicity	#66406d
+M00860	Bacillus anthracis pathogenicity signature, polyglutamic acid capsule biosynthesis	Pathogenicity	#66406d
+M00161	Photosystem II	Photosynthesis	#cfa68a
+M00163	Photosystem I	Photosynthesis	#cfa68a
+M00597	Anoxygenic photosystem II [BR:ko00194]	Photosynthesis	#cfa68a
+M00598	Anoxygenic photosystem I [BR:ko00194]	Photosynthesis	#cfa68a
+M00660	Xanthomonas spp. pathogenicity signature, T3SS and effectors	Plant pathogenicity	#461d27
+M00133	Polyamine biosynthesis, arginine => agmatine => putrescine => spermidine	Polyamine biosynthesis	#a5b3da
+M00134	Polyamine biosynthesis, arginine => ornithine => putrescine	Polyamine biosynthesis	#a5b3da
+M00135	GABA biosynthesis, eukaryotes, putrescine => GABA	Polyamine biosynthesis	#a5b3da
+M00136	GABA biosynthesis, prokaryotes, putrescine => GABA	Polyamine biosynthesis	#a5b3da
+M00793	dTDP-L-rhamnose biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00794	dTDP-6-deoxy-D-allose biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00795	dTDP-beta-L-noviose biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00796	dTDP-D-mycaminose biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00797	dTDP-D-desosamine biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00798	dTDP-L-mycarose biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00799	dTDP-L-oleandrose biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00800	dTDP-L-megosamine biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00801	dTDP-L-olivose biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00802	dTDP-D-forosamine biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00803	dTDP-D-angolosamine biosynthesis	Polyketide sugar unit biosynthesis	#5c4f24
+M00048	Inosine monophosphate biosynthesis, PRPP + glutamine => IMP	Purine metabolism	#e0a7d2
+M00049	Adenine ribonucleotide biosynthesis, IMP => ADP,ATP	Purine metabolism	#e0a7d2
+M00050	Guanine ribonucleotide biosynthesis IMP => GDP,GTP	Purine metabolism	#e0a7d2
+M00546	Purine degradation, xanthine => urea	Purine metabolism	#e0a7d2
+M00046	Pyrimidine degradation, uracil => beta-alanine, thymine => 3-aminoisobutanoate	Pyrimidine metabolism	#25585e
+M00051	Uridine monophosphate biosynthesis, glutamine (+ PRPP) => UMP	Pyrimidine metabolism	#25585e
+M00052	Pyrimidine ribonucleotide biosynthesis, UMP => UDP--UTP,CDP--CTP	Pyrimidine metabolism	#25585e
+M00053	Pyrimidine deoxyribonuleotide biosynthesis, CDP--CTP => dCDP--dCTP,dTDP--dTTP	Pyrimidine metabolism	#25585e
+M00018	Threonine biosynthesis, aspartate => homoserine => threonine	Serine and threonine metabolism	#de7d78
+M00020	Serine biosynthesis, glycerate-3P => serine	Serine and threonine metabolism	#de7d78
+M00033	Ectoine biosynthesis, aspartate => ectoine	Serine and threonine metabolism	#de7d78
+M00555	Betaine biosynthesis, choline => betaine	Serine and threonine metabolism	#de7d78
+M00101	Cholesterol biosynthesis, squalene 2,3-epoxide => cholesterol	Sterol biosynthesis	#4e96a2
+M00102	Ergocalciferol biosynthesis	Sterol biosynthesis	#4e96a2
+M00103	Cholecalciferol biosynthesis	Sterol biosynthesis	#4e96a2
+M00104	Bile acid biosynthesis, cholesterol => cholate--chenodeoxycholate	Sterol biosynthesis	#4e96a2
+M00106	Conjugated bile acid biosynthesis, cholate => taurocholate--glycocholate	Sterol biosynthesis	#4e96a2
+M00107	Steroid hormone biosynthesis, cholesterol => prognenolone => progesterone	Sterol biosynthesis	#4e96a2
+M00108	C21-Steroid hormone biosynthesis, progesterone => corticosterone--aldosterone	Sterol biosynthesis	#4e96a2
+M00109	C21-Steroid hormone biosynthesis, progesterone => cortisol--cortisone	Sterol biosynthesis	#4e96a2
+M00110	C19--C18-Steroid hormone biosynthesis, pregnenolone => androstenedione => estrone	Sterol biosynthesis	#4e96a2
+M00862	beta-Oxidation, peroxisome, tri--dihydroxycholestanoyl-CoA => choloyl--chenodeoxycholoyl-CoA	Sterol biosynthesis	#4e96a2
+M00176	Assimilatory sulfate reduction, sulfate => H2S	Sulfur metabolism	#4e96a2
+M00595	Thiosulfate oxidation by SOX complex, thiosulfate => sulfate	Sulfur metabolism	#4e96a2
+M00596	Dissimilatory sulfate reduction, sulfate => H2S	Sulfur metabolism	#4e96a2
+M00664	Nodulation	Symbiosis	#88574e
+M00095	C5 isoprenoid biosynthesis, mevalonate pathway	Terpenoid backbone biosynthesis	#4e6089
+M00096	C5 isoprenoid biosynthesis, non-mevalonate pathway	Terpenoid backbone biosynthesis	#4e6089
+M00364	C10-C20 isoprenoid biosynthesis, bacteria	Terpenoid backbone biosynthesis	#4e6089
+M00365	C10-C20 isoprenoid biosynthesis, archaea	Terpenoid backbone biosynthesis	#4e6089
+M00366	C10-C20 isoprenoid biosynthesis, plants	Terpenoid backbone biosynthesis	#4e6089
+M00367	C10-C20 isoprenoid biosynthesis, non-plant eukaryotes	Terpenoid backbone biosynthesis	#4e6089
+M00849	C5 isoprenoid biosynthesis, mevalonate pathway, archaea	Terpenoid backbone biosynthesis	#4e6089
+M00778	Type II polyketide backbone biosynthesis, acyl-CoA + malonyl-CoA => polyketide	Type II polyketide biosynthesis	#af7194
+M00779	Dihydrokalafungin biosynthesis, octaketide => dihydrokalafungin	Type II polyketide biosynthesis	#af7194
+M00780	Tetracycline--oxytetracycline biosynthesis, pretetramide => tetracycline--oxytetracycline	Type II polyketide biosynthesis	#af7194
+M00781	Nogalavinone--aklavinone biosynthesis, deoxynogalonate--deoxyaklanonate => nogalavinone--aklavinone	Type II polyketide biosynthesis	#af7194
+M00782	Mithramycin biosynthesis, 4-demethylpremithramycinone => mithramycin	Type II polyketide biosynthesis	#af7194
+M00783	Tetracenomycin C--8-demethyltetracenomycin C biosynthesis, tetracenomycin F2 => tetracenomycin C--8-demethyltetracenomycin C	Type II polyketide biosynthesis	#af7194
+M00784	Elloramycin biosynthesis, 8-demethyltetracenomycin C => elloramycin A	Type II polyketide biosynthesis	#af7194
+M00823	Chlortetracycline biosynthesis, pretetramide => chlortetracycline	Type II polyketide biosynthesis	#af7194

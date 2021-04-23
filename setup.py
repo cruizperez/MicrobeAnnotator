@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from independent_scripts import version
+from microbeannotator import version
 setup(
     name='microbeannotator',
     version=version,
@@ -13,15 +13,7 @@ setup(
     use_scm_version=False,
     setup_requires=[
         'setuptools_scm'],
-    python_requires='>=3.5, <3.8',
-    scripts=['microbeannotator.py',
-             'microbeannotator_db_builder.py', 
-             'independent_scripts/identifier_conversion.py',
-             'independent_scripts/ko_mapper.py'],
-    entry_points={
-        'console_scripts': [
-            'microbeannotator = microbeannotator:main',
-            'microbeannotator_db_builder = microbeannotator_db_builder:main',
-        ],
-    },
+    python_requires='>=3.5, <3.9',
+    scripts=['bin/microbeannotator',
+             'bin/microbeannotator_db_builder'] 
 )
