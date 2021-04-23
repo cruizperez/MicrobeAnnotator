@@ -116,7 +116,7 @@ def module_information_importer(input_files):
     module_group_matrix = pd.DataFrame(0, index=group_names, columns=genome_names)
     # Create module matrix
     metabolism_matrix = pd.DataFrame(0, index=module_ids, columns=genome_names)
-    print("Done!")
+    print("Finished")
     return regular_modules, bifurcation_modules, structural_modules, \
            module_information, metabolism_matrix, module_group_matrix
 
@@ -467,7 +467,7 @@ def global_mapper(regular_modules, bifurcating_modules, structural_modules, anno
         structural_completeness = structural_module_mapper(structural_modules, file)
         final_completeness = regular_completeness + bifurcating_completeness + structural_completeness
         full_metabolic_completeness[genome_name] = final_completeness
-    print("Done!\n")
+    print("Finished\n")
     return full_metabolic_completeness
 
 def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix):
@@ -500,7 +500,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
         Figure.suptitle('Metabolism Module Category per Genome', fontsize=40)
         Figure.subplots_adjust()
         Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
-    print("Done!")
+    print("Finished")
 
 def create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix):
     matplotlib.rcParams['pdf.fonttype'] = 42
@@ -580,7 +580,7 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
     heatmap.ax_heatmap.set_ylabel(ylabel_text, fontsize=20)
     plt.figlegend(loc="upper right", ncol=2, fontsize=12)
     heatmap.savefig(prefix + "_heatmap.pdf")
-    print("Done!")
+    print("Finished")
     return metabolism_matrix_retained_relabel, module_colors
 
 ################################################################################
