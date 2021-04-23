@@ -79,7 +79,7 @@ def swissprot_fasta_downloader(database_directory: Path) -> Path:
         open(decompressed_fasta, 'w') as decompressed_fh:
         copyfileobj(compressed_fh, decompressed_fh)
         output_fasta.unlink()
-    logger.info("Done")
+    logger.info("Finished")
 
     return output_fasta
 
@@ -108,7 +108,7 @@ def swissprot_dat_downloader(database_directory: Path) -> Path:
         f"knowledgebase/complete/uniprot_sprot.dat.gz"
     )
     wget.download(dat_url, out=str(output_dat_file))
-    logger.info("Done!")
+    logger.info("Finished")
 
     return output_dat_file
 
@@ -151,7 +151,7 @@ def trembl_fasta_downloader(database_directory: Path) -> Path:
         open(decompressed_fasta, 'w') as decompressed_fh:
         copyfileobj(compressed_fh, decompressed_fh)
         output_fasta.unlink()
-    logger.info("Done")
+    logger.info("Finished")
 
 # Function to download TrEMBL annotations
 def trembl_dat_downloader(database_directory: Path) -> Path:
@@ -178,7 +178,7 @@ def trembl_dat_downloader(database_directory: Path) -> Path:
         f"knowledgebase/complete/uniprot_trembl.dat.gz"
     )
     wget.download(dat_url, out=str(output_dat_file))
-    logger.info("Done!")
+    logger.info("Finished")
 
     return output_dat_file
 # ==============================================================================
