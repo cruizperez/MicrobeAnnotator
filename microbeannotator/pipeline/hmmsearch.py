@@ -16,9 +16,9 @@
 # ==============================================================================
 # Import modules
 # ==============================================================================
-from microbeannotator.database.kofamscan_profile_downloader import parse_profiles
 from microbeannotator.utilities.core_utils import random_string
 from microbeannotator.utilities.logging import setup_logger
+from microbeannotator.database import kofam_profile_parser as kofam
 
 from tempfile import NamedTemporaryFile
 from tempfile import TemporaryDirectory
@@ -126,9 +126,9 @@ def write_hmmsearch_results(
                         f"{hmm_model_info[record.query.name].definition}\n"))
 
 
-def best_match_selector(intermediate_results: Path) -> Path:
-    outfile = intermediate_results.with_suffix('.kofam.filt')
-    with open(intermediate_results, 'r') as infile, \
+def best_match_selector(raw_results: Path) -> Path:
+    outfile = raw_results.parent / (raw_results.name + '.filt')
+    with open(raw_results, 'r') as infile, \
         open(outfile, 'w') as output:
         best_matches = {}
         for line in infile:
@@ -143,6 +143,7 @@ def best_match_selector(intermediate_results: Path) -> Path:
                         best_matches[record[0]] = [record[6], line]
         for record in best_matches.values():
             output.write(record[1])
+    return outfile
 
 
 def protein_to_model_mapper(
@@ -155,18 +156,36 @@ def protein_to_model_mapper(
     return combined_list
 
 
+def write_hmmsearch_annotation(
+    hmmsearch_results: Path, annotation_file: Path):
+    with open(hmmsearch_results) as infile, \
+        open(annotation_file, 'a') as output:
+        for line in infile:
+            if line.startswith("#"):
+                continue
+            else:
+                line = line.strip().split('\t')
+                query_id = line[0]
+                ko_id = line[2]
+                ko_product = line[19]
+                output.write(
+                    f"{query_id}\tNA\tNA\t{ko_id}\t{ko_product}\tNA\t"
+                    f"NA\tNA\tNA\tNA\tNA\tNA\tkofam\n"
+                )
+
+
 def hmmsearch_launcher(
     protein_model_list: List[Tuple[Path, Path]],
-    profile_info_path: Path,
+    ko_list_db: Path,
     output_path: Path,
     processes: int,
     threads: int):
-    logger.info("Parsing hmm profile metadata...")
-    # Set hmm profile information to global and parse them
-    global hmm_model_info
-    hmm_model_info = parse_profiles(profile_info_path)
     # Launch hmmsearch in one process per protein file vs model
-    logger.info("Searching proteins against kofam profiles...")
+    global hmm_model_info
+    try:
+        hmm_model_info
+    except NameError:
+        hmm_model_info = kofam.parse_profiles(ko_list_db)
     try:
         pool_search = multiprocessing.Pool(processes * threads)
         combined_hmmsearch_results = pool_search.map(
@@ -179,6 +198,21 @@ def hmmsearch_launcher(
     # Get results and write them to output file
     write_hmmsearch_results(combined_hmmsearch_results, output_path)
     # Read intermediate results and select best match per protein
-    best_match_selector(output_path)
-
+    best_match_file = best_match_selector(output_path)
+    # Get annotated and hypothetical proteins
+    annotated_proteins = []
+    hypothetical_proteins = []
+    with open(best_match_file) as infile:
+        for line in infile:
+            if line.startswith('#'):
+                continue
+            else:
+                line = line.strip().split('\t')
+                if "hypothetical" not in line[19].lower() and \
+                    "uncharacterized" not in line[19].lower() and \
+                    "unknown function" not in line[10].lower():
+                    annotated_proteins.append(line[0])
+                else:
+                    hypothetical_proteins.append(line[0])
     logger.info("Search against KOfam done!")
+    return best_match_file, annotated_proteins, hypothetical_proteins
