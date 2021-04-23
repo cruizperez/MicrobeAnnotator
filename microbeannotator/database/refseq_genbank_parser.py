@@ -70,8 +70,7 @@ def table_creator(genbank_file: Path) -> Path:
                 elif 'taxonomy' not in record.annotations and species != "NA":
                     taxonomy = species
                 else:
-                    taxonomy = ", ".join(record.annotations['taxonomy']) 
-                    + ", " + species
+                    taxonomy = f"{', '.join(record.annotations['taxonomy'])}, {species}" 
                 if product == "" or "unknown" in product:
                     for feature in record.features:
                         if feature.type == "Protein":
