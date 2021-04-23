@@ -397,8 +397,7 @@ def main():
             f"Step 11. Process RefSeq annotations\n"
             f"Step 12. Create SQLite annotation DB\n"
             f"Step 13. Create ID interconversion DB\n"
-            f"Step 14. Create method/tool-specific DBs\n"
-            f"Step 11. Process RefSeq annotations\n"))
+            f"Step 14. Create method/tool-specific DBs\n"))
     optional_arguments.add_argument(
         '--single_step', dest='single_step', action='store_true',
         required=False, help='Run a single step and exit.')
