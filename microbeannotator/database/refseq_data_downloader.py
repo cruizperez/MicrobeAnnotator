@@ -95,6 +95,7 @@ def refseq_fasta_downloader(
     archaea_list = search_all_files(temp_fasta_files / "archaea")
     final_list = viral_list + bacteria_list + archaea_list
     refseq_proteins = merged_db_folder / "refseq_protein.fasta"
+    logger.info("Merging protein files")
     with open(refseq_proteins, 'w') as merged_db:
         for file in final_list:
             with gzip.open(file, 'rt') as temp_file:
@@ -144,7 +145,7 @@ def refseq_fasta_downloader_wget(
                     f"{domain}/{filename}"
                 )
                 output = f"{str(temp_fasta_files)}/{filename}"
-                file_list.append((file_url, output))
+                file_list.append((file_url, output))            
     try:
         pool = multiprocessing.Pool(threads)
         pool.map(refseq_multiprocess_downloader, file_list)
@@ -152,6 +153,7 @@ def refseq_fasta_downloader_wget(
         pool.close()
         pool.join()
     # Merge downloaded files
+    logger.info("Merging protein files")
     final_list = search_all_files(temp_fasta_files)
     refseq_proteins = merged_db_folder / "refseq_protein.fasta"
     with open(refseq_proteins, 'w') as merged_db:
