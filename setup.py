@@ -13,7 +13,7 @@ setup(
     use_scm_version=False,
     setup_requires=[
         'setuptools_scm'],
-    python_requires='>=3.5, <3.9',
+    python_requires='>=3.6, <=3.7.5',
     scripts=['bin/microbeannotator',
              'bin/microbeannotator_db_builder'] 
 )
