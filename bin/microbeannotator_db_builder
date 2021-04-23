@@ -175,7 +175,7 @@ def database_duilder(
             refseq_prot = refseq.refseq_fasta_downloader(database_directory)
         else:
             refseq_prot = refseq.refseq_fasta_downloader_wget(
-                database_directory)
+                database_directory, threads)
         database_files['RefSeq_Fasta'] = str(refseq_prot)
         if single_step:
             step = 15
@@ -190,7 +190,7 @@ def database_duilder(
             )
         else:
             temp_gb_dir, genbank_files = refseq.refseq_genbank_downloader_wget(
-                database_directory
+                database_directory, threads
             )
         database_files['RefSeq_GenBank'] = str(temp_gb_dir)
         if single_step:
@@ -200,9 +200,7 @@ def database_duilder(
     # Parse RefSeq GenBank Annotations
     if step == 11:
         logger.info(f"Step 11")
-        try:
-            genbank_files
-        except NameError:
+        if genbank_files == None:
             if aspera:
                 temp_gb_dir = database_directory / "temp_genbank"
                 viral_list = refseq.search_all_files(temp_gb_dir / "viral")
@@ -223,6 +221,7 @@ def database_duilder(
     # Merge Annotations into SQLite Database
     if step == 12:
         logger.info(f"Step 12")
+        logger.info(f"Merging annotations into SQLite database.")
         if light == True:
             try:
                 final_sprot_table
@@ -265,6 +264,7 @@ def database_duilder(
                     f"them using the appropriate step(s)."
                 )
         database_files['SQLite_database'] = str(sql_database)
+        logger.info(f"Finished")
         if single_step:
             step = 15
         else:
@@ -275,7 +275,7 @@ def database_duilder(
         try:
             refseq_to_uniprot
         except NameError:
-            refseq_to_uniprot = database_directory / "refseq_to_uniprot.txt"
+            refseq_to_uniprot = database_directory / "uniprot_to_refseq.txt"
         interconversion_database = database_directory / "conversion.db"
         convert.create_refseq_to_uniprot(
             refseq_to_uniprot, interconversion_database)
@@ -304,6 +304,7 @@ def database_duilder(
             logger.error(
             f"Search method not recognized. Must be blast, diamond, or sword.")
             exit(1)
+        step += 1
     # Perform cleaning step to remove temporal files
     if step == 15:
         logger.info(f"Step 15")
