@@ -16,12 +16,4 @@ setup(
     python_requires='>=3.5, <3.9',
     scripts=['bin/microbeannotator',
              'bin/microbeannotator_db_builder'] 
-             #'microbeannotator/pipeline/identifier_conversion.py',
-             #'microbeannotator/pipeline/ko_mapper.py'],
-    #entry_points={
-    #    'console_scripts': [
-    #        'microbeannotator = microbeannotator:main',
-    #        'microbeannotator_db_builder = microbeannotator_db_builder:main',
-    #    ],
-    #},
 )
