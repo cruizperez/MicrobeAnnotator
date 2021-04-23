@@ -163,7 +163,7 @@ def main():
     with open(input_file, 'r') as infile:
         for line in infile:
             identifier_list.append(line.strip().split()[0])
-    print("Done!")
+    print("Finished")
 
     print("Searching in the database...")
     corresponding_ids = None
@@ -175,14 +175,14 @@ def main():
         corresponding_ids = convert_interpro_to_ko(identifier_list, database, inverse)
     elif interpro_to_ec == True:
         corresponding_ids = convert_interpro_to_ec(identifier_list, database, inverse)
-    print("Done!")
+    print("Finished")
 
     print("Writing output...")
     with open(outfile, 'w') as output:
         for identifier, matches in corresponding_ids.items():
             for match in matches:
                 output.write("{}\t{}\n".format(identifier, match))
-    print("Done!")
+    print("Finished")
     # ----------------------------
 
 if __name__ == "__main__":
