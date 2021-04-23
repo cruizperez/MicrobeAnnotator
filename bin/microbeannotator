@@ -157,7 +157,7 @@ def main():
     search_options.add_argument('--kofam_bin', dest='kofam_bin', action='store', required=False, default=None,
                         help='Directory where KOFamscan binaries are located. By default assumes it is in PATH.')
     search_options.add_argument('--method_bin', dest='method_bin', action='store', required=False, default=None,
-                        help='Directory where KOFamscan binaries are located. By default assumes it is in PATH.')
+                        help='Directory where search method binaries (blast, diamond, sword) are located. By default assumes it is in PATH.')
     search_options.add_argument('--id_perc', dest='id_perc', action='store', required=False, default=40, type=int,
                         help='Minimum identity percentage to retain a hit. By default 40.')
     search_options.add_argument('--bitscore', dest='bitscore', action='store', required=False, default=80, type=int,
