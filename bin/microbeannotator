@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-########################################################################
+# ==============================================================================
 # Author:       Carlos A. Ruiz Perez
 # Email:        cruizperez3@gatech.edu
 # Intitution:   Georgia Institute of Technology
@@ -11,26 +11,123 @@
 # Description: MicrobeAnnotator parses protein fasta files and annotates them
 # using several databases in an iterative fashion and summarizes the findings
 # using KEGG modules based on KO numbers associated with best database matches.
-########################################################################
+# ==============================================================================
 """
 
-################################################################################
-"""---0.0 Import Modules---"""
-import multiprocessing
-from functools import partial
-from pathlib import Path
-from shutil import rmtree
-from shutil import copyfile
-from microbeannotator.pipeline import protein_search
-from microbeannotator.pipeline import fasta_filter_list
+# ==============================================================================
+# Import modules
+# ==============================================================================
+from microbeannotator.pipeline import identifier_conversion as convert
+from microbeannotator.pipeline import protein_search as search
 from microbeannotator.pipeline import sqlite3_search
 from microbeannotator.pipeline import ko_mapper
-from microbeannotator.pipeline import identifier_conversion
-from shutil import which
-import pickle
+from microbeannotator.pipeline import hmmsearch
+
+from microbeannotator.utilities import core_utils
+from microbeannotator.utilities import fasta_filter_list as filterfasta
+from microbeannotator.utilities.logging import setup_logger
 from microbeannotator import version
 
-################################################################################
+from functools import partial
+from shutil import copyfile
+from shutil import rmtree
+from pathlib import Path
+from shutil import which
+from typing import List
+
+import multiprocessing
+import pickle
+import attr
+# ==============================================================================
+
+
+# ==============================================================================
+# Initalize logger
+# ==============================================================================
+logger = setup_logger(__name__)
+# ==============================================================================
+
+
+# ==============================================================================
+# Define classes
+# ==============================================================================
+# Class to setup and store databases
+@attr.s()
+class RefdataInitializer:
+    # Attributes initialized at instantiation
+    database: Path = attr.ib(converter=Path)
+    eukaryote: bool = attr.ib()
+    method: str = attr.ib()
+    light: bool = attr.ib()
+    # Attributes initialized by methods
+    microbeannotator_db: Path = attr.ib(init=False, converter=Path)
+    conversion_db: Path = attr.ib(init=False, converter=Path)
+    ko_list_db: Path = attr.ib(init=False, converter=Path)
+    ko_profiles_db: Path = attr.ib(init=False, converter=Path)
+    ko_hmm_models: List[Path] = attr.ib(init=False)
+    swissprot_db: Path = attr.ib(init=False)
+    trembl_db: Path = attr.ib(init=False)
+    refseq_db: Path = attr.ib(init=False)
+
+    def get_databases(self):
+        # Get SQLite databases and kofam data locations
+        self.microbeannotator_db = self.database / 'microbeannotator.db'
+        self.conversion_db = self.database / 'conversion.db'
+        self.ko_list_db = self.database / 'kofam_data/ko_list'
+        self.ko_profiles_db = self.database / 'kofam_data/profiles'
+        # Get protein databases
+        if self.method == 'blast':
+            self.swissprot_db = str(self.database / 'protein_db/uniprot_sprot')
+            if not self.light:
+                self.trembl_db = (
+                    str(self.database / 'protein_db/uniprot_trembl'))
+                self.refseq_db = (
+                    str(self.database / 'protein_db/refseq_protein'))
+        elif self.method == 'diamond':
+            self.swissprot_db = (
+                str(self.database / 'protein_db/uniprot_sprot.dmnd'))
+            if not self.light:
+                self.trembl_db = (
+                    str(self.database / 'protein_db/uniprot_trembl.dmnd'))
+                self.refseq_db = (
+                    str(self.database / 'protein_db/refseq_protein.dmnd'))
+        elif self.method == 'sword':
+            self.swissprot_db = (
+                str(self.database / 'protein_db/uniprot_sprot.fasta'))
+            if not self.light:
+                self.trembl_db = (
+                    str(self.database / 'protein_db/uniprot_trembl.fasta'))
+                self.refseq_db = (
+                    str(self.database / 'protein_db/refseq_protein.fasta'))
+        else:
+            logger.error(
+                f"Search method {self.method} not recognized."
+                f"Plase select one of blast, diamond, or sword.")
+            exit(1)
+        # Get KOfam models based on subset selected
+        self.ko_hmm_models = []
+        with open(self.ko_profiles_db / 'common.list', 'r') as infile:
+            for line in infile:
+                self.ko_hmm_models.append(self.ko_profiles_db / line.strip())
+        with open(self.ko_profiles_db / 'independent.list', 'r') as infile:
+            for line in infile:
+                self.ko_hmm_models.append(self.ko_profiles_db / line.strip())
+        if self.eukaryote:
+            with open(self.ko_profiles_db / 'eukaryote.list', 'r') as infile:
+                for line in infile:
+                    self.ko_hmm_models.append(self.ko_profiles_db / line.strip())
+        else:
+            with open(self.ko_profiles_db / 'prokaryote.list', 'r') as infile:
+                for line in infile:
+                    self.ko_hmm_models.append(self.ko_profiles_db / line.strip())
+# ==============================================================================
+        
+        
+        
+        
+        
+        
+        
 """---1.0 Main Function---"""
 
 def main():
@@ -50,9 +147,9 @@ def main():
                         help='Space-separated list of protein files to parse. Use -i OR -l.')
     general_options.add_argument('-l', '--list', dest='file_list', action='store', required=False,
                         help='File with list of inputs. Use -i OR -l.')
-    general_options.add_argument('-o', '--outdir', dest='output_dir', action='store', required=True,
+    general_options.add_argument('-o', '--outdir', dest='outdir', action='store', required=True,
                         help='Directory to store results.')
-    general_options.add_argument('-d', '--database', dest='database_folder', action='store', required=True,
+    general_options.add_argument('-d', '--database', dest='database', action='store', required=True,
                         help='Directory where MicrobeAnnotator databases are located.')
     search_options = parser.add_argument_group('Options for search process.')
     search_options.add_argument('-m', '--method', dest='method', action='store', required=True,
@@ -90,6 +187,10 @@ def main():
                         Use only KOfamscan and swissprot databases. By default also uses refseq and
                         trembl (only use if you built both using "microbeannotator_db_builder").
                         '''))
+    misc_options.add_argument('--eukaryote', dest='eukaryote', action='store_true', required=False,
+                        help=textwrap.dedent('''
+                        Use only KOfamscan eukaryote models").
+                        '''))
     misc_options.add_argument('--full', dest='full', action='store_true', required=False,
                         help=textwrap.dedent('''
                         Do not perform the iterative annotation but search all proteins against all databases
@@ -109,8 +210,9 @@ def main():
 
     input_list = args.input_list
     file_list = args.file_list
-    output_dir = args.output_dir
-    database_folder = args.database_folder
+    outdir = args.outdir
+    outdir = Path(outdir)
+    database = args.database
     method = args.method
     method = method.lower()
     kofam_bin = args.kofam_bin
@@ -129,156 +231,162 @@ def main():
     full = args.full
     refine = args.refine
     continue_run = args.continue_run
+    eukaryote = args.eukaryote
 
+    # ==========================================================================
+    # Welcome message
+    # ==========================================================================
+    logger.info(f" --- This is MicrobeAnnotator v{version} --- ")
+    # ==========================================================================
+
+    # ==========================================================================
     # Check user input
-    if method != 'blast' and method != 'diamond' and method != 'sword':
-        exit('Please provide a valid search method with "-m", one of "blast", "diamond" or "sword"')
-    print("---- This is MicrobeAnnotator ----")
+    # ==========================================================================
+    logger.info("Validating user inputs")
+    core_utils.input_validator(
+        method, method_bin, input_list, file_list,
+        cluster, processes, threads)
+    logger.info("Passed")
     if input_list != None:
-        print('I will process a total of {} files. Of these, I will run {} in parallel with {} threads per file.'.format(
-            str(len(input_list)), str(processes), str(threads)))
+        logger.info(
+            f"Processing {len(input_list)} files. I will run {processes} "
+            f"files in parallel with {threads} threads per file.")
     elif file_list != None:
         number_files = 0
-        with open(file_list) as file_list_handler:
-            for line in file_list_handler:
+        with open(file_list, 'r') as infile:
+            for line in infile:
                 number_files += 1
-        print('I will process a total of {} files. Of these, I will run {} in parallel with {} threads per file.'.format(
-            str(number_files), str(processes), str(threads)))
-    if light == True:
-        print('For this run I will use KOFamscan and the Swissprot database to annotate your proteins.')
-    else:
-        print('For this run I will use KOFamscan and the Swissprot, RefSeq and Trembl databases to annotate your proteins.')
-    if cluster == None:
-        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix using no clustering.'.format(plot_filename))
-    elif cluster == 'cols':
-        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the genomes (cols)'.format(plot_filename))
-    elif cluster == 'rows':
-        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the modules (rows)'.format(plot_filename))
-    elif cluster == 'both':
-        print('When I\'m done I will plot the metabolism summaries using {} as file name prefix and cluster the genomes and modules'.format(plot_filename))
-    else:
-        exit('I do not recognize this clustering option: {}.'.format(cluster))
-    print("---------\n")
+        logger.info(
+            f"Processing {number_files} files. I will run {processes} "
+            f"files in parallel with {threads} threads per file.")
+    if light:
+        logger.info(
+            f"Running in light mode. Searching only KOfam and Swissprot "
+            f"using {method}.")
+    # ==========================================================================
 
-    # Check kofamscan binary existence
-    if kofam_bin == None:
-        kofam_call = 'exec_annotation'
-    else:
-        kofam_call = str(Path(kofam_bin) / 'exec_annotation')
-    if which(kofam_call) == None:
-            if kofam_bin == None:
-                exit("KOfamscan not found in PATH, please provide the correct path to the folder with binaries")
-            else:
-                exit("KOfamscan not found in " + kofam_bin + ", please provide the correct path to the folder with binaries")
+    # ==========================================================================
+    # Initialize logfile, refdata and output folders
+    # ==========================================================================
+    # Create log folder to track process
+    process_step = 0
+    process_log_folder = outdir / "process_log"
+    process_log_folder.mkdir(parents=True, exist_ok=True)
+    kofam_outdir = outdir / 'kofam_results'
+    kofam_outdir.mkdir(parents=True, exist_ok=True)
+    swissprot_outdir = outdir / 'swissprot_results'
+    swissprot_outdir.mkdir(parents=True, exist_ok=True)
+    trembl_outdir = outdir / 'trembl_results'
+    trembl_outdir.mkdir(parents=True, exist_ok=True)
+    refseq_outdir = outdir / 'refseq_results'
+    refseq_outdir.mkdir(parents=True, exist_ok=True)
+    annotation_outdir = outdir / 'annotation_results'
+    annotation_outdir.mkdir(parents=True, exist_ok=True)
+    temp_prot_folder = outdir / "temporal_proteins"
+    temp_prot_folder.mkdir(parents=True, exist_ok=True)
+    # Initialize reference data class
+    refdata = RefdataInitializer(database, eukaryote, method, light)
+    refdata.get_databases()
+    # Create dictionary with information per protein file
+    protein_file_info = {}
+    starting_proteins = {}
+    unannotated_proteins = {}
+    # ==========================================================================
+
+    # ==========================================================================
+    # Check if run is starting from previous step.
+    # ==========================================================================
+    if continue_run:
+        # Import the last step completed and the dictionary with information
+        logger.info("Restarting from last checkpoint")
+        with open(process_log_folder / "log.txt", 'r') as logfile:
+            process_step = int(logfile.readline().strip())
+            logger.info(f"Step {process_step}")
+        with open(process_log_folder / "structure.pickle", 'rb') \
+            as structure_file:
+            protein_file_info = pickle.load(structure_file)
+    # ==========================================================================
     
-    # Check search method binary existence
-    call_name = None
-    if method == 'blast':
-        call_name = 'blastp'
-    elif method == 'diamond':
-        call_name = 'diamond'
-    elif method == 'sword':
-        call_name = 'sword'
-    if method_bin == None:
-        method_call = call_name
-    else:
-        method_call = str(Path(method_bin) / call_name)
-    if which(method_call) == None:
-            if method_bin == None:
-                exit(method_call + " not found in PATH, please provide the correct path to the folder with binaries")
-            else:
-                exit(method_call + " not found in " + method_bin + ", please provide the correct path to the folder with binaries")
-    # ----------------------------
-
-    # Get the initial list of proteins per genome and store them
-    if input_list != None and file_list != None:
-        exit('Please provide only a file with the list of inputs "-l" OR a space-separated list of files "-i".')
-    elif file_list != None:
+    # ==========================================================================
+    # Initialize protein_file_info, starting and unannotated proteins dicts
+    # ==========================================================================
+    if file_list != None:
         input_list = []
         with open(file_list) as file_list_handler:
             for line in file_list_handler:
                 input_list.append(line.strip())
-    starting_proteins = {}
-    unannotated_proteins = {}
-    for file in input_list:
-        starting_filename = str(Path(file).name)
-        starting_proteins[starting_filename] = []
-        unannotated_proteins[starting_filename] = []
-        with open(Path(file)) as proteins:
-            for line in proteins:
-                if line.startswith(">"):
-                    line = line.strip().split()[0].replace(">", "")
-                    starting_proteins[starting_filename].append(line)
-                    unannotated_proteins[starting_filename].append(line)
-    # ----------------------------
 
-    # Create log folder to track process and folder to store temporal proteins
-    process_step = 0
-    process_log_folder = Path(output_dir) / "process_log"
-    process_log_folder.mkdir(parents=True, exist_ok=True)
-    temporal_protein_folder = Path(output_dir) / "temporal_proteins"
-    temporal_protein_folder.mkdir(parents=True, exist_ok=True)
-    sql_database = str(Path(database_folder) / "02.MicrobeAnnotator.db")
-    interconversion_database = str(Path(database_folder) / "03.Conversion.db")
-    # Create dictionary with information per protein file
-    protein_file_info = {}
-    # ----------------------------
-
-    # Check if continue_run was passed, and if so, import the last step completed and the dictionary with information
-    if continue_run == True:
-        print("Restarting from last checkpoint")
-        with open(process_log_folder / "log.txt", 'r') as logfile:
-            process_step = int(logfile.readline().strip())
-            print(process_step)
-        with open(process_log_folder / "structure.pickle", 'rb') as structure_file:
-            protein_file_info = pickle.load(structure_file)
-    
     if process_step == 0:
-        # Search the initial dataset with KOFamscan
-        print("Searching proteins using KOFamscan...")
-        try:
-            pool = multiprocessing.Pool(processes)
-            kofam_results = pool.map(partial(protein_search.kofamscan_annotation, 
-            multi_argument=(output_dir, threads, kofam_bin)), input_list)
-            # Results as (protein_file, protein_file_name, ids_proteins_annotated, final_file, ids_hypothetical_proteins)
-            # Final annotation fields:
-            # * query_id protein_id product ko_number ko_product taxonomy function_go compartment_go process_go interpro pfam ec_number database
-        finally:
-            pool.close()
-            pool.join()
-        # ----------------------------
+        for protein_file in input_list:
+            starting_filename = str(Path(protein_file).name)
+            final_annotation = annotation_outdir / (starting_filename+'.annot')
+            # Write headers to final annotation file
+            with open(final_annotation, 'w') as output:
+                output.write(
+                    f"query_id\tprotein_id\tproduct\tko_number\tko_product\t"
+                    f"taxonomy\tfunction_go\tcompartment_go\tprocess_go\t"
+                    f"interpro\tpfam\tec_number\tdatabase\n")
+            # Add initial information to protein_file_info
+            # Structure per file:
+            # protein_file : [protein_file_name, final_annotation_file]
+            protein_file_info[protein_file] = [
+                starting_filename, final_annotation]
+            # Set initial starting and unannotated proteins
+            starting_proteins[starting_filename] = []
+            unannotated_proteins[starting_filename] = []
+            with open(Path(protein_file), 'r') as proteins:
+                for line in proteins:
+                    if line.startswith(">"):
+                        line = line.strip().split()[0].replace(">", "")
+                        starting_proteins[starting_filename].append(line)
+                        unannotated_proteins[starting_filename].append(line)
+        process_step += 1
+    # ==========================================================================
 
-        # Filter out the proteins already annotated
-        
-        print("Filtering KOFamscan results...")
-        # New structure after first step: protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it]
-        for ko_result in kofam_results:
-            protein_file_info[ko_result[0]] = [ko_result[1], ko_result[3]]
-            outfile = str(temporal_protein_folder / (ko_result[1] + ".1it"))
-            # Add first iteration protein files
-            protein_file_info[ko_result[0]].append(outfile)
-            if full == True:
-                copyfile(ko_result[0],outfile)
-                # Remove annotated and hypothetical from the unannotated list for the end
-                for protein in ko_result[4]:
-                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
-                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
-                for protein in ko_result[2]:
-                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
-                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
+    # ==========================================================================
+    # Perform KOfam searches
+    # ==========================================================================
+    if process_step == 1:
+        # Search the initial dataset with KOFamscan
+        logger.info("Searching proteins against KOfam profiles")
+        # Set hmm profile information to global and parse them
+        for protein_file in input_list:
+            starting_filename = str(Path(protein_file).name)
+            # Map proteins to hmm models
+            protein_to_model = hmmsearch.protein_to_model_mapper(
+                [protein_file], refdata.ko_hmm_models)
+            # Set output
+            outfile = kofam_outdir / (Path(protein_file).name + '.kofam')
+            # Perform hmmsearch and filter results
+            hmmsearch_results, annotated_proteins, \
+                hypothetical_proteins = hmmsearch.hmmsearch_launcher(
+                    protein_model_list=protein_to_model,
+                    ko_list_db=refdata.ko_list_db,
+                    output_path=outfile,
+                    processes=processes, threads=threads)
+            # Write filtered results to final annotation
+            hmmsearch.write_hmmsearch_annotation(
+                hmmsearch_results, protein_file_info[protein_file][1])
+            # Set filename for next Fasta file and add to protein_file_info
+            next_fasta = temp_prot_folder / f"{starting_filename}.step_2"
+            protein_file_info[protein_file].append(next_fasta)
+            # Remove annotated and hypothetical from unannotated list
+            unannotated_proteins[starting_filename] = list(
+                set(unannotated_proteins[starting_filename])
+                - set(annotated_proteins))
+            unannotated_proteins[starting_filename] = list(
+                set(unannotated_proteins[starting_filename])
+                - set(hypothetical_proteins))
+            if full:
+                copyfile(protein_file, next_fasta)
             else:
-                # Remove annotated from list of starting that will pass to the next step
-                for protein in ko_result[2]:
-                    if protein in starting_proteins[str(Path(ko_result[0]).name)]:
-                        starting_proteins[str(Path(ko_result[0]).name)].remove(protein)
-                # Remove annotated and hypothetical from the unannotated list for the end
-                for protein in ko_result[4]:
-                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
-                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
-                for protein in ko_result[2]:
-                    if protein in unannotated_proteins[str(Path(ko_result[0]).name)]:
-                        unannotated_proteins[str(Path(ko_result[0]).name)].remove(protein)
-                fasta_filter_list.fastA_filter_list(ko_result[0], outfile, ko_result[2], reverse=True)
+                # Remove annotated proteins from starting protein list
+                starting_proteins[starting_filename] = list(
+                    set(starting_proteins[starting_filename])
+                    - set(annotated_proteins))
+                filterfasta.fastA_filter_list(
+                    protein_file, next_fasta,
+                    starting_proteins[starting_filename], reverse=True)
         # When the process is complete, write step completed (+1) in the log folder
         # Also, export dictionary with information to be imported in case of continue
         process_step += 1
@@ -286,27 +394,24 @@ def main():
             logfile.write("{}".format(process_step))
         with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
             pickle.dump(protein_file_info, structure_file)
-        # ----------------------------
+    # ==========================================================================
 
-    if process_step == 1:
-        # Search proteins NOT annotated with KOFamscan against Swissprot
-        # Determine database to use
-        print("Searching proteins against Swissprot using " + method + " ...")
-        swissprot_database = None
-        if method == "blast":
-            swissprot_database = str(Path(database_folder) / "01.Protein_DB/uniprot_sprot")
-        elif method == "diamond":
-            swissprot_database = str(Path(database_folder) / "01.Protein_DB/uniprot_sprot.dmnd")
-        elif method == "sword":
-            swissprot_database = str(Path(database_folder) / "01.Protein_DB/uniprot_sprot.fasta")
+    # ==========================================================================
+    # Perform SwissProt searches
+    # ==========================================================================
+    if process_step == 2:
+        logger.info("Searching proteins against Swissprot")
+        # Get location of this step fasta files (.step_2)
         input_proteins = []
         for infor in protein_file_info.values():
             input_proteins.append(infor[-1])
+        # Perform searches
         try:
             pool = multiprocessing.Pool(processes)
-            arguments_to_pass = (output_dir, 'swissprot', swissprot_database, method,
-                                threads, id_perc, bitscore, evalue, aln_percent, method_bin)
-            search_results = pool.map(partial(protein_search.similarity_search,
+            arguments_to_pass = (
+                outdir, 'swissprot', refdata.swissprot_db, method,
+                threads, id_perc, bitscore, evalue, aln_percent, method_bin)
+            search_results = pool.map(partial(search.similarity_search,
             multiple_arguments=arguments_to_pass), input_proteins)
             # Results as (protein_file, filtered_search_file)
         finally:
@@ -341,12 +446,12 @@ def main():
                             final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
                 else:
                     # Copy the first iteration proteins to the second iteration file
-                    second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
+                    second_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".step_3"))
                     copyfile(protein_file_info[original_file][2],second_it_outfile)
                     protein_file_info[original_file].append(second_it_outfile)
             else:
                 # Extract the annotations
-                annotation = sqlite3_search.search_ids_imported(sql_database, "swissprot", significant_hits)
+                annotation = sqlite3_search.search_ids_imported(refdata.microbeannotator_db, "swissprot", significant_hits)
                 # Each annotation will have:
                 # query_id gene_id accession product ko_number organism taxonomy function_GO compartment_GO process_GO interpro_id pfam_id EC_number
                 if light == True:
@@ -388,14 +493,14 @@ def main():
                                     if match[0] in unannotated_proteins[str(Path(original_file).name)]:
                                         unannotated_proteins[str(Path(original_file).name)].remove(match[0])
                     # Check which proteins were not annotated and filter for the next iteration
-                    second_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".2it"))
+                    second_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".step_3"))
                     if full == True:
                         copyfile(protein_file_info[original_file][2],second_it_outfile)
                         protein_file_info[original_file].append(second_it_outfile)
                     else:
                         protein_file_info[original_file].append(second_it_outfile)
                         to_retain = starting_proteins[str(Path(original_file).name)].copy()
-                        fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
+                        filterfasta.fastA_filter_list(protein_file_info[original_file][2], 
                         second_it_outfile, to_retain, reverse=False)
                         # starting_proteins[str(Path(original_file).name)]
                     # New structure: 
@@ -413,21 +518,13 @@ def main():
     
     
     # If running complete pipeline search against refseq
-    if process_step == 2:
+    if process_step == 3:
         if light == True:
             print("The light run of MicrobeAnnotator had finished succesfully!")
-            print("Summarizing those results...")
-            process_step = 5
+            print("Summarizing results...")
+            process_step = 6
         else:
-            # Determine database to use
             print("Searching proteins against RefSeq...")
-            refseq_database = None
-            if method == "blast":
-                refseq_database = str(Path(database_folder) / "01.Protein_DB/refseq_protein")
-            elif method == "diamond":
-                refseq_database = str(Path(database_folder) / "01.Protein_DB/refseq_protein.dmnd")
-            elif method == "sword":
-                refseq_database = str(Path(database_folder) / "01.Protein_DB/refseq_protein.fasta")
             # If we have a second iteration file then perform the searches againts refseq
             input_proteins = []
             for infor in protein_file_info.values():
@@ -436,9 +533,9 @@ def main():
             if len(input_proteins) > 0:
                 try:
                     pool = multiprocessing.Pool(processes)
-                    arguments_to_pass = (output_dir, 'refseq', refseq_database, method,
+                    arguments_to_pass = (outdir, 'refseq', refdata.refseq_db, method,
                                         threads, id_perc, bitscore, evalue, aln_percent, method_bin)
-                    search_results = pool.map(partial(protein_search.similarity_search,
+                    search_results = pool.map(partial(search.similarity_search,
                     multiple_arguments=arguments_to_pass), input_proteins)
                     # Results as (protein_file, filtered_search_file)
                 finally:
@@ -469,11 +566,11 @@ def main():
                             significant_hits.append((line[0], line[1]))
                     # If no hits were found
                     if len(significant_hits) == 0:
-                        third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
+                        third_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".3it"))
                         copyfile(protein_file_info[original_file][4],third_it_outfile)
                         protein_file_info[original_file].append(third_it_outfile)
                     else:
-                        annotation = sqlite3_search.search_ids_imported(sql_database, "refseq", significant_hits)
+                        annotation = sqlite3_search.search_ids_imported(refdata.microbeannotator_db, "refseq", significant_hits)
                         # Each annotation will have:
                         # query_id gene_id product taxonomy ko_number ko_product
                         # Write the annotations found in the annotation file
@@ -498,7 +595,7 @@ def main():
                                             unannotated_proteins[str(Path(original_file).name)].remove(match[0])
 
                         # Check which proteins were not annotated and filter for the next iteration
-                        third_it_outfile = str(temporal_protein_folder / (protein_file_info[original_file][0] + ".3it"))
+                        third_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".3it"))
                         if full == True:
                             copyfile(protein_file_info[original_file][4],third_it_outfile)
                             protein_file_info[original_file].append(third_it_outfile)
@@ -506,7 +603,7 @@ def main():
                             # Check if all annotations have ko numbers, if not, get ids to next round of iteration
                             protein_file_info[original_file].append(third_it_outfile)
                             to_retain = starting_proteins[str(Path(original_file).name)].copy()
-                            fasta_filter_list.fastA_filter_list(protein_file_info[original_file][2], 
+                            filterfasta.fastA_filter_list(protein_file_info[original_file][2], 
                             third_it_outfile, to_retain, reverse=False)
                             # New structure: 
                             # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
@@ -522,20 +619,13 @@ def main():
 
 
         # Finally run remaining proteins against Trembl
-    if process_step == 3:
+    if process_step == 4:
         if light == True:
             print("The light run of MicrobeAnnotator had finished succesfully!")
             print("Summarizing those results...")
             process_step = 5
         else:
             print("Searching proteins against Trembl...\n")
-            trembl_database = None
-            if method == "blast":
-                trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl")
-            elif method == "diamond":
-                trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.dmnd")
-            elif method == "sword":
-                trembl_database = str(Path(database_folder) / "01.Protein_DB/uniprot_trembl.fasta")
             input_proteins = []
             for infor in protein_file_info.values():
                 if len(infor) == 7:
@@ -543,9 +633,9 @@ def main():
             if len(input_proteins) > 0:
                 try:
                     pool = multiprocessing.Pool(processes)
-                    arguments_to_pass = (output_dir, 'trembl', trembl_database, method,
+                    arguments_to_pass = (outdir, 'trembl', refdata.trembl_db, method,
                                         threads, id_perc, bitscore, evalue, aln_percent, method_bin)
-                    search_results = pool.map(partial(protein_search.similarity_search,
+                    search_results = pool.map(partial(search.similarity_search,
                     multiple_arguments=arguments_to_pass), input_proteins)
                     # Results as (protein_file, filtered_search_file)
                 finally:
@@ -578,7 +668,7 @@ def main():
                             for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                                 final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
                     else:
-                        annotation = sqlite3_search.search_ids_imported(sql_database, "trembl", significant_hits)
+                        annotation = sqlite3_search.search_ids_imported(refdata.microbeannotator_db, "trembl", significant_hits)
                         # Each annotation will have:
                         # query_id gene_id product taxonomy ko_number ko_product
                         with open(final_annotation_file, 'a') as final_annotation_fh:
@@ -598,8 +688,8 @@ def main():
                         with open(final_annotation_file, 'a') as final_annotation_fh:
                             for original_protein in unannotated_proteins[str(Path(original_file).name)]:
                                 final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-            if temporal_protein_folder.is_dir():
-                rmtree(temporal_protein_folder)
+            if temp_prot_folder.is_dir():
+                rmtree(temp_prot_folder)
             # When the process is complete, write step completed (+1) in the log folder
             # Also, export dictionary with information to be imported in case of continue  
             process_step += 1
@@ -610,7 +700,7 @@ def main():
     # ------------------------
 
     # Refine annotations with ids from other databases
-    if process_step == 4:
+    if process_step == 5:
         if refine == False:
             process_step += 1
             with open(process_log_folder / "log.txt", 'w') as logfile:
@@ -637,7 +727,7 @@ def main():
                 swissprot_records_ko = swissprot_records.loc[(swissprot_records['ko_number'] == "NA") & (swissprot_records['ec_number'] != "NA"), ]
                 swissprot_records_ko_ids = list(swissprot_records_ko['ec_number'])
                 if len(swissprot_records_ko_ids) > 0:
-                    positive_matches = identifier_conversion.convert_ko_to_ec(swissprot_records_ko_ids, interconversion_database, True)
+                    positive_matches = convert.convert_ko_to_ec(swissprot_records_ko_ids, refdata.conversion_db, True)
                     if len(positive_matches) > 0:
                         for identifier, matches in positive_matches.items():
                             annotation_table.loc[(annotation_table['ec_number'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
@@ -651,7 +741,7 @@ def main():
                 trembl_records_ko = trembl_records.loc[(trembl_records['ko_number'] == "NA") & (trembl_records['ec_number'] != "NA"), ]
                 trembl_records_ko_ids = list(trembl_records_ko['ec_number'])
                 if len(trembl_records_ko_ids) > 0:
-                    positive_matches = identifier_conversion.convert_ko_to_ec(trembl_records_ko_ids, interconversion_database, True)
+                    positive_matches = convert.convert_ko_to_ec(trembl_records_ko_ids, refdata.conversion_db, True)
                     if len(positive_matches) > 0:
                         for identifier, matches in positive_matches.items():
                             annotation_table.loc[(annotation_table['ec_number'] == identifier) & (annotation_table['ko_number'] == "NA"), "ko_number"] = " ".join(matches)
@@ -665,7 +755,7 @@ def main():
                 refseq_records_ko = refseq_records.loc[(refseq_records['ko_number'] == "NA") & (refseq_records['ec_number'] != "NA"), ]
                 refseq_records_ko_ids = list(refseq_records_ko['ec_number'])
                 if len(refseq_records_ko_ids) > 0:
-                    positive_matches = identifier_conversion.convert_ko_to_ec(refseq_records_ko_ids, interconversion_database, True)
+                    positive_matches = convert.convert_ko_to_ec(refseq_records_ko_ids, refdata.conversion_db, True)
                     if len(positive_matches) > 0:
                         for identifier, matches in positive_matches.items():
                             annotation_table.loc[(annotation_table['ec_number'] == identifier), "ko_number"] = " ".join(matches)
@@ -677,7 +767,7 @@ def main():
                     query_refseq_pair = list(zip(refseq_records_indices, refseq_records_ids))
                     # Convert refseq to uniprot
                     refseq_uniprot = {}
-                    positive_matches = identifier_conversion.convert_refseq_to_uniprot(refseq_records_ids, interconversion_database, False)
+                    positive_matches = convert.convert_refseq_to_uniprot(refseq_records_ids, refdata.conversion_db, False)
                     if len(positive_matches) > 0:
                         for identifier, matches in positive_matches.items():
                             refseq_uniprot[identifier] = matches[0]
@@ -686,7 +776,7 @@ def main():
                             if pair[1] in refseq_uniprot:
                                 query_uniprot_pair.append((pair[refseq_records_indices], refseq_uniprot[pair[1]]))
                         # Now estract the uniprot annotations using the identifiers found in the previous step
-                        uniprot_annotations = sqlite3_search.search_ids_imported(sql_database, "trembl", query_uniprot_pair)
+                        uniprot_annotations = sqlite3_search.search_ids_imported(refdata.microbeannotator_db, "trembl", query_uniprot_pair)
                         if len(uniprot_annotations) > 0:
                             # Parse results and modify the original table
                             for annotation in uniprot_annotations:
@@ -705,7 +795,7 @@ def main():
     # ------------------------
 
     # Parse annotation files and summarize them
-    if process_step == 5:
+    if process_step == 6:
         print("Extracting ko numbers and summarizing results...")
         annotation_files = []
         for information in protein_file_info.values():
@@ -722,7 +812,7 @@ def main():
                         else:
                             ko_present.write("{}\n".format(line[3]))
             annotation_files.append(ko_numbers)
-        prefix = str(Path(output_dir) / plot_filename)
+        prefix = str(Path(outdir) / plot_filename)
         regular_modules, bifurcation_modules, structural_modules,  \
         module_information, metabolism_matrix, module_group_matrix = ko_mapper.module_information_importer(annotation_files)
         metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
