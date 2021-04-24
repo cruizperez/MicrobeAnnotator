@@ -1,5 +1,5 @@
 {% set name = "microbeannotator" %}
-{% set version = "1.0.4" %}
+{% set version = "2.0.0" %}
 
 package:
   name: "{{ name|lower }}"
@@ -26,30 +26,30 @@ requirements:
     - setuptools
     - setuptools_scm
   run:
-    - python=3.7
-    - pywget
-    - pandas
-    - matplotlib
     - biopython
-    - seaborn
+    - blast ==2.11.0
+    - diamond ==2.0.9
+    - python ==3.7.5
+    - pywget ==3.2
+    - sword ==1.0.4
+    - pandas ==1.2.4
+    - matplotlib ==3.4.1
+    - seaborn ==0.11.1
+    - psutil ==5.8.0
 
 test:
-  imports:
-    - data
-    - independent_scripts
   commands:
     - microbeannotator --help
     - microbeannotator_db_builder --help
 
 about:
   home: "https://github.com/cruizperez/MicrobeAnnotator"
-  license: UNKNOWN
-  license_family: OTHER
-  license_file: 
+  license: Artistic Licence 2.0
+  license_file: LICENSE
   summary: "A user friendly microbe genome annotation tool"
   doc_url: 
   dev_url: 
 
 extra:
   recipe-maintainers:
-    - your-github-id-here
+    - cruizperez
