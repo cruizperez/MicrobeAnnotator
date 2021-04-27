@@ -319,18 +319,19 @@ def database_duilder(
                 print(f"{file}:\t{path}")
         else:
             logger.info(f"Cleaning temporary files")
-            Path(database_files['Swissprot_annotations']).unlink()
-            Path(database_files['Swissprot_annotation_table']).unlink()
-            Path(database_files['TrEMBL_annotations']).unlink()
-            Path(database_files['TrEMBL_annotation_table']).unlink()
-            rmtree(str(database_files['RefSeq_GenBank']))
-            Path(database_files['RefSeq_annotation_table']).unlink()
-            del database_files['Swissprot_annotations']
-            del database_files['Swissprot_annotation_table']
-            del database_files['TrEMBL_annotations']
-            del database_files['TrEMBL_annotation_table']
-            del database_files['RefSeq_GenBank']
-            del database_files['RefSeq_annotation_table']
+            files_to_remove = [
+                'Swissprot_annotations', 'Swissprot_annotation_table',
+                'TrEMBL_annotations', 'TrEMBL_annotation_table',
+                'RefSeq_annotation_table']
+            folders_to_remove = ['RefSeq_GenBank']
+            temp_file_loc = database_files.copy()
+            for step_file in temp_file_loc.keys():
+                if step_file in files_to_remove:
+                    Path(database_files[step_file]).unlink()
+                    del database_files[step_file]
+                elif step_file in folders_to_remove:
+                    rmtree(str(database_files[step_file]))
+                    del database_files[step_file]
             logger.info(f"Finished")
             logger.info(
                 f"MicrobeAnnotator has finished creating your databases!\n"
@@ -339,7 +340,7 @@ def database_duilder(
             for file, path in database_files.items():
                 file = file.replace('_', ' ')
                 path = str(path)
-                print(f"{file}:\t{path}")
+                logger.info(f"{file}:\t{path}")
 # ==============================================================================
 
 
@@ -410,7 +411,8 @@ def main():
         '--keep_temp', dest='keep_temp', action='store_true', required=False,
         help='Keep intermediate files, (can increase disk requirement)')
     optional_arguments.add_argument(
-        '--version', action='version',  version='MicrobeAnnotator v{}'.format(version),
+        '--version', action='version', 
+        version='MicrobeAnnotator v{}'.format(version),
         help='Shows MicrobeAnnotator version')
     # If no arguments are provided
     if len(argv) == 1:
