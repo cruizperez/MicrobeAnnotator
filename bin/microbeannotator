@@ -596,13 +596,16 @@ def main():
     # ==========================================================================
     # If running complete pipeline search against refseq
     if process_step == 3:
-        if light == True:
-            logger.info(
-                "MicrobeAnnotator annotation has finished succesfully!")
-            logger.info("Summarizing results")
-            if temp_prot_folder.is_dir():
-                rmtree(temp_prot_folder)
-            process_step = 6
+        if light:
+            if refine:
+                process_step = 5
+            else:
+                logger.info(
+                    "MicrobeAnnotator annotation has finished succesfully!")
+                logger.info("Summarizing results")
+                if temp_prot_folder.is_dir():
+                    rmtree(temp_prot_folder)
+                process_step = 6
         else:
             logger.info("Searching proteins against RefSeq")
             # If we have a second iteration file then perform the searches
@@ -837,9 +840,12 @@ def main():
             logfile.write("{}".format(process_step))
         with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
             pickle.dump(protein_file_info, structure_file)
-    # ------------------------
+    # ==========================================================================
 
+
+    # ==========================================================================
     # Refine annotations with ids from other databases
+    # ==========================================================================
     if process_step == 5:
         if refine == False:
             process_step += 1
@@ -935,12 +941,14 @@ def main():
                 logfile.write("{}".format(process_step))
             with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
                 pickle.dump(protein_file_info, structure_file)
-            print("Done!")
-    # ------------------------
+    # ==========================================================================
 
+
+    # ==========================================================================
     # Parse annotation files and summarize them
+    # ==========================================================================
     if process_step == 6:
-        print("Extracting ko numbers and summarizing results...")
+        logger.info("Extracting ko numbers and summarizing results")
         annotation_files = []
         for information in protein_file_info.values():
             annotation_folder = information[1].parent
@@ -962,9 +970,13 @@ def main():
         metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
         metabolism_matrix_dropped_relabel, module_colors = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix)
         ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
-        print("MicrobeAnnotator has finished succefully!")
-    # ------------------------
+        logger.info("MicrobeAnnotator has finished succefully!")
+    # ==========================================================================
 
+
+# ==============================================================================
+# Run main function
+# ==============================================================================
 if __name__ == "__main__":
     main()
-
+# ==============================================================================
