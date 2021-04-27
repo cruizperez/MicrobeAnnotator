@@ -62,7 +62,7 @@ conda config --add channels cruizperez
 Then, create an environment for MicrobeAnnotator:
 
 ```bash
-conda create -n microbeannotator python=3.7 pip microbeannotator=2.0.4
+conda create -n microbeannotator python=3.7 pip microbeannotator=2.0.5
 ```
 
 Activate it:
