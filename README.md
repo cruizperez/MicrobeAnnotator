@@ -19,38 +19,34 @@ The iterative approach is composed of three or five main steps (depending on the
 - Summarize the metabolic potential using KEGG modules by extracting KO numbers associated with each match in the databases used. The summary output is a matrix with module completion and two plots showing module completeness per genome (see below).
 
 ## Citation
-MicrobeAnnotator: a user-friendly, comprehensive microbial genome annotation pipeline.
-https://doi.org/10.1101/2020.07.20.211847
+MicrobeAnnotator: a user-friendly, comprehensive functional annotation pipeline for microbial genomes
+https://doi.org/10.1186/s12859-020-03940-5
 
 ## Requirements:
 - Programs:
    - [Aspera Connect](https://downloads.asperasoft.com/connect2/)
-   - [KofamScan](https://github.com/takaram/kofam_scan)
-   - [HMMER](http://hmmer.org/) >= 3.1
-   - [Ruby](https://www.ruby-lang.org/en/) >= 2.5
-   - [GNU Parallel](https://www.gnu.org/software/parallel/)\
 Either (or if you prefer all):
-   - [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/) >= 2.2
-   - [Diamond](https://github.com/bbuchfink/diamond) >= 0.9
+   - [Blast](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/) >= 2.11.0
+   - [Diamond](https://github.com/bbuchfink/diamond) >= 2.0.9
    - [Sword](https://github.com/rvaser/sword) >= 1.0.4
-- Python >=3.6,<3.9
+- Python >=3.6,<3.8
 - Python Modules:
-   - matplotlib
-   - seaborn >= 0.10.1
-   - pandas
-   - argparse
-   - pathlib
-   - shutil
-   - subprocess
-   - gzip
-   - biopython
-   - sqlite3
-   - urllib
-   - pywget
+    - attrs ==20.3.0
+    - biopython ==1.78
+    - matplotlib ==3.4.1
+    - pandas ==1.2.4
+    - psutil ==5.8.0
+    - pywget ==3.2
+    - requests ==2.25.1
+    - seaborn ==0.11.1
+- Pip
+    - hmmer ==0.1.0
+
 
 ## Installation
 ### Conda Installation
-It appears we need a bunch of pre-requisites to run MicrobeAnnotator! No worries, their installation using Conda is quite easy. If you don't have Conda, you can install it as follows:
+It appears we need a bunch of pre-requisites to run MicrobeAnnotator! 
+The easiest way to install MicrobeAnnotator is using Conda. If you don't have Conda, you can install it as follows:
 1. Download Anaconda from https://www.anaconda.com/products/individual.
 2. Run `bash Anaconda-latest-Linux-x86_64.sh` and follow the installation instructions.
 3. Once installed you can run `conda -V`. You should get the version of conda that you installed.
@@ -66,27 +62,37 @@ conda config --add channels cruizperez
 Then, create an environment for MicrobeAnnotator:
 
 ```bash
-conda create -n microbeannotator microbeannotator blast hmmer ruby=2.5.1 parallel diamond sword seaborn biopython pywget
+conda create -n microbeannotator python=3.7 pip microbeannotator=2.0.4
 ```
 
-And activate it:
+Activate it:
 
 ```bash
 conda activate microbeannotator
 ```
 
-Both main scripts (microbeannotator and microbeannotator_db_builder) should be in your path ready for use!
-This should take care of most of the requirements except for Aspera Connect and KofamScan, which are a little more involved. Let's install those.
-
-### Pip Installation
-Once you have installed the pre-requisites to run MicrobeAnnotator, or if you already had them and you are not using Conda, you can install MicrobeAnnotator using pip:
+And then install the last dependecy using pip
 
 ```bash
-pip install microbeannotator
+pip install hmmer==0.1.0
+```
+
+Both main scripts (microbeannotator and microbeannotator_db_builder) should be in your path ready for use!
+This should take care of most of the requirements except for Aspera Connect which are a little more involved. Let's install those.
+
+### Pip Installation
+If you prefer to use pip you will need to install the dependencies manually and make sure they are available in PATH.
+Once you have installed the pre-requisites to run MicrobeAnnotator, you can install MicrobeAnnotator using pip:
+
+```bash
+pip install microbeannotator==2.0.4
 ```
 Both main scripts (microbeannotator and microbeannotator_db_builder) should be in your path ready for use!
 
 ### Aspera Connect
+While not required, Aspera Connect can help speed your data download process. If you don't install this,
+MicrobeAnnotator will use wget, but if you want to install it, here are the instructions.
+
 To install aspera in a Linux system follow (example with version 3.9.8.176272):
 
 ```bash
@@ -108,79 +114,12 @@ Now you have installed Aspera Connect!
 
 If you cannot install Aspera Connect for some reason, MicrobeAnnotator will use another method to download your data, no worries!
 
-### KofamScan
-First, let's create a folder to download KofamScan and the databases and files it needs (make sure you have enough space for this (~6Gb). Assume I am creating the folder in my user home `/home/[your_user]` (note your_user is a placeholder for your username). In addition, note that the version of kofamscan can change in the original location (for example kofam_scan-1.3.0.tar.gz becomes kofam_scan-1.4.0.tar.gz) and therefore you need to adjust your commands to reflect this:
-
-```bash
-mkdir kofamscan
-cd kofamscan
-wget ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz
-wget ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz
-wget ftp://ftp.genome.jp/pub/tools/kofam_scan/kofam_scan-1.3.0.tar.gz
-
-# Decompress and untar:
-gunzip ko_list.gz
-tar xvfz profiles.tar.gz
-tar xvfz kofamscan-1.3.0.tar.gz
-cd kofamscan-1.3.0
-```
-
-When you decompress and enter the kofamscan-1.3.0 folder you will find a `config-template.yml` file, which is required for KofamScan to find the databases. We need to copy it and modify by adding the correct paths to the database we just downloaded.
-
-```bash
-cp config-template.yml config.yml
-```
-
-Open with your favorite text editor: `vim config.yml`
-
-You will see something like this:
-```yaml
-# Path to your KO-HMM database
-# A database can be a .hmm file, a .hal file or a directory in which
-# .hmm files are. Omit the extension if it is .hal or .hmm file
-# profile: /path/to/your/profile/db
-
-# Path to the KO list file
-# ko_list: /path/to/your/kolist/file
-
-# Path to an executable file of hmmsearch
-# You do not have to set this if it is in your $PATH
-# hmmsearch: /usr/local/bin/hmmsearch
-
-# Path to an executable file of GNU parallel
-# You do not have to set this if it is in your $PATH
-# parallel: /usr/local/bin/parallel
-
-# Number of hmmsearch processes to be run parallelly
-cpu: 8
-```
-
-This is the information we need to edit with the path to the folder where we downloaded the data:
-In this example we will replace: `# profile: /path/to/your/profile/db` by `profile: /home/[your_user]/kofamscan/profiles/prokaryote`
-
-NOTE: If you need to perform Eukaryote searches, you can change the "prokaryote" part by "eukaryote".
-
-Next, we replace: `# ko_list: /path/to/your/kolist/file` by `ko_list: /home/[your_user]/kofamscan/ko_list`
-
-And, given that we have already installed hmmer and parallel earlier we can ignore the other lines.
-Finally, you can either add the KofamScan location folder to your $PATH as before with Aspera Connect or later pass it to MicrobeAnnotator when running.
-
-Now, KofamScan is ready to be used! You can test it by running `./exec_annotation -h`.
-
-### Downloading MicrobeAnnotator
-Next, we need to download MicrobeAnnotator:
-
-```bash
-git clone https://github.com/cruizperez/MicrobeAnnotator.git
-```
-
-This should download the program in the folder you are in and everything should be good to go! :)
 
 ## Usage
 ### Database creation
-First things first. There are two "flavors" of MicrobeAnnotator depending on your storage and computational capabilities (and your time); the regular and light versions.
-The difference between the two is that the regular implementation will make use of four different databases to annotate your proteins, i.e., the KofamScan database and the Swissprot, Trembl and RefSeq databases. On the other hand, the light version will only use KofamScan and Swissprot, which in most cases will annotate the majority of your proteins and will take way less time and space.\
-You can decide of course which version to run at any time, but for the time being let's have an example with the full version (to run the light version just add the `--light` flag when calling the script.
+First things first. There are two "flavors" of MicrobeAnnotator depending on your storage and computational capabilities (and your time); the regular and light mode.
+The difference between the two is that the regular implementation will make use of four different databases to annotate your proteins, i.e., the Kofam database and the Swissprot, Trembl and RefSeq databases. On the other hand, the light mode will only use Kofam and Swissprot, which in most cases will annotate the majority of your proteins and will take way less time and space.\
+You can decide of course which version to run at any time, but for the time being let's have an example with the normal mode (to run the light version just add the `--light` flag when calling the script).
 
 The first step is to download and format the databases we want to use for MicrobeAnnotator. For this we will execute the `microbeannotator_db_builder` script within the MicrobeAnnotator folder. You can add see all options and inputs for the script with  `microbeannotator_db_builder -h`.\
 Run the script as:\
@@ -194,19 +133,19 @@ The options we gave the script were:\
 `--keep` will tell MicrobeAnnotator to not remove intermediary files (not recommended because it's not necessary and it will take more of your disk space.
 
 If you run the full version (no `--light` flag), you will need at least approximately ~230Gb of space. This can increase depending on the search method used (blast and diamond require the raw fasta databases to be further formated).
-If everything went right, you should find inside the MicrobeAnnotator_DB folder, a directory `01.Protein_DB` and a file `02.MicrobeAnnotator.db` that contain all information required by the program to search your proteins against these databases.
+If everything went right, you should find inside the MicrobeAnnotator_DB folder, a directory `protein_db` and two files, `microbeannotator.db` and `conversion.db` that contain all information required by the program to search your proteins against these databases.
 If anything went wrong, or if you changed your mind about your searching method after it finished, you can restart the process at any step with the `--step` flag, the help will tell you which are the steps.
 
 ### Annotation
 This is the main part of MicrobeAnnotator. Here you will search the proteins you provide against the databases we created before and you will receive an annotation table per protein file along with the individual results per database used (in case you want to further explore those), a matrix summarizing the KEGG module completeness and two plots showing said module completeness for an easy, visual comparison between genomes (or files).\
 This implies that you can pass multiple protein fasta files to MicrobeAnnotator and they will all be processed in a single script! Awesome right?\
-For this annotation step we will use the `MicrobeAnnotator` script (see `/path/to/MicrobeAnnotator -h` for all options).\
+For this annotation step we will use the `microbeAnnotator` script (see `microbeAnnotator -h` for all options).\
 Run the script as:\
-`microbeannotator -i [fasta_1.fa fasta_2.fa] -d /path/to/MicrobeAnnotator -o [output folder] -m [blast,diamond,sword] -p [# processes] -t [# threads]`\
+`microbeannotator -i [fasta_1.fa fasta_2.fa] -d [microbeannotator_db_dir] -o [output folder] -m [blast,diamond,sword] -p [# processes] -t [# threads]`\
 The options we gave the script were:\
 `-i [fasta_1.fa fasta_2.fa]`, the input fasta files (separated by spaces). If you have many, you can pass them as `-i $(ls *.fasta)`.\
 `-l [file]`, a file containing the files to process. If you have many files it is easier compared to `-i`\
-`-d /path/to/MicrobeAnnotator_DB`, the folder where you created the databases in the previous step.\
+`-d [microbeannotator_db_dir]`, the folder where you created the databases in the previous step.\
 `-o [output folder]`, the folder to store all results generated by MicrobeAnnotator.\
 `-m [blast,diamond,sword]` the search method you intend to use.\
 `-p [# processes]`, refers to the number of protein files to be processed simultaneously, e.g `-p 3` will process three protein files at the same time.\
