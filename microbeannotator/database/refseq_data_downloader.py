@@ -275,7 +275,7 @@ def get_aspera_key() -> str:
     """
     path_to_ascp = which("ascp")
     install_folder = Path(path_to_ascp).parents[1]
-    key = str(Path(install_folder) / "/etc/asperaweb_id_dsa.openssh")
+    key = f"{install_folder}/etc/asperaweb_id_dsa.openssh"
     
     return key
 
