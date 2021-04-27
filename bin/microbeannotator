@@ -154,8 +154,6 @@ def main():
     search_options = parser.add_argument_group('Options for search process.')
     search_options.add_argument('-m', '--method', dest='method', action='store', required=True,
                         help='Method used to create databases and to perform seaches. One of "blast", "diamond" or "sword".')
-    search_options.add_argument('--kofam_bin', dest='kofam_bin', action='store', required=False, default=None,
-                        help='Directory where KOFamscan binaries are located. By default assumes it is in PATH.')
     search_options.add_argument('--method_bin', dest='method_bin', action='store', required=False, default=None,
                         help='Directory where search method binaries (blast, diamond, sword) are located. By default assumes it is in PATH.')
     search_options.add_argument('--id_perc', dest='id_perc', action='store', required=False, default=40, type=int,
@@ -215,7 +213,6 @@ def main():
     database = args.database
     method = args.method
     method = method.lower()
-    kofam_bin = args.kofam_bin
     method_bin = args.method_bin
     id_perc = args.id_perc
     bitscore = args.bitscore
@@ -236,7 +233,7 @@ def main():
     # ==========================================================================
     # Welcome message
     # ==========================================================================
-    logger.info(f" --- This is MicrobeAnnotator v{version} --- ")
+    logger.info(f" ---- This is MicrobeAnnotator v{version} ---- ")
     # ==========================================================================
 
     # ==========================================================================
@@ -355,8 +352,12 @@ def main():
             # Map proteins to hmm models
             protein_to_model = hmmsearch.protein_to_model_mapper(
                 [protein_file], refdata.ko_hmm_models)
-            # Set output
+            # Set output and append to structure dictionary
             outfile = kofam_outdir / (Path(protein_file).name + '.kofam')
+            # Structure per file:
+            # protein_file : [protein_file_name, final_annotation_file,
+            # kofam_results]
+            protein_file_info[protein_file].append(outfile)
             # Perform hmmsearch and filter results
             hmmsearch_results, annotated_proteins, \
                 hypothetical_proteins = hmmsearch.hmmsearch_launcher(
@@ -369,7 +370,6 @@ def main():
                 hmmsearch_results, protein_file_info[protein_file][1])
             # Set filename for next Fasta file and add to protein_file_info
             next_fasta = temp_prot_folder / f"{starting_filename}.step_2"
-            protein_file_info[protein_file].append(next_fasta)
             # Remove annotated and hypothetical from unannotated list
             unannotated_proteins[starting_filename] = list(
                 set(unannotated_proteins[starting_filename])
@@ -384,15 +384,27 @@ def main():
                 starting_proteins[starting_filename] = list(
                     set(starting_proteins[starting_filename])
                     - set(annotated_proteins))
-                filterfasta.fastA_filter_list(
-                    protein_file, next_fasta,
-                    starting_proteins[starting_filename], reverse=True)
-        # When the process is complete, write step completed (+1) in the log folder
-        # Also, export dictionary with information to be imported in case of continue
+                # If there are proteins without KO in starting_proteins
+                if len(starting_proteins[starting_filename]) > 0:
+                    # Filter fasta file and store into next file
+                    to_retain = starting_proteins[starting_filename].copy()
+                    filterfasta.fastA_filter_list(
+                        protein_file, next_fasta,
+                        to_retain, reverse=False)
+                    # Structure per file:
+                # protein_file : [protein_file_name, final_annotation_file,
+                # kofam_results, fasta_setp_2]
+                protein_file_info[protein_file].append(next_fasta)
+            
+            
+        # When the process is complete, write step completed (+1)
+        # in the log folder. Also, export dictionary with information
+        # to be imported in case of continue
         process_step += 1
         with open(process_log_folder / "log.txt", 'w') as logfile:
-            logfile.write("{}".format(process_step))
-        with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
+            logfile.write(f"{process_step}")
+        with open(process_log_folder / "structure.pickle", 'wb') \
+            as structure_file:
             pickle.dump(protein_file_info, structure_file)
     # ==========================================================================
 
@@ -403,300 +415,428 @@ def main():
         logger.info("Searching proteins against Swissprot")
         # Get location of this step fasta files (.step_2)
         input_proteins = []
-        for infor in protein_file_info.values():
-            input_proteins.append(infor[-1])
-        # Perform searches
-        try:
-            pool = multiprocessing.Pool(processes)
-            arguments_to_pass = (
-                outdir, 'swissprot', refdata.swissprot_db, method,
-                threads, id_perc, bitscore, evalue, aln_percent, method_bin)
-            search_results = pool.map(partial(search.similarity_search,
-            multiple_arguments=arguments_to_pass), input_proteins)
-            # Results as (protein_file, filtered_search_file)
-        finally:
-            pool.close()
-            pool.join()
-        # Add name of filtered_search_results to protein_file_info
-        # New structure: 
-        # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File]
-        temp_dir = protein_file_info.copy()
-        for result in search_results:
-            for filename, info in temp_dir.items():
-                if result[0] == info[2]:
-                    protein_file_info[filename].append(result[1])
-        del temp_dir
+        for information in protein_file_info.values():
+            if len(information) == 4:
+                input_proteins.append(information[-1])
+        if len(input_proteins) > 0:
+            # Perform searches
+            try:
+                pool = multiprocessing.Pool(processes)
+                arguments_to_pass = (
+                    outdir, 'swissprot', refdata.swissprot_db, method,
+                    threads, id_perc, bitscore, evalue, aln_percent, method_bin)
+                search_results = pool.map(partial(search.similarity_search,
+                multiple_arguments=arguments_to_pass), input_proteins)
+                # Results as (protein_file, filtered_search_file)
+            finally:
+                pool.close() 
+                pool.join()
+            # Add name of filtered_search_results to protein_file_info
+            # New structure:
+            # protein_file : [protein_file_name, final_annotation_file,
+            # kofam_results, fasta_step_2, Swissprot_Search_File]
+            temp_dir = protein_file_info.copy()
+            for result in search_results:
+                for filename, info in temp_dir.items():
+                    if result[0] == info[3]:
+                        protein_file_info[filename].append(result[1])
+            del temp_dir
 
-        # Search annotations in SQLite DB and append to the final annotation file
-        print("Extracting Swissprot annotation data...")
+        # Search annotations in SQLite DB and
+        # append to the final annotation file
+        logger.info("Extracting Swissprot annotation data")
         for original_file, information in protein_file_info.items():
-            filtered_sword_results = information[3]
+            if len(information) != 5:
+                continue
+            starting_filename = information[0]
+            filtered_results = information[4]
             final_annotation_file = information[1]
             significant_hits = []
-            with open(filtered_sword_results) as swissprot_results:
+            with open(filtered_results) as swissprot_results:
                 for line in swissprot_results:
                     line = line.strip().split()
                     significant_hits.append((line[0], line[1]))
             if len(significant_hits) == 0:
                 # If no hits were found
-                if light == True:
+                if light:
                     # Write all the proteins without annotation
-                    with open(final_annotation_file, 'a') as final_annotation_fh:
-                        for original_protein in unannotated_proteins[str(Path(original_file).name)]:
-                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                    with open(final_annotation_file, 'a') as annotation_fh:
+                        for original_protein in \
+                            unannotated_proteins[starting_filename]:
+                            annotation_fh.write(
+                                f"{original_protein}\tNA\tNo match found\t"
+                                f"NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n")
                 else:
                     # Copy the first iteration proteins to the second iteration file
-                    second_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".step_3"))
-                    copyfile(protein_file_info[original_file][2],second_it_outfile)
-                    protein_file_info[original_file].append(second_it_outfile)
+                    next_fasta = temp_prot_folder / f"{starting_filename}.step_3"
+                    copyfile(protein_file_info[original_file][3], next_fasta)
+                    # protein_file : [protein_file_name, final_annotation_file,
+                    # kofam_results, fasta_step_2, Swissprot_Search_File,
+                    # fasta_step_3]
+                    protein_file_info[original_file].append(next_fasta)
             else:
                 # Extract the annotations
-                annotation = sqlite3_search.search_ids_imported(refdata.microbeannotator_db, "swissprot", significant_hits)
+                annotation = sqlite3_search.search_ids_imported(
+                    refdata.microbeannotator_db, "swissprot", significant_hits)
                 # Each annotation will have:
-                # query_id gene_id accession product ko_number organism taxonomy function_GO compartment_GO process_GO interpro_id pfam_id EC_number
-                if light == True:
+                # query_id gene_id accession product ko_number organism taxonomy
+                # function_GO compartment_GO process_GO interpro_id pfam_id
+                # EC_number
+                if light:
                     # Write the annotations found in the annotation file
-                    with open(final_annotation_file, 'a') as final_annotation_fh:
+                    with open(final_annotation_file, 'a') as annotation_fh:
                         for match in annotation:
-                            final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
-                            match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
+                            annotation_fh.write(
+                                f"{match[0]}\t{match[1]}\t{match[3]}\t"
+                                f"{match[4]}\tNA\t{match[6]}\t{match[7]}\t"
+                                f"{match[8]}\t{match[9]}\t{match[10]}\t"
+                                f"{match[11]}\t{match[12]}\tswissprot\n")
+                            # If match has KO number remove from starting
+                            # and unannotated proteins
                             if match[4] != "" and match[4] != "NA":
-                                starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                    unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                try:
+                                    starting_proteins[
+                                        starting_filename].remove(match[0])
+                                except ValueError:
+                                    pass
+                                try:
+                                    unannotated_proteins[
+                                        starting_filename].remove(match[0])
+                                except ValueError:
+                                    pass
+                            # If it has annotation but not KO, remove
+                            # from unannotated proteins only
                             elif match[3] != "":
-                                if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                    unannotated_proteins[str(Path(original_file).name)].remove(match[0])
+                                try:
+                                    unannotated_proteins[
+                                        starting_filename].remove(match[0])
+                                except ValueError:
+                                    pass
                     # Check which proteins were not annotated and add information on those
                     # Extract annotated proteins
-                    with open(final_annotation_file, 'a') as final_annotation_fh:
-                        for original_protein in unannotated_proteins[str(Path(original_file).name)]:
-                            final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
+                    with open(final_annotation_file, 'a') as annotation_fh:
+                        for original_protein in \
+                            unannotated_proteins[starting_filename]:
+                            annotation_fh.write(
+                                f"{original_protein}\tNA\tNo match found\t"
+                                f"NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n")
                 else:
                     # Write the annotations found in the annotation file
-                    with open(final_annotation_file, 'a') as final_annotation_fh:
+                    with open(final_annotation_file, 'a') as annotation_fh:
                         for match in annotation:
-                            final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\tswissprot\n".format(match[0],
-                            match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
-                            if full == False:
-                                if match[4] != "" and match[4] != "NA":
-                                    # Remove record with KO from those passing to the next step and the final list of unannotated
-                                    starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                elif match[3] != "":
-                                    # If match is annotated remove from final list
-                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                            else: # Remove annotated from the final unannotated list
+                            annotation_fh.write(
+                                f"{match[0]}\t{match[1]}\t{match[3]}\t"
+                                f"{match[4]}\tNA\t{match[6]}\t{match[7]}\t"
+                                f"{match[8]}\t{match[9]}\t{match[10]}\t"
+                                f"{match[11]}\t{match[12]}\tswissprot\n")
+                            if full:
+                            # Remove annotated from the final unannotated list
                                 if match[3] != "":
-                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                    # Check which proteins were not annotated and filter for the next iteration
-                    second_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".step_3"))
-                    if full == True:
-                        copyfile(protein_file_info[original_file][2],second_it_outfile)
-                        protein_file_info[original_file].append(second_it_outfile)
+                                    try:
+                                        unannotated_proteins[
+                                            starting_filename].remove(match[0])
+                                    except ValueError:
+                                        continue
+                            else:
+                                # Remove annotations with KO from starting and
+                                # unannotated proteins
+                                if match[4] != "" and match[4] != "NA":
+                                    try:
+                                        starting_proteins[
+                                            starting_filename].remove(match[0])
+                                    except ValueError:
+                                        continue
+                                    try:
+                                        unannotated_proteins[
+                                            starting_filename].remove(match[0])
+                                    except ValueError:
+                                        continue
+                                # If it has annotation but not KO, remove
+                                # from unannotated proteins only
+                                elif match[3] != "":
+                                    try:
+                                        unannotated_proteins[
+                                            starting_filename].remove(match[0])
+                                    except ValueError:
+                                        continue
+                    # Check which proteins were not annotated and filter
+                    # for the next iteration
+                    next_fasta = temp_prot_folder / (
+                        f"{starting_filename}.step_3")
+                    if full:
+                        copyfile(protein_file_info[original_file][3], next_fasta)
+                        # protein_file : [protein_file_name, final_annotation_file,
+                        # kofam_results, fasta_step_2, Swissprot_Search_File,
+                        # fasta_step_3]
+                        protein_file_info[original_file].append(next_fasta)
                     else:
-                        protein_file_info[original_file].append(second_it_outfile)
-                        to_retain = starting_proteins[str(Path(original_file).name)].copy()
-                        filterfasta.fastA_filter_list(protein_file_info[original_file][2], 
-                        second_it_outfile, to_retain, reverse=False)
-                        # starting_proteins[str(Path(original_file).name)]
-                    # New structure: 
-                    # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
-                    # filtered_fasta_2it]
+                        if len(starting_proteins[starting_filename]) > 0:
+                            to_retain = starting_proteins[
+                                starting_filename].copy()
+                            filterfasta.fastA_filter_list(
+                                protein_file_info[original_file][3],
+                                next_fasta, to_retain, reverse=False)
+                            # protein_file : [protein_file_name, final_annotation_file,
+                            # kofam_results, fasta_step_2, Swissprot_Search_File,
+                            # fasta_step_3]
+                            protein_file_info[original_file].append(next_fasta)
+        # When the process is complete, write step completed (+1)
+        # in the log folder. Also, export dictionary with information
+        # to be imported in case of continue
+        process_step += 1
+        with open(process_log_folder / "log.txt", 'w') as logfile:
+            logfile.write(f"{process_step}")
+        with open(process_log_folder / "structure.pickle", 'wb') \
+            as structure_file:
+            pickle.dump(protein_file_info, structure_file)
+    # ==========================================================================
+    
+    # ==========================================================================
+    # Perform RefSeq searches
+    # ==========================================================================
+    # If running complete pipeline search against refseq
+    if process_step == 3:
+        if light == True:
+            logger.info(
+                "MicrobeAnnotator annotation has finished succesfully!")
+            logger.info("Summarizing results")
+            if temp_prot_folder.is_dir():
+                rmtree(temp_prot_folder)
+            process_step = 6
+        else:
+            logger.info("Searching proteins against RefSeq")
+            # If we have a second iteration file then perform the searches
+            # against refseq
+            input_proteins = []
+            for infor in protein_file_info.values():
+                if len(infor) == 6:
+                    input_proteins.append(infor[-1])
+            if len(input_proteins) > 0:
+                try:
+                    pool = multiprocessing.Pool(processes)
+                    arguments_to_pass = (
+                        outdir, 'refseq', refdata.refseq_db, method, threads,
+                        id_perc, bitscore, evalue, aln_percent, method_bin)
+                    search_results = pool.map(partial(search.similarity_search,
+                    multiple_arguments=arguments_to_pass), input_proteins)
+                    # Results as (protein_file, filtered_search_file)
+                finally:
+                    pool.close()
+                    pool.join()
+            # Add name of filtered_search_results to protein_file_info
+            # New structure:
+            # protein_file : [protein_file_name, final_annotation_file,
+            # kofam_results, fasta_step_2, Swissprot_Search_File,
+            # fasta_step_3, RefSeq_Search_File]
+            temp_dir = protein_file_info.copy()
+            for result in search_results:
+                for filename, info in temp_dir.items():
+                    if len(info) == 6 and result[0] == info[5]:
+                        protein_file_info[filename].append(result[1])
+            del temp_dir
+            # Search annotations in SQLite DB and
+            # append to the final annotation file
+            logger.info("Extracting RefSeq annotation data")
+            for original_file, information in protein_file_info.items():
+                if len(information) != 7:
+                    continue
+                starting_filename = information[0]
+                filtered_results = information[6]
+                final_annotation_file = information[1]
+                significant_hits = []
+                with open(filtered_results) as refseq_results:
+                    for line in refseq_results:
+                        line = line.strip().split()
+                        significant_hits.append((line[0], line[1]))
+                # If no hits were found
+                if len(significant_hits) == 0:
+                    next_fasta = temp_prot_folder / (
+                        f"{starting_filename}.step_4")
+                    copyfile(protein_file_info[original_file][4],next_fasta)
+                    # protein_file : [protein_file_name, final_annotation_file,
+                    # kofam_results, fasta_step_2, Swissprot_Search_File,
+                    # fasta_step_3, RefSeq_Search_File, fasta_step_4]
+                    protein_file_info[original_file].append(next_fasta)
+                else:
+                    # Extract the annotations
+                    annotation = sqlite3_search.search_ids_imported(
+                        refdata.microbeannotator_db, "refseq", significant_hits)
+                    # Each annotation will have:
+                    # query_id gene_id product taxonomy ko_number ko_product
+                    # Write the annotations found in the annotation file
+                    with open(final_annotation_file, 'a') as annotation_fh:
+                        for match in annotation:
+                            annotation_fh.write(
+                                f"{match[0]}\t{match[1]}\t{match[2]}\t"
+                                f"{match[5]}\t{match[6]}\t{match[3]}\t"
+                                f"NA\tNA\tNA\tNA\tNA\t{match[4]}\trefseq\n")
+                            if full:
+                                if match[2] != "":
+                                    try:
+                                        unannotated_proteins[
+                                        starting_filename].remove(match[0])
+                                    except ValueError:
+                                        continue
+                            else:
+                                # Remove annotations with KO from starting and
+                                # unannotated proteins
+                                if match[4] != "" and match[4] != "NA":
+                                    try:
+                                        starting_proteins[
+                                        starting_filename].remove(match[0])
+                                    except ValueError:
+                                        continue
+                                    try:
+                                        unannotated_proteins[
+                                            starting_filename].remove(
+                                                match[0])
+                                    except ValueError:
+                                        continue
+                                # If it has annotation but not KO, remove
+                                # from unannotated proteins only
+                                elif match[2] != "":
+                                    try:
+                                        unannotated_proteins[
+                                        starting_filename].remove(match[0])
+                                    except ValueError:
+                                        continue
+                    # Check which proteins were not annotated and filter
+                    # for the next iteration
+                    next_fasta = temp_prot_folder / (
+                        f"{starting_filename}.step_4")
+                    if full == True:
+                        copyfile(
+                            protein_file_info[original_file][5],
+                            next_fasta)
+                        # protein_file : [protein_file_name, final_annotation_file,
+                        # kofam_results, fasta_step_2, Swissprot_Search_File,
+                        # fasta_step_3, RefSeq_Search_File, fasta_step_4]
+                        protein_file_info[original_file].append(next_fasta)  
+                    else:
+                        if len(starting_proteins[starting_filename]) > 0:
+                            to_retain = starting_proteins[
+                                starting_filename].copy()
+                            filterfasta.fastA_filter_list(
+                                protein_file_info[original_file][5], 
+                                next_fasta, to_retain, reverse=False)
+                            protein_file_info[original_file].append(next_fasta)
+            # When the process is complete, write step completed (+1)
+            # in the log folder. Also, export dictionary with information
+            # to be imported in case of continue  
+            process_step += 1
+            with open(process_log_folder / "log.txt", 'w') as logfile:
+                logfile.write("{}".format(process_step))
+            with open(process_log_folder / "structure.pickle", 'wb') \
+                as structure_file:
+                pickle.dump(protein_file_info, structure_file)
+    # ==========================================================================
+
+
+    # ==========================================================================
+    # Perform TrEMBL searches
+    # ==========================================================================
+        # Finally run remaining proteins against Trembl
+    if process_step == 4:
+        logger.info("Searching proteins against Trembl")
+        input_proteins = []
+        for infor in protein_file_info.values():
+            if len(infor) == 8:
+                input_proteins.append(infor[-1])
+        if len(input_proteins) > 0:
+            try:
+                pool = multiprocessing.Pool(processes)
+                arguments_to_pass = (
+                    outdir, 'trembl', refdata.trembl_db, method, threads,\
+                    id_perc, bitscore, evalue, aln_percent, method_bin)
+                search_results = pool.map(partial(search.similarity_search,
+                multiple_arguments=arguments_to_pass), input_proteins)
+                # Results as (protein_file, filtered_search_file)
+            finally:
+                pool.close()
+                pool.join()
+        # Add name of filtered_search_results to protein_file_info
+        # New structure:
+        # protein_file : [protein_file_name, final_annotation_file,
+        # kofam_results, fasta_step_2, Swissprot_Search_File,
+        # fasta_step_3, RefSeq_Search_File, fasta_step_4, Trembl_Search_File]
+        temp_dir = protein_file_info.copy()
+        for result in search_results:
+            for filename, info in temp_dir.items():
+                if len(info) == 8 and result[0] == info[6]:
+                    protein_file_info[filename].append(result[1])
+        del temp_dir
+        # Search annotations in SQLite DB and
+        # append to the final annotation file
+        logger.info("Extracting Trembl annotation data")
+        for original_file, information in protein_file_info.items():
+            if len(information) != 9:
+                continue
+            starting_filename = information[0]
+            filtered_results = information[8]
+            final_annotation_file = information[1]
+            significant_hits = []
+            with open(filtered_results) as trembl_results:
+                for line in trembl_results:
+                    line = line.strip().split()
+                    significant_hits.append((line[0], line[1]))
+            # If no hits were found
+            if len(significant_hits) == 0:
+                with open(final_annotation_file, 'a') as annotation_fh:
+                    for original_protein in unannotated_proteins[
+                        starting_filename]:
+                        annotation_fh.write(
+                            f"{original_protein}\tNA\tNo match found\tNA\t"
+                            f"NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n")
+            else:
+                annotation = sqlite3_search.search_ids_imported(
+                    refdata.microbeannotator_db, "trembl", significant_hits)
+                # Each annotation will have:
+                # query_id gene_id accession product ko_number organism taxonomy
+                # function_GO compartment_GO process_GO interpro_id pfam_id
+                # EC_number
+                with open(final_annotation_file, 'a') as annotation_fh:
+                    for match in annotation:
+                        annotation_fh.write(
+                            f"{match[0]}\t{match[1]}\t{match[3]}\t{match[4]}\t"
+                            f"NA\t{match[6]}\t{match[7]}\t{match[8]}\t"
+                            f"{match[9]}\t{match[10]}\t{match[11]}\t"
+                            f"{match[12]}\ttrembl\n")
+                        if match[4] != "" and match[4] != "NA":
+                            # If match has KO number remove from starting
+                            # and unannotated proteins
+                            try:
+                                starting_proteins[
+                                    starting_filename].remove(match[0])
+                            except ValueError:
+                                continue
+                            try:
+                                unannotated_proteins[
+                                    starting_filename].remove(match[0])
+                            except ValueError:
+                                continue
+                        # If it has annotation but not KO, remove
+                        # from unannotated proteins only
+                        elif match[3] != "":
+                            try:
+                                unannotated_proteins[
+                                    starting_filename].remove(match[0])
+                            except ValueError:
+                                continue
+                with open(final_annotation_file, 'a') as annotation_fh:
+                    for original_protein in unannotated_proteins[
+                        starting_filename]:
+                        annotation_fh.write(
+                            f"{original_protein}\tNA\tNo match found\tNA\t"
+                            f"NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n")
+        if temp_prot_folder.is_dir():
+            rmtree(temp_prot_folder)
         # When the process is complete, write step completed (+1) in the log folder
-        # Also, export dictionary with information to be imported in case of continue
+        # Also, export dictionary with information to be imported in case of continue  
         process_step += 1
         with open(process_log_folder / "log.txt", 'w') as logfile:
             logfile.write("{}".format(process_step))
         with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
             pickle.dump(protein_file_info, structure_file)
-        # -----------------------
-    
-    
-    
-    # If running complete pipeline search against refseq
-    if process_step == 3:
-        if light == True:
-            print("The light run of MicrobeAnnotator had finished succesfully!")
-            print("Summarizing results...")
-            process_step = 6
-        else:
-            print("Searching proteins against RefSeq...")
-            # If we have a second iteration file then perform the searches againts refseq
-            input_proteins = []
-            for infor in protein_file_info.values():
-                if len(infor) == 5:
-                    input_proteins.append(infor[-1])
-            if len(input_proteins) > 0:
-                try:
-                    pool = multiprocessing.Pool(processes)
-                    arguments_to_pass = (outdir, 'refseq', refdata.refseq_db, method,
-                                        threads, id_perc, bitscore, evalue, aln_percent, method_bin)
-                    search_results = pool.map(partial(search.similarity_search,
-                    multiple_arguments=arguments_to_pass), input_proteins)
-                    # Results as (protein_file, filtered_search_file)
-                finally:
-                    pool.close()
-                    pool.join()
-            # Add name of filtered_search_results to protein_file_info
-            # New structure: 
-            # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
-            # filtered_fasta_2it, RefSeq_Search_File]
-            temp_dir = protein_file_info.copy()
-            for result in search_results:
-                for filename, info in temp_dir.items():
-                    if len(info) == 5 and result[0] == info[4]:
-                        protein_file_info[filename].append(result[1])
-            del temp_dir
-            # --------------------------
-
-            # Search annotations in SQLite DB and append to the final annotation file
-            print("Extracting RefSeq annotation data...\n")
-            for original_file, information in protein_file_info.items():
-                if len(information) == 6:
-                    filtered_sword_results = information[5]
-                    final_annotation_file = information[1]
-                    significant_hits = []
-                    with open(filtered_sword_results) as swissprot_results:
-                        for line in swissprot_results:
-                            line = line.strip().split()
-                            significant_hits.append((line[0], line[1]))
-                    # If no hits were found
-                    if len(significant_hits) == 0:
-                        third_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".3it"))
-                        copyfile(protein_file_info[original_file][4],third_it_outfile)
-                        protein_file_info[original_file].append(third_it_outfile)
-                    else:
-                        annotation = sqlite3_search.search_ids_imported(refdata.microbeannotator_db, "refseq", significant_hits)
-                        # Each annotation will have:
-                        # query_id gene_id product taxonomy ko_number ko_product
-                        # Write the annotations found in the annotation file
-
-                        with open(final_annotation_file, 'a') as final_annotation_fh:
-                            for match in annotation:
-                                final_annotation_fh.write("{}\t{}\t{}\t{}\t{}\t{}\tNA\tNA\tNA\tNA\tNA\t{}\trefseq\n".format(match[0],
-                                match[1], match[2], match[5], match[6], match[3], match[4]))
-                                if full == False:
-                                    if match[5] != "" and match[5] != "NA":
-                                        # Remove record with KO from those passing to the next step and the final list of unannotated
-                                        starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                        if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                    elif match[2] != "":
-                                        # If match is annotated remove from final list
-                                        if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                else: # Remove annotated from the final unannotated list
-                                    if match[2] != "":
-                                        if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                            unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-
-                        # Check which proteins were not annotated and filter for the next iteration
-                        third_it_outfile = str(temp_prot_folder / (protein_file_info[original_file][0] + ".3it"))
-                        if full == True:
-                            copyfile(protein_file_info[original_file][4],third_it_outfile)
-                            protein_file_info[original_file].append(third_it_outfile)
-                        else:
-                            # Check if all annotations have ko numbers, if not, get ids to next round of iteration
-                            protein_file_info[original_file].append(third_it_outfile)
-                            to_retain = starting_proteins[str(Path(original_file).name)].copy()
-                            filterfasta.fastA_filter_list(protein_file_info[original_file][2], 
-                            third_it_outfile, to_retain, reverse=False)
-                            # New structure: 
-                            # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
-                            # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it]
-            # When the process is complete, write step completed (+1) in the log folder
-            # Also, export dictionary with information to be imported in case of continue  
-            process_step += 1
-            with open(process_log_folder / "log.txt", 'w') as logfile:
-                logfile.write("{}".format(process_step))
-            with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-                pickle.dump(protein_file_info, structure_file)
-        # --------------------------
-
-
-        # Finally run remaining proteins against Trembl
-    if process_step == 4:
-        if light == True:
-            print("The light run of MicrobeAnnotator had finished succesfully!")
-            print("Summarizing those results...")
-            process_step = 5
-        else:
-            print("Searching proteins against Trembl...\n")
-            input_proteins = []
-            for infor in protein_file_info.values():
-                if len(infor) == 7:
-                    input_proteins.append(infor[-1])
-            if len(input_proteins) > 0:
-                try:
-                    pool = multiprocessing.Pool(processes)
-                    arguments_to_pass = (outdir, 'trembl', refdata.trembl_db, method,
-                                        threads, id_perc, bitscore, evalue, aln_percent, method_bin)
-                    search_results = pool.map(partial(search.similarity_search,
-                    multiple_arguments=arguments_to_pass), input_proteins)
-                    # Results as (protein_file, filtered_search_file)
-                finally:
-                    pool.close()
-                    pool.join()
-            # Add name of filtered_search_results to protein_file_info
-            # New structure: 
-            # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
-            # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it, Trembl_Search_File]
-            temp_dir = protein_file_info.copy()
-            for result in search_results:
-                for filename, info in temp_dir.items():
-                    if len(info) == 7 and result[0] == info[6]:
-                        protein_file_info[filename].append(result[1])
-            del temp_dir
-            # --------------------------
-            # Search annotations in SQLite DB and append to the final annotation file
-            print("Extracting Trembl annotation data...\n")
-            for original_file, information in protein_file_info.items():
-                if len(information) == 8:
-                    filtered_sword_results = information[7]
-                    final_annotation_file = information[1]
-                    significant_hits = []
-                    with open(filtered_sword_results) as swissprot_results:
-                        for line in swissprot_results:
-                            line = line.strip().split()
-                            significant_hits.append((line[0], line[1]))
-                    if len(significant_hits) == 0:
-                        with open(final_annotation_file, 'a') as final_annotation_fh:
-                            for original_protein in unannotated_proteins[str(Path(original_file).name)]:
-                                final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-                    else:
-                        annotation = sqlite3_search.search_ids_imported(refdata.microbeannotator_db, "trembl", significant_hits)
-                        # Each annotation will have:
-                        # query_id gene_id product taxonomy ko_number ko_product
-                        with open(final_annotation_file, 'a') as final_annotation_fh:
-                            for match in annotation:
-                                final_annotation_fh.write("{}\t{}\t{}\t{}\tNA\t{}\t{}\t{}\t{}\t{}\t{}\t{}\ttrembl\n".format(match[0],
-                                match[1], match[3], match[4], match[6], match[7], match[8], match[9], match[10], match[11], match[12]))
-                                if match[4] != "" and match[4] != "NA":
-                                    # Remove record with KO from those passing to the next step and the final list of unannotated
-                                    starting_proteins[str(Path(original_file).name)].remove(match[0])
-                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                elif match[3] != "":
-                                    # If match is annotated remove from final list
-                                    if match[0] in unannotated_proteins[str(Path(original_file).name)]:
-                                        unannotated_proteins[str(Path(original_file).name)].remove(match[0])
-                                
-                        with open(final_annotation_file, 'a') as final_annotation_fh:
-                            for original_protein in unannotated_proteins[str(Path(original_file).name)]:
-                                final_annotation_fh.write("{}\tNA\tNo match found\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\n".format(original_protein))
-            if temp_prot_folder.is_dir():
-                rmtree(temp_prot_folder)
-            # When the process is complete, write step completed (+1) in the log folder
-            # Also, export dictionary with information to be imported in case of continue  
-            process_step += 1
-            with open(process_log_folder / "log.txt", 'w') as logfile:
-                logfile.write("{}".format(process_step))
-            with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
-                pickle.dump(protein_file_info, structure_file)
     # ------------------------
 
     # Refine annotations with ids from other databases
@@ -705,14 +845,18 @@ def main():
             process_step += 1
             with open(process_log_folder / "log.txt", 'w') as logfile:
                 logfile.write("{}".format(process_step))
-            with open(process_log_folder / "structure.pickle", 'wb') as structure_file:
+            with open(process_log_folder / "structure.pickle", 'wb') \
+                as structure_file:
                 pickle.dump(protein_file_info, structure_file)
         else:
             import pandas as pd
-            print("Improving annotations by searching matches in other databases...")
+            logger.info(
+                f"Improving annotations by searching matches "
+                f"in other databases")
             # Structure: 
-            # protein_file : [protein_file_name, final_annotation_file, filtered_fasta_1it, Swissprot_Search_File,
-            # filtered_fasta_2it, RefSeq_Search_File, filtered_fasta_3it, Trembl_Search_File]
+            # protein_file : [protein_file_name, final_annotation_file,
+            # kofam_results, fasta_step_2, Swissprot_Search_File,
+            # fasta_step_3, RefSeq_Search_File, fasta_step_4, Trembl_Search_File]
             final_annotation_files = []
             for information in protein_file_info.values():
                 final_annotation_files.append(str(information[1]))
