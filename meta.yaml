@@ -1,5 +1,5 @@
 {% set name = "microbeannotator" %}
-{% set version = "2.0.0" %}
+{% set version = "2.0.2" %}
 
 package:
   name: "{{ name|lower }}"
@@ -7,35 +7,32 @@ package:
 
 source:
   url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
-  sha256: 4887cbf773c273363c9337dd479569b7be70c7731bb0bcc7b06244c92a644b51
+  sha256: 075b18602261f89a8215d652a7b3887309955dc6a82bdc48490e517d7f3ac6da
 
 build:
   number: 0
-  entry_points:
-    - microbeannotator = microbeannotator:main
-    - microbeannotator_db_builder = microbeannotator_db_builder:main
   script: "{{ PYTHON }} -m pip install . -vv"
 
 requirements:
   build:
-    - setuptools_scm
     - setuptools
   host:
     - pip
-    - python=3.7.5
+    - python ==3.7.5
     - setuptools
-    - setuptools_scm
   run:
-    - biopython
+    - attrs ==20.3.0
+    - biopython ==1.78
     - blast ==2.11.0
     - diamond ==2.0.9
+    - matplotlib ==3.4.1
+    - pandas ==1.2.4
+    - psutil ==5.8.0
     - python ==3.7.5
     - pywget ==3.2
-    - sword ==1.0.4
-    - pandas ==1.2.4
-    - matplotlib ==3.4.1
+    - requests ==2.25.1
     - seaborn ==0.11.1
-    - psutil ==5.8.0
+    - sword ==1.0.4
 
 test:
   commands:
