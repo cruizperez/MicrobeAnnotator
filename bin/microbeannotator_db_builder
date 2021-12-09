@@ -46,7 +46,7 @@ logger = setup_logger(__name__)
 # Define functions
 # ==============================================================================
 # Function to coordinate the download and building of databases
-def database_duilder(
+def database_builder(
     database_directory: Path,
     method: str,
     light: bool,
@@ -55,6 +55,7 @@ def database_duilder(
     single_step: bool,
     aspera: bool,
     keep_temp: bool,
+    excludetrembl: bool,
     binary_path: Path = None
 ) -> None:
     """[summary]
@@ -138,10 +139,15 @@ def database_duilder(
     # Download TrEMBL Proteins
     if step == 6:
         logger.info(f"Step 6")
-        trembl_fasta = uniprot.trembl_fasta_downloader(database_directory)
-        database_files['TrEMBL_Fasta'] = str(trembl_fasta)
+        if excludetrembl:
+            logger.info("Skipping trEMBL steps (6-8)")
+        else:
+            trembl_fasta = uniprot.trembl_fasta_downloader(database_directory)
+            database_files['TrEMBL_Fasta'] = str(trembl_fasta)
         if single_step:
             step = 15
+        elif excludetrembl:
+            step = 9
         else:
             step += 1
     # Download TrEMBL Annotations
@@ -387,13 +393,13 @@ def main():
             f"Step to start with (Default 1). The possible steps are:\n"
             f"Step 1. Download KOfam profiles\n"
             f"Step 2. Parse KOfam profiles\n"
-            f"Step 3. Dowload Swissprot proteins\n"
+            f"Step 3. Download Swissprot proteins\n"
             f"Step 4. Download Swissprot annotations\n"
             f"Step 5. Process Swissprot annotations\n"
             f"Step 6. Dowload TrEMBL proteins\n"
             f"Step 7. Download TrEMBL annotations\n"
             f"Step 8. Process TrEMBL annotations\n"
-            f"Step 9. Dowload RefSeq proteins\n"
+            f"Step 9. Download RefSeq proteins\n"
             f"Step 10. Download RefSeq annotations\n"
             f"Step 11. Process RefSeq annotations\n"
             f"Step 12. Create SQLite annotation DB\n"
@@ -410,6 +416,9 @@ def main():
     optional_arguments.add_argument(
         '--keep_temp', dest='keep_temp', action='store_true', required=False,
         help='Keep intermediate files, (can increase disk requirement)')
+    optional_arguments.add_argument(
+        '--excludetrembl', dest='excludetrembl', action='store_true', required=False,
+                        help='Skip downloading trEMBL database (steps 7-9). Microbeannotator must be run with "--excludetrembl" afterwards to avoid missing DB errors.')
     optional_arguments.add_argument(
         '--version', action='version', 
         version='MicrobeAnnotator v{}'.format(version),
@@ -431,10 +440,11 @@ def main():
     aspera = arguments.aspera
     keep_temp = arguments.keep_temp
     single_step = arguments.single_step
+    excludetrembl = arguments.excludetrembl
     # Run functions
-    database_duilder(
+    database_builder(
         database, method, light, threads, step,
-        single_step, aspera, keep_temp, bin_path)
+        single_step, aspera, keep_temp, excludetrembl, bin_path)
 # ==============================================================================
 
 
