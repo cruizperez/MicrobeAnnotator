@@ -145,10 +145,17 @@ def refseq_fasta_downloader_wget(
                     f"{domain}/{filename}"
                 )
                 output = f"{str(temp_fasta_files)}/{filename}"
-                file_list.append((file_url, output))            
+                file_list.append((file_url, output)) 
+                  
+    # avoid re-downloading if the process was interrupted last time
+    filtered_filelist = []
+    for fl in file_list:
+        if not Path.is_file(Path(fl[1])):
+            filtered_filelist.append(fl)
+
     try:
         pool = multiprocessing.Pool(threads)
-        pool.map(refseq_multiprocess_downloader, file_list)
+        pool.map(refseq_multiprocess_downloader, filtered_filelist)
     finally:
         pool.close()
         pool.join()
