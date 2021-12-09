@@ -119,7 +119,7 @@ If you cannot install Aspera Connect for some reason, MicrobeAnnotator will use 
 ### Database creation
 First things first. There are two "flavors" of MicrobeAnnotator depending on your storage and computational capabilities (and your time); the regular and light mode.
 The difference between the two is that the regular implementation will make use of four different databases to annotate your proteins, i.e., the Kofam database and the Swissprot, Trembl and RefSeq databases. On the other hand, the light mode will only use Kofam and Swissprot, which in most cases will annotate the majority of your proteins and will take way less time and space.\
-You can decide of course which version to run at any time, but for the time being let's have an example with the normal mode (to run the light version just add the `--light` flag when calling the script).
+You can decide of course which version to run at any time, but for the time being let's have an example with the normal mode (to run the light version just add the `--light` flag when calling the script). You also have the option of only excluding trEMBL from the annotation process by adding the `--excludetrembl` flag.
 
 The first step is to download and format the databases we want to use for MicrobeAnnotator. For this we will execute the `microbeannotator_db_builder` script within the MicrobeAnnotator folder. You can add see all options and inputs for the script with  `microbeannotator_db_builder -h`.\
 Run the script as:\
