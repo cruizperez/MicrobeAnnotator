@@ -120,8 +120,8 @@ def refseq_fasta_downloader_wget(
     # Create required folders
     temp_fasta_files = Path(output_file_folder) / "temp_refseq_proteins"
     merged_db_folder = Path(output_file_folder) / "protein_db"
-    Path(temp_fasta_files).mkdir(parents=True, exist_ok=True)
-    Path(merged_db_folder).mkdir(parents=True, exist_ok=True)
+    temp_fasta_files.mkdir(parents=True, exist_ok=True)
+    merged_db_folder.mkdir(parents=True, exist_ok=True)
     # Get latest release for RefSeq and store it
     release_file = urllib.request.urlopen(
         "https://ftp.ncbi.nlm.nih.gov/refseq/release/RELEASE_NUMBER")
@@ -145,29 +145,44 @@ def refseq_fasta_downloader_wget(
                     f"{domain}/{filename}"
                 )
                 output = f"{str(temp_fasta_files)}/{filename}"
-                file_list.append((file_url, output)) 
-                  
+                file_list.append((file_url, output))
+
     # avoid re-downloading if the process was interrupted last time
     filtered_filelist = []
     for fl in file_list:
         if not Path.is_file(Path(fl[1])):
             filtered_filelist.append(fl)
-
+            
+    # Actually download the files
     try:
         pool = multiprocessing.Pool(threads)
         pool.map(refseq_multiprocess_downloader, filtered_filelist)
     finally:
         pool.close()
-        pool.join()
+        pool.join()   
+             
     # Merge downloaded files
-    logger.info("Merging protein files")
-    final_list = search_all_files(temp_fasta_files)
+    final_list = file_list
     refseq_proteins = merged_db_folder / "refseq_protein.fasta"
+    logger.info("Merging protein files")
     with open(refseq_proteins, 'w') as merged_db:
         for file in final_list:
-            with gzip.open(file, 'rt') as temp_file:
-                copyfileobj(temp_file,merged_db)
-                Path.unlink(file)
+            # Checks for errors here and redownloads if necessary
+            tries = 0; success = False
+            while (tries<5 and not success): 
+                try:
+                    with gzip.open(file[1], 'rt') as temp_file:
+                        copyfileobj(temp_file,merged_db)
+                        success = True
+                        Path.unlink(Path(file[1]))
+                except:
+                    print(str(file[1])+" wasn't downloaded correctly; redownloading and trying again...")
+                    Path.unlink(Path(file[1]))
+                    refseq_multiprocess_downloader(file)
+                    tries += 1
+            if tries > 5: 
+                print("WARNING: Download failed for "+file[0]+", please download manually.")
+                
     rmtree(temp_fasta_files)
     logger.info("RefSeq proteins successfully downloaded.")
 
@@ -250,6 +265,7 @@ def refseq_genbank_downloader_wget(
                 )
                 output = f"{str(temp_gb_dir)}/{filename}"
                 file_list.append((file_url, output))
+    
     # Download using multiple cores
     try:
         pool = multiprocessing.Pool(threads)
@@ -265,6 +281,8 @@ def refseq_genbank_downloader_wget(
 def refseq_multiprocess_downloader(file_list: List[str]) -> None:
     """
     Downloads data from refseq using wget
+    
+    Checks file size to avoid half-downloading files
 
     Args:
         file_list (List[Path]): List of files to download.
