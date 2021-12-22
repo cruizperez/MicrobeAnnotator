@@ -265,15 +265,21 @@ def refseq_genbank_downloader_wget(
                 )
                 output = f"{str(temp_gb_dir)}/{filename}"
                 file_list.append((file_url, output))
-    
+
+    # avoid re-downloading if the process was interrupted last time
+    filtered_filelist = []
+    for fl in file_list:
+        if not Path.is_file(Path(fl[1])):
+            filtered_filelist.append(fl)
+            
     # Download using multiple cores
     try:
         pool = multiprocessing.Pool(threads)
-        pool.map(refseq_multiprocess_downloader, file_list)
+        pool.map(refseq_multiprocess_downloader, filtered_filelist)
     finally:
         pool.close()
         pool.join()
-    final_list = search_all_files(temp_gb_dir)
+    final_list = file_list
     logger.info("RefSeq genbank successfully downloaded.")
 
     return temp_gb_dir, final_list

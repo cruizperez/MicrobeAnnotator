@@ -89,7 +89,7 @@ def database_builder(
         database_files['KO_profiles'] = str(ko_profiles_path)
         database_files['KO_profile_metadata'] = str(ko_profile_metadata)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Process KOfam profiles
@@ -97,7 +97,7 @@ def database_builder(
         logger.info(f"Step 2")
         kofam.kofam_formatter(ko_profiles_path)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Download Swissprot Proteins
@@ -106,7 +106,7 @@ def database_builder(
         swissprot_fasta = uniprot.swissprot_fasta_downloader(database_directory)
         database_files['Swissprot_Fasta'] = str(swissprot_fasta)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Download Swissprot Annotations
@@ -115,7 +115,7 @@ def database_builder(
         swissprot_dat = uniprot.swissprot_dat_downloader(database_directory)
         database_files['Swissprot_annotations'] = str(swissprot_dat)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Parse Swissprot Annotations
@@ -131,7 +131,7 @@ def database_builder(
             swissprot_dat, final_sprot_table)
         database_files['Swissprot_annotation_table'] = str(final_sprot_table)
         if single_step:
-            step = 15
+            step = 14
         elif light:
             step = 12
         else:
@@ -145,7 +145,7 @@ def database_builder(
             trembl_fasta = uniprot.trembl_fasta_downloader(database_directory)
             database_files['TrEMBL_Fasta'] = str(trembl_fasta)
         if single_step:
-            step = 15
+            step = 14
         elif excludetrembl:
             step = 9
         else:
@@ -156,7 +156,7 @@ def database_builder(
         trembl_dat = uniprot.trembl_dat_downloader(database_directory)
         database_files['TrEMBL_annotations'] = str(trembl_dat)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Parse TrEMBL Annotations
@@ -171,7 +171,7 @@ def database_builder(
         dat_parser.parse_uniprot_dat(trembl_dat, final_trembl_table)
         database_files['TrEMBL_annotation_table'] = str(final_trembl_table)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Download RefSeq Proteins
@@ -184,7 +184,7 @@ def database_builder(
                 database_directory, threads)
         database_files['RefSeq_Fasta'] = str(refseq_prot)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Download RefSeq Genbank Annotations
@@ -199,34 +199,25 @@ def database_builder(
                 database_directory, threads
             )
         database_files['RefSeq_GenBank'] = str(temp_gb_dir)
-        if single_step:
-            step = 15
-        else:
-            step += 1
-    # Parse RefSeq GenBank Annotations
-    if step == 11:
-        logger.info(f"Step 11")
-        if genbank_files == None:
-            if aspera:
-                temp_gb_dir = database_directory / "temp_genbank"
-                viral_list = refseq.search_all_files(temp_gb_dir / "viral")
-                bacteria_list = refseq.search_all_files(temp_gb_dir / "bacteria")
-                archaea_list = refseq.search_all_files(temp_gb_dir / "archaea")
-                genbank_files = viral_list + bacteria_list + archaea_list
-            else:
-                temp_gb_dir = database_directory / "temp_genbank"
-                genbank_files = refseq.search_all_files(temp_gb_dir)
+        
+        # Parse RefSeq GenBank Annotations
         temp_table_list = genbank.table_generator_worker(genbank_files, threads)
         final_refseq_table = database_directory / "refseq_genbank.table"
         genbank.table_merger(temp_table_list, final_refseq_table)
         database_files['RefSeq_annotation_table'] = str(final_refseq_table)
+        
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
+        if single_step:
+            step = 14
+        else:
+            step += 1
+    
     # Merge Annotations into SQLite Database
-    if step == 12:
-        logger.info(f"Step 12")
+    if step == 11:
+        logger.info(f"Step 11")
         logger.info(f"Merging annotations into SQLite database.")
         if light == True:
             try:
@@ -254,35 +245,49 @@ def database_builder(
                 final_refseq_table
             except NameError:
                 final_refseq_table = database_directory / "refseq_genbank.table"
-            if final_sprot_table.is_file() and \
-                final_trembl_table.is_file() and \
-                final_refseq_table.is_file():
-                sqlite.create_swissprot_table(sql_database, final_sprot_table)
-                sqlite.create_trembl_table(sql_database, final_trembl_table)
-                sqlite.create_refseq_table(sql_database, final_refseq_table)
+            if excludetrembl:
+                if final_sprot_table.is_file() and \
+                    final_refseq_table.is_file():
+                    sqlite.create_swissprot_table(sql_database, final_sprot_table)
+                    sqlite.create_refseq_table(sql_database, final_refseq_table)
+                else:
+                    logger.error(
+                        f"One or some annotation tables do not exist:"
+                        f"- Swissprot annotation table: {final_sprot_table} "
+                        f"- RefSeq annotation table: {final_refseq_table} "
+                        f"please make they exist or re-create "
+                        f"them using the appropriate step(s)."
+                    )
             else:
-                logger.error(
-                    f"One or some annotation tables do not exist:"
-                    f"- Swissprot annotation table: {final_sprot_table} "
-                    f"- TrEMBL annotation table: {final_trembl_table} "
-                    f"- RefSeq annotation table: {final_refseq_table} "
-                    f"please make they exist or re-create "
-                    f"them using the appropriate step(s)."
-                )
+                if final_sprot_table.is_file() and \
+                    final_trembl_table.is_file() and \
+                    final_refseq_table.is_file():
+                    sqlite.create_swissprot_table(sql_database, final_sprot_table)
+                    sqlite.create_trembl_table(sql_database, final_trembl_table)
+                    sqlite.create_refseq_table(sql_database, final_refseq_table)
+                else:
+                    logger.error(
+                        f"One or some annotation tables do not exist:"
+                        f"- Swissprot annotation table: {final_sprot_table} "
+                        f"- TrEMBL annotation table: {final_trembl_table} "
+                        f"- RefSeq annotation table: {final_refseq_table} "
+                        f"please make they exist or re-create "
+                        f"them using the appropriate step(s)."
+                    )
         database_files['SQLite_database'] = str(sql_database)
         logger.info(f"Finished")
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Create tables for interconversion of ids
-    if step == 13:
-        logger.info(f"Step 13")
+    if step == 12:
+        logger.info(f"Step 12")
         try:
             refseq_to_uniprot
         except NameError:
             refseq_to_uniprot = database_directory / "uniprot_to_refseq.txt"
-        interconversion_database = database_directory / "conversion.db"
+        interconversion_database = str(database_directory / "conversion.db")
         convert.create_refseq_to_uniprot(
             refseq_to_uniprot, interconversion_database)
         temp_ko_to_ec = convert.create_ko_to_ec(
@@ -293,13 +298,13 @@ def database_builder(
         database_files['KO-to-EC_table'] = str(temp_ko_to_ec)
         database_files['InterPro_table'] = str(temp_interpro_table)
         if single_step:
-            step = 15
+            step = 14
         else:
             step += 1
     # Create method-specific protein databases
-    if step == 14:
-        logger.info(f"Step 14")
-        protein_folder = database_directory / "protein_db"
+    if step == 13:
+        logger.info(f"Step 13")
+        protein_folder = str(database_directory / "protein_db")
         if method == "blast":
             protein.blastp_db_creator(protein_folder, binary_path)
         elif method == "diamond":
@@ -312,8 +317,8 @@ def database_builder(
             exit(1)
         step += 1
     # Perform cleaning step to remove temporal files
-    if step == 15:
-        logger.info(f"Step 15")
+    if step == 14:
+        logger.info(f"Step 14")
         if keep_temp:
             logger.info(
                 f"MicrobeAnnotator has finished creating your databases!\n"
@@ -401,10 +406,9 @@ def main():
             f"Step 8. Process TrEMBL annotations\n"
             f"Step 9. Download RefSeq proteins\n"
             f"Step 10. Download RefSeq annotations\n"
-            f"Step 11. Process RefSeq annotations\n"
-            f"Step 12. Create SQLite annotation DB\n"
-            f"Step 13. Create ID interconversion DB\n"
-            f"Step 14. Create method/tool-specific DBs\n"))
+            f"Step 11. Create SQLite annotation DB\n"
+            f"Step 12. Create ID interconversion DB\n"
+            f"Step 13. Create method/tool-specific DBs\n"))
     optional_arguments.add_argument(
         '--single_step', dest='single_step', action='store_true',
         required=False, help='Run a single step and exit.')

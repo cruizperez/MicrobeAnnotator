@@ -73,7 +73,7 @@ def input_validator(
     if method_bin == None:
         method_call = call_name
     else:
-        method_call = str(method_bin / call_name)
+        method_call = str(Path(method_bin) / Path(call_name)))
     if which(method_call) == None:
             if method_bin == None:
                 logger.error(
