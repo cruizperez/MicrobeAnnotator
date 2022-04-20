@@ -1,6 +1,20 @@
 # MicrobeAnnotator
 Easy-to-use pipeline for the comprehensive metabolic annotation of microbial genomes.
 
+## About this version
+I describe the small changes I made [here](https://github.com/cruizperez/MicrobeAnnotator/pull/38). It's mainly focused on debugging database download problems
+
+Can be installed with pip with the following commands:
+
+```
+git clone https://github.com/silvtal/MicrobeAnnotator
+cd MicrobeAnnotator
+python3 setup.py
+
+# Requirements
+python3 -m pip install attrs==20.3.0  biopython==1.78 matplotlib==3.4.1 pandas==1.2.4 psutil==5.8.0 pywget==3.2 requests==2.25.1 seaborn==0.11.1 hmmer=0.1.0
+```
+
 ## Content Table
   * [Features](#features)
   * [Citation](#citation)
