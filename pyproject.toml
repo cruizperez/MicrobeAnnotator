@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "MicrobeAnnotator"
+version = "0.1.0"
+description = "Tool for the annotation of microbial genomes."
+authors = ["cruizperez"]
+license = "Artistic License 2.0"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.28.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "7.1.2"
+hypothesis = "^6.50.1"
+mypy = "^0.961"
+black = "^22.6.0"
+flake8 = "^4.0.1"
+pytest-cov = "^3.0.0"
+isort = "^5.10.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
