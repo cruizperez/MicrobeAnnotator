@@ -21,27 +21,31 @@ dev_env:
 lock:
 	rm -f conda-lock.yml && conda-lock -f environment.yml -p linux-64
 
-test-unit:
-	pytest -vv -x src/tests/unit/*.py --cov=src/${PKG_NAME} --cov-report term-missing
-
-test-integration:
-	pytest -vv -x src/tests/integration/*.py
-
-lint:
-	flake8 --config=setup.cfg src
-
-isort:
+sortimport:
 	isort src/
 
-isort_check:
+test/unit:
+	pytest -vv -x src/tests/unit/*.py --cov=src/${PKG_NAME} --cov-report term-missing
+
+test/integration:
+	pytest -vv -x src/tests/integration/*.py
+
+test/lint:
+	flake8 --config=setup.cfg src
+
+test/isort:
 	isort src/ --check --diff
 
-typecheck:
+test/type:
 	mypy --config=setup.cfg src
 
-stylecheck:
+test/style:
 	black --line-length 99 --check src
-	snakefmt --line-length 99 --check ${SNAKEMAKE_FOLDER}
+#snakefmt --line-length 99 --check ${SNAKEMAKE_FOLDER}
 
-ci:
-	isort_check lint typecheck stylecheck test-unit test-integration
+ci: \
+	test/unit \
+	test/lint \
+	test/isort \
+	test/type \
+	test/style \
