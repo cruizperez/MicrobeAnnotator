@@ -360,6 +360,25 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "types-requests"
+version = "2.28.1"
+description = "Typing stubs for requests"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+types-urllib3 = "<1.27"
+
+[[package]]
+name = "types-urllib3"
+version = "1.26.16"
+description = "Typing stubs for urllib3"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.3.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -383,7 +402,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "238f6903cf410d08c6771ed7c248104a6f77c603338b7faf94d78b1fdebc5a73"
+content-hash = "dd3c0bea4c81bd4e3e86416a10f4604bdd41548e0768c79a73c50aa49ac95fa5"
 
 [metadata.files]
 atomicwrites = [
@@ -585,6 +604,14 @@ sortedcontainers = [
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+types-requests = [
+    {file = "types-requests-2.28.1.tar.gz", hash = "sha256:acd8ed78509d27bdf04cddcc05f7066dfde4d30dd7dba67b808cdb1141d62ffe"},
+    {file = "types_requests-2.28.1-py3-none-any.whl", hash = "sha256:b097692e124001f0ed5e4490245bb090f5e8e929819972f9ace84f9c3e146e8c"},
+]
+types-urllib3 = [
+    {file = "types-urllib3-1.26.16.tar.gz", hash = "sha256:8bb3832c684c30cbed40b96e28bc04703becb2b97d82ac65ba4b968783453b0e"},
+    {file = "types_urllib3-1.26.16-py3-none-any.whl", hash = "sha256:20588c285e5ca336d908d2705994830a83cfb6bda40fc356bbafaf430a262013"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
