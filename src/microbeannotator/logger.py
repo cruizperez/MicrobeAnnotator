@@ -1,20 +1,20 @@
-from distutils.log import info
 import logging
-import socket
-from typing import Optional, Any, List
 import sys
+from typing import Any, List, Optional
+
 from microbeannotator.constants import INFO_FORMAT, WARNING_FORMAT
 from microbeannotator.errors import AttributeTypeError
 
 
-class LoggerFilter(logging.Filter):
+class LoggingFilter(logging.Filter):
     """
     Filter class to ensure handlers will only log information relevant to their level:
     INFO, WARNING, ERROR.
     """
+
     def __init__(self, level: int) -> None:
         self.__level = level
-    
+
     def filter(self, logRecord: Any) -> bool:
         """
         Creates a filter level so handlers will only log information pertinent to their own level.
@@ -51,10 +51,10 @@ class MicrobeAnnotatorLogger(logging.Logger):
             if not isinstance(logfile, str):
                 raise AttributeTypeError(logfile, str)
             handlers.extend(self._create_file_handler(logfile))
-    
+
         self.handlers = handlers
         self.level = logging.INFO
-    
+
     def _create_stream_handler(self) -> List[logging.Handler]:
         """
         Creates list of handlers that output to stdout/stderr.
@@ -66,20 +66,20 @@ class MicrobeAnnotatorLogger(logging.Logger):
         info_handler = logging.StreamHandler(sys.stdout)
         info_handler.setLevel(logging.INFO)
         info_handler.setFormatter(logging.Formatter(INFO_FORMAT))
-        info_handler.addFilter(LoggerFilter(logging.INFO))
+        info_handler.addFilter(LoggingFilter(logging.INFO))
 
         # Define stream handler for WARNING
         warning_handler = logging.StreamHandler(sys.stdout)
         warning_handler.setLevel(logging.WARNING)
         warning_handler.setFormatter(logging.Formatter(WARNING_FORMAT))
-        warning_handler.addFilter(LoggerFilter(logging.WARNING))
+        warning_handler.addFilter(LoggingFilter(logging.WARNING))
 
         # Define stream handler for ERROR
         error_handler = logging.StreamHandler(sys.stdout)
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(logging.Formatter(WARNING_FORMAT))
-        error_handler.addFilter(LoggerFilter(logging.ERROR))
-    
+        error_handler.addFilter(LoggingFilter(logging.ERROR))
+
         return [info_handler, warning_handler, error_handler]
 
     def _create_file_handler(self, logfile: str) -> List[logging.Handler]:
@@ -96,18 +96,18 @@ class MicrobeAnnotatorLogger(logging.Logger):
         info_handler = logging.FileHandler(logfile, mode="a")
         info_handler.setLevel(logging.INFO)
         info_handler.setFormatter(logging.Formatter(INFO_FORMAT))
-        info_handler.addFilter(LoggerFilter(logging.INFO))
+        info_handler.addFilter(LoggingFilter(logging.INFO))
 
         # Define file handler for WARNING
         warning_handler = logging.FileHandler(logfile, mode="a")
         warning_handler.setLevel(logging.WARNING)
         warning_handler.setFormatter(logging.Formatter(WARNING_FORMAT))
-        warning_handler.addFilter(LoggerFilter(logging.WARNING))
+        warning_handler.addFilter(LoggingFilter(logging.WARNING))
 
         # Define file handler for ERROR
         error_handler = logging.FileHandler(logfile, mode="a")
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(logging.Formatter(WARNING_FORMAT))
-        error_handler.addFilter(LoggerFilter(logging.ERROR))
-    
+        error_handler.addFilter(LoggingFilter(logging.ERROR))
+
         return [info_handler, warning_handler, error_handler]
