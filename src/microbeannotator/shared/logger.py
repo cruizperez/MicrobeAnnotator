@@ -2,8 +2,8 @@ import logging
 import sys
 from typing import Any, List, Optional
 
-from microbeannotator.constants import INFO_FORMAT, WARNING_FORMAT
-from microbeannotator.errors import AttributeTypeError
+from microbeannotator.shared.constants import INFO_FORMAT, WARNING_FORMAT
+from microbeannotator.shared.errors import AttributeTypeError
 
 
 class LoggingFilter(logging.Filter):
