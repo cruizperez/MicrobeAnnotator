@@ -1,0 +1,50 @@
+ENTRY       M00009            Pathway   Module
+NAME        Citrate cycle (TCA cycle, Krebs cycle)
+DEFINITION  (K01647,K05942) (K01681,K01682) (K00031,K00030) ((K00164+K00658,K01616)+K00382,K00174+K00175-K00177-K00176) (K01902+K01903,K01899+K01900,K18118) (K00234+K00235+K00236+K00237,K00239+K00240+K00241-(K00242,K18859,K18860),K00244+K00245+K00246-K00247) (K01676,K01679,K01677+K01678) (K00026,K00025,K00024,K00116)
+ORTHOLOGY   K01647  citrate synthase [EC:2.3.3.1] [RN:R00351]
+            K05942  citrate (Re)-synthase [EC:2.3.3.3] [RN:R00351]
+            K01681,K01682  aconitate hydratase [EC:4.2.1.3] [RN:R01325 R01900 R01324]
+            K00031,K00030  isocitrate dehydrogenase [EC:1.1.1.42 1.1.1.41] [RN:R01899 R00268 R00267 R00709]
+            K00164,K01616,K00658,K00382  2-oxoglutarate dehydrogenase complex [EC:1.2.4.2 2.3.1.61 1.8.1.4] [RN:R00621 R03316 R01700 R02570 R07618]
+            K00174  2-oxoglutarate/2-oxoacid ferredoxin oxidoreductase subunit alpha [EC:1.2.7.3 1.2.7.11] [RN:R01197]
+            K00175  2-oxoglutarate/2-oxoacid ferredoxin oxidoreductase subunit beta [EC:1.2.7.3 1.2.7.11] [RN:R01197]
+            K00177  2-oxoglutarate ferredoxin oxidoreductase subunit gamma [EC:1.2.7.3] [RN:R01197]
+            K00176  2-oxoglutarate ferredoxin oxidoreductase subunit delta [EC:1.2.7.3] [RN:R01197]
+            K01902,K01903  succinyl-CoA synthetase [EC:6.2.1.5] [RN:R00405]
+            K01899,K01900  succinyl-CoA synthetase [EC:6.2.1.4 6.2.1.5] [RN:R00405 R00432 R00727]
+            K18118  succinyl-CoA:acetate CoA-transferase [EC:2.8.3.18] [RN:R10343]
+            K00234,K00235,K00236,K00237  succinate dehydrogenase [EC:1.3.5.1] [RN:R02164]
+            K00239,K00240,K00241,K00242,K18859,K18860  succinate dehydrogenase / fumarate reductase [EC:1.3.5.1 1.3.5.4] [RN:R02164]
+            K00244,K00245,K00246,K00247 fumarate reductase [EC:1.3.5.4] [RN:R02164]
+            K01676,K01679,K01677,K01678  fumarate hydratase [EC:4.2.1.2] [RN:R01082]
+            K00026,K00025,K00024  malate dehydrogenase [EC:1.1.1.37] [RN:R00342]
+            K00116  malate dehydrogenase (quinone) [EC:1.1.5.4] [RN:R00361]
+CLASS       Pathway modules; Carbohydrate metabolism; Central carbohydrate metabolism
+PATHWAY     map00020  Citrate cycle (TCA cycle)
+            map01200  Carbon metabolism
+            map01100  Metabolic pathways
+REACTION    R00351  C00024 + C00036 -> C00158
+            R01325+R01900,R01324  C00158 -> C00311
+            R01899+R00268,R00267,R00709  C00311 -> C00026
+            R00621+R03316,R01700  C00026 + C15972 -> C16254
+            R02570  C16254 -> C00091 + C15973
+            R07618  C15973 -> C15972
+            R01197  C00026 -> C00091
+            R00405,R00432,R00727,R10343  C00091 -> C00042
+            R02164  C00042 -> C00122
+            R01082  C00122 -> C00149
+            R00342,R00361  C00149 -> C00036
+COMPOUND    C00024  Acetyl-CoA
+            C00036  Oxaloacetate
+            C00158  Citrate
+            C00311  Isocitrate
+            C00026  2-Oxoglutarate
+            C15972  Enzyme N6-(lipoyl)lysine
+            C16254  [Dihydrolipoyllysine-residue succinyltransferase] S-succinyldihydrolipoyllysine
+            C00091  Succinyl-CoA
+            C15973  Enzyme N6-(dihydrolipoyl)lysine
+            C00042  Succinate
+            C00122  Fumarate
+            C00149  (S)-Malate
+///
+
