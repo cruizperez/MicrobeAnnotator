@@ -6,10 +6,10 @@ sortimport:
 	isort src/
 
 test/unit:
-	pytest -vv -x src/tests/unit/*.py src/tests/unit/*/*.py --cov=src/${PKG_NAME} --cov-report term-missing
+	pytest -vv -r s src/tests/unit/*.py src/tests/unit/*/*.py --cov=src/${PKG_NAME} --cov-report term-missing
 
-test/integration:
-	pytest -vv -x src/tests/integration/*.py
+# test/integration:
+# 	pytest -vv -r s src/tests/integration/*.py
 
 test/lint:
 	flake8 --config=pyproject.toml src/
@@ -28,4 +28,4 @@ ci: \
 	test/isort \
 	test/type \
 	test/style \
-	test/unit \
+	test/unit

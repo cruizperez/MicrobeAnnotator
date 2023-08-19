@@ -32,3 +32,12 @@ class TestUtils:
             with pytest.raises(ConnectionError) as error:
                 get_web_content(url)
                 assert "Bad Request - The request was malformed or invalid." in str(error.value)
+
+    def test_get_web_content_unknown_failure(self, mock_requests_get: Mock) -> None:
+        """Test that get_web_content raises a ConnectionError when the response status code is unknown."""
+        mock_requests_get.status_code = 999  # Simulate a failure response
+        with patch("requests.get", return_value=mock_requests_get):
+            url = "http://example.com"
+            with pytest.raises(ConnectionError) as error:
+                get_web_content(url)
+                assert "Unknown status code." in str(error.value)
