@@ -6,6 +6,7 @@ from microbeannotator.logger import LoggerFilter
 
 class TestLoggerFilter:
     """Class to test the LoggerFilter class"""
+
     def test_filter_below_level(self) -> None:
         """Test that a log record with a level below the filter's level passes through the filter"""
         # Create a mock log record with a level below the filter's level

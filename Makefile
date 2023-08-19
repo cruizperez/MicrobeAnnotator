@@ -24,8 +24,8 @@ test/style:
 	black --line-length 120 --check src
 
 ci: \
-	test/unit \
 	test/lint \
 	test/isort \
 	test/type \
 	test/style \
+	test/unit \
