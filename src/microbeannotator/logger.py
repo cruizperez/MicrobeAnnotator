@@ -8,6 +8,7 @@ WARNING_FORMAT = "%(asctime)s %(name)s: Function: %(funcName)s - Line: %(lineno)
 
 class LoggerFilter(logging.Filter):
     """Filter class that ensures handlers will log information only pertient to their level: INFO, WARNING, ERROR"""
+
     def __init__(self, level: int) -> None:
         self.__level = level
 
@@ -26,6 +27,7 @@ class LoggerFilter(logging.Filter):
 
 class MicrobeAnnotatorLogger(logging.Logger):
     """Logger class for MicrobeAnnotator"""
+
     def __init__(self, name: str, logfile: Optional[str] = None) -> None:
         """
         Initialize a MicrobeAnnotatorLogger object
