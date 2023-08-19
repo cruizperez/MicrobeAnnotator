@@ -24,3 +24,25 @@ hypothesis = "^6.82.4"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+ignore_missing_imports = "True"
+strict_optional = "False"
+disallow_untyped_decorators = "False"
+disallow_untyped_defs = "True"
+
+[tool.pytest.ini_options]
+ignore_missing_imports = "True"
+addopts = "-p no:warnings"
+
+[flake8]
+max-line-length = 120
