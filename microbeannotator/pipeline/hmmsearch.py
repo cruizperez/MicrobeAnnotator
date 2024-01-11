@@ -70,10 +70,12 @@ def hmmer_filter(
         model_name = result.query.name
         threshold = hmm_model_info[model_name].threshold
         score_type = hmm_model_info[model_name].score_type
-        if score_type == 'full' and float(result.full_sequence.score) >= threshold:
-            hmmsearch_result_filt.append(result)
-        elif score_type == 'domain' and float(result.best_1_domain.score) >= threshold:
-            hmmsearch_result_filt.append(result)
+        if score_type == 'full':
+            if float(result.full_sequence.score) >= threshold:
+                hmmsearch_result_filt.append(result)
+        elif score_type == 'domain':
+            if float(result.best_1_domain.score) >= threshold:
+                hmmsearch_result_filt.append(result)
         else:
             hmmsearch_result_filt.append(result)
 
