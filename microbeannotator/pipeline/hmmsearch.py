@@ -137,10 +137,10 @@ def best_match_selector(raw_results: Path) -> Path:
             else:
                 record = line.strip().split('\t')
                 if record[0] not in best_matches:
-                    best_matches[record[0]] = [record[6], line]
+                    best_matches[record[0]] = [float(record[6]), line]
                 else:
-                    if record[6] > best_matches[record[0]][0]:
-                        best_matches[record[0]] = [record[6], line]
+                    if float(record[6]) > best_matches[record[0]][0]:
+                        best_matches[record[0]] = [float(record[6]), line]
         for record in best_matches.values():
             output.write(record[1])
     return outfile
