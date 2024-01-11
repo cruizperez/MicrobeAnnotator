@@ -65,20 +65,16 @@ def hmmer_filter(
     hmmsearch_result: List[hmmer.tbl.TBLRow]) -> List[hmmer.tbl.TBLRow]:
     # Initialize list with filtered results
     hmmsearch_result_filt = []
-    # Get model name, threshold and score_type
-    model_name = hmmsearch_result[0].query.name
-    threshold = hmm_model_info[model_name].threshold
-    score_type = hmm_model_info[model_name].score_type
-    if score_type == 'full':
-        for result in hmmsearch_result:
-            if float(result.full_sequence.score) >= threshold:
-                hmmsearch_result_filt.append(result)
-    elif score_type == 'domain':
-        for result in hmmsearch_result:
-            if float(result.best_1_domain.score) >= threshold:
-                hmmsearch_result_filt.append(result)
-    else:
-        for result in hmmsearch_result:
+    for result in hmmsearch_result:
+        # Get model name, threshold and score_type
+        model_name = result.query.name
+        threshold = hmm_model_info[model_name].threshold
+        score_type = hmm_model_info[model_name].score_type
+        if score_type == 'full' and float(result.full_sequence.score) >= threshold:
+            hmmsearch_result_filt.append(result)
+        elif score_type == 'domain' and float(result.best_1_domain.score) >= threshold:
+            hmmsearch_result_filt.append(result)
+        else:
             hmmsearch_result_filt.append(result)
 
     return hmmsearch_result_filt
