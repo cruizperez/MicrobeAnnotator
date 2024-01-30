@@ -829,7 +829,7 @@ def main():
                             try:
                                 unannotated_proteins[
                                     starting_filename].remove(match[0])
-x                            except ValueError:
+                            except ValueError:
                                 continue
                 with open(final_annotation_file, 'a') as annotation_fh:
                     for original_protein in unannotated_proteins[
