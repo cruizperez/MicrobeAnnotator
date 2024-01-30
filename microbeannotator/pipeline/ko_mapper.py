@@ -612,6 +612,8 @@ def main():
     input_files = args.input_files
     prefix = args.prefix
     cluster = args.cluster
+    barplot_threshold = args.barplot_threshold
+    heatmap_threshold = args.heatmap_threshold
 
     # ----------------------------
     # Import data
