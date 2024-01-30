@@ -603,7 +603,7 @@ def main():
     parser.add_argument('--cluster', dest='cluster', action='store', required=False,
                         help='Cluster genomes or modules. Select "cols" for genomes, "rows" for modules, or "both".\
                             By default no clustering.')
-    parser.add_argument('--barplot_threshold', dest='barplot_threshold', action='store', required=False, type=int, default=80
+    parser.add_argument('--barplot_threshold', dest='barplot_threshold', action='store', required=False, type=int, default=80,
 			help='Changes the minimum completeness of modules that will be shown in the barplot figure.'),
     parser.add_argument('--heatmap_threshold', dest='heatmap_threshold', acton='store', required=False, type=int, default=50,
 			help='Changes the minimum completeness of modules that will be shown in the heatmap figure.')
