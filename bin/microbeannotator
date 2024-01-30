@@ -174,7 +174,7 @@ def main():
                         help='Prefix for output summary tables and plots. By default "metabolic_summary"')
     plot_options.add_argument('--barplot_threshold', dest='barplot_threshold', action='store', required=False, type=int, default=80,
                         help='Changes the minimum completeness of modules that will be shown in the barplot figure.'),
-    plot_options.add_argument('--heatmap_threshold', dest='heatmap_threshold', acton='store', required=False, type=int, default=50,
+    plot_options.add_argument('--heatmap_threshold', dest='heatmap_threshold', action='store', required=False, type=int, default=50,
                         help='Changes the minimum completeness of modules that will be shown in the heatmap figure.')
     misc_options = parser.add_argument_group('Miscellaneous options.')
     misc_options.add_argument('-t', '--threads', dest='threads', action='store', required=False, default=1, type=int,
