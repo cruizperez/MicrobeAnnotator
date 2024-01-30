@@ -829,7 +829,7 @@ def main():
                             try:
                                 unannotated_proteins[
                                     starting_filename].remove(match[0])
-                            except ValueError:
+x                            except ValueError:
                                 continue
                 with open(final_annotation_file, 'a') as annotation_fh:
                     for original_protein in unannotated_proteins[
@@ -974,8 +974,8 @@ def main():
         regular_modules, bifurcation_modules, structural_modules,  \
         module_information, metabolism_matrix, module_group_matrix = ko_mapper.module_information_importer(annotation_files)
         metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
-        metabolism_matrix_dropped_relabel, module_colors = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix, barplot_threshold)
-        ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix, heatmap_threshold)
+        metabolism_matrix_dropped_relabel, module_colors = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix, heatmap_threshold)
+        ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix, barplot_threshold)
         logger.info("MicrobeAnnotator has finished succefully!")
     # ==========================================================================
 
