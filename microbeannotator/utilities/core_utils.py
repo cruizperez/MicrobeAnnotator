@@ -54,7 +54,7 @@ def random_string(length: int) -> str:
 # Validate input parameters
 def input_validator(
     method: str, method_bin: Path, input_list: List[str], file_list: Path,
-    cluster: str, processes: int, threads: int, barplot_threshold : int, heatmap_threshold: int):
+    cluster: str, processes: int, threads: int):
     # Validate method
     method_options = ['blast', 'sword', 'diamond']
     if method not in method_options:
@@ -126,11 +126,4 @@ def input_validator(
             f"Please select one of 'cols' 'rows', or 'both'\n"
             f"or don't pass this flag for no clustering.")
         exit(1)
-    # Validate thresholds
-    if isinstance(barplot_threshold, int) == False :
-	f"Invalid value for barplot_threshold.\n"
-	exit(1)
-    elif isinstance(heatmap_threshold, int) == False :
-	f"Invalid value for heatmap_threshold.\n"
-	exit(1)
 # ==============================================================================
