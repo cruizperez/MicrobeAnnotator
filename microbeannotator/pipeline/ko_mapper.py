@@ -470,18 +470,18 @@ def global_mapper(regular_modules, bifurcating_modules, structural_modules, anno
     print("Finished\n")
     return full_metabolic_completeness
 
-def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix):
+def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix, barplot_threshold):
     matplotlib.rcParams['pdf.fonttype'] = 42
     matplotlib.use('Agg')
     print("Grouping by metabolism type and plotting... ")
     for module in list(metabolism_matrix_dropped_relabel.index):
         for genome in list(metabolism_matrix_dropped_relabel.columns):
-            if metabolism_matrix_dropped_relabel.loc[module,genome] >= 80:
+            if metabolism_matrix_dropped_relabel.loc[module,genome] >= barplot_threshold:
                 module_group_matrix.loc[module_colors[module][0],genome] += 1
     module_group_matrix_transp = module_group_matrix.T
     emptyness = (module_group_matrix_transp == 0).all()
     if emptyness.all() == True:
-        print("There are no modules above 80% completeness. No barplot will be generated.")
+        print(f"There are no modules above {barplot_threshold}% completeness. No barplot will be generated.")
     else:
         module_group_matrix_transp = module_group_matrix_transp.loc[(module_group_matrix_transp >= 1).any(1)]
         color_dict = {}
@@ -495,7 +495,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
         module_group_matrix_transp.plot.bar(ax=Axis, stacked=True, color=color_list, figsize=(25,15), legend=False)
         Axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize='medium', markerscale=0.3)
         Axis.set_xlabel("Genomes", fontsize=30)
-        Axis.set_ylabel('Number of Modules (>=80% complete)', fontsize=30)
+        Axis.set_ylabel(f"Number of Modules (>={barplot_threshold}% complete)", fontsize=30)
         Axis.tick_params(axis='x', labelsize=15)
         Axis.tick_params(axis='y', labelsize=15)
         Figure.suptitle('Metabolism Module Category per Genome', fontsize=40)
@@ -503,7 +503,7 @@ def plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix
         Figure.savefig(prefix + "_barplot.pdf", bbox_inches="tight")
     print("Finished")
 
-def create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix):
+def create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix, heatmap_threshold):
     matplotlib.rcParams['pdf.fonttype'] = 42
     matplotlib.use('Agg')
     print("Creating output_file matrix and heatmap... ")
@@ -534,11 +534,11 @@ def create_output_files(metabolic_annotation, metabolism_matrix, module_informat
         module_id_name[module] = information[0]
         module_colors[information[0]] = (information[1],information[2])
     # Get modules that are above 50% complete in at least one genome
-    ylabel_text = 'Modules (at least 50% complete in at least one genome)'
-    metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= 50).any(1)]
+    ylabel_text = f"Modules (at least {heatmap_threshold}% complete in at least one genome)"
+    metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix >= heatmap_threshold).any(1)]
     table_empty = (metabolism_matrix_retained == 0).all()
     if table_empty.all() == True:
-        print("There are no modules above 50% completeness. Plotting all modules regardless of completeness.")
+        print(f"There are no modules above {heatmap_threshold}% completeness. Plotting all modules regardless of completeness.")
         metabolism_matrix_retained = metabolism_matrix.loc[(metabolism_matrix > 0).any(1)]
         ylabel_text = 'Modules'
     colors_for_ticks = []
@@ -603,11 +603,17 @@ def main():
     parser.add_argument('--cluster', dest='cluster', action='store', required=False,
                         help='Cluster genomes or modules. Select "cols" for genomes, "rows" for modules, or "both".\
                             By default no clustering.')
+    parser.add_argument('--barplot_threshold', dest='barplot_threshold', action='store', required=False, type=int, default=80,
+			help='Changes the minimum completeness of modules that will be shown in the barplot figure.'),
+    parser.add_argument('--heatmap_threshold', dest='heatmap_threshold', action='store', required=False, type=int, default=50,
+			help='Changes the minimum completeness of modules that will be shown in the heatmap figure.')
     args = parser.parse_args()
 
     input_files = args.input_files
     prefix = args.prefix
     cluster = args.cluster
+    barplot_threshold = args.barplot_threshold
+    heatmap_threshold = args.heatmap_threshold
 
     # ----------------------------
     # Import data
@@ -615,8 +621,8 @@ def main():
     module_information, metabolism_matrix, module_group_matrix = module_information_importer(input_files)
     # Map and annotate genomes
     metabolic_annotation = global_mapper(regular_modules, bifurcation_modules, structural_modules, input_files)
-    metabolism_matrix_dropped_relabel, module_colors = create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix)
-    plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
+    metabolism_matrix_dropped_relabel, module_colors = create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix, heatmap_threshold)
+    plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix, barplot_threshold)
     # ----------------------------
 
 if __name__ == "__main__":

@@ -172,6 +172,10 @@ def main():
                         '''))
     plot_options.add_argument('--filename', dest='plot_filename', action='store', required=False, default='metabolic_summary_',
                         help='Prefix for output summary tables and plots. By default "metabolic_summary"')
+    plot_options.add_argument('--barplot_threshold', dest='barplot_threshold', action='store', required=False, type=int, default=80,
+                        help='Changes the minimum completeness of modules that will be shown in the barplot figure.'),
+    plot_options.add_argument('--heatmap_threshold', dest='heatmap_threshold', action='store', required=False, type=int, default=50,
+                        help='Changes the minimum completeness of modules that will be shown in the heatmap figure.')
     misc_options = parser.add_argument_group('Miscellaneous options.')
     misc_options.add_argument('-t', '--threads', dest='threads', action='store', required=False, default=1, type=int,
                         help='Threads to use per processed file, i.e. (per protein file). By default 1.')
@@ -225,6 +229,8 @@ def main():
     if cluster != None:
         cluster = cluster.lower()
     plot_filename = args.plot_filename
+    barplot_threshold = args.barplot_threshold
+    heatmap_threshold = args.heatmap_threshold
     full = args.full
     refine = args.refine
     continue_run = args.continue_run
@@ -968,8 +974,8 @@ def main():
         regular_modules, bifurcation_modules, structural_modules,  \
         module_information, metabolism_matrix, module_group_matrix = ko_mapper.module_information_importer(annotation_files)
         metabolic_annotation = ko_mapper.global_mapper(regular_modules, bifurcation_modules, structural_modules, annotation_files)
-        metabolism_matrix_dropped_relabel, module_colors = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix)
-        ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix)
+        metabolism_matrix_dropped_relabel, module_colors = ko_mapper.create_output_files(metabolic_annotation, metabolism_matrix, module_information, cluster, prefix, heatmap_threshold)
+        ko_mapper.plot_function_barplots(module_colors, module_group_matrix, metabolism_matrix_dropped_relabel, prefix, barplot_threshold)
         logger.info("MicrobeAnnotator has finished succefully!")
     # ==========================================================================
 
