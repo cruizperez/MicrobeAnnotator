@@ -152,7 +152,7 @@ def create_interpro_tables(database_directory: Path, sqlitedb: Path) -> str:
     logger.info("Creating InterPro tables")
     # Download information
     download_output = str(database_directory / "interpro_metadata.xml.gz")
-    wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz",
+    wget.download("ftp://ftp.ebi.ac.uk/pub/databases/interpro/current_release/interpro.xml.gz",
                             out=download_output)
     interpro_to_ec = {}
     # Parse file information into dictionaries to merge into the SQLite database
