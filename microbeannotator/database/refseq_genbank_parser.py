@@ -27,6 +27,10 @@ import multiprocessing
 import argparse
 import shutil
 import gzip
+
+import warnings
+from microbeannotator.database.refseq_data_downloader import \
+    refseq_multiprocess_downloader
 # ==============================================================================
 
 
@@ -51,45 +55,57 @@ def table_creator(genbank_file: Path) -> Path:
     Returns:
         Path: Path to temporal table created
     """
-    temporal_table = Path(genbank_file).with_suffix('.temp')
-    with gzip.open(genbank_file, 'rt') as uncompressed_genbank, \
-    open(temporal_table, 'w') as output_file:
-        for record in SeqIO.parse(uncompressed_genbank, "genbank"):
-            protein_id = record.id
-            product = record.description.split("[")[0].strip()
-            product = product.lower()
-            taxonomy = ""
-            species = ""
-            ec_number = ""
-            if 'organism' not in record.annotations:
-                species = 'NA'
-            else:
-                species = record.annotations['organism']
-                if 'taxonomy' not in record.annotations and species == "NA":
-                    taxonomy = 'NA'
-                elif 'taxonomy' not in record.annotations and species != "NA":
-                    taxonomy = species
-                else:
-                    taxonomy = f"{', '.join(record.annotations['taxonomy'])}, {species}" 
-                if product == "" or "unknown" in product:
+    temporal_table = Path(genbank_file[1]).with_suffix('.temp')
+    tries = 0; success = False
+    while (tries<5 and not success):
+        try:
+            with gzip.open(genbank_file[1], 'rt') as uncompressed_genbank, \
+            open(temporal_table, 'w') as output_file:
+                for record in SeqIO.parse(uncompressed_genbank, "genbank"):
+                    protein_id = record.id
+                    product = record.description.split("[")[0].strip()
+                    product = product.lower()
+                    taxonomy = ""
+                    species = ""
+                    ec_number = ""
+                    if 'organism' not in record.annotations:
+                        species = 'NA'
+                    else:
+                        species = record.annotations['organism']
+                        if 'taxonomy' not in record.annotations and species == "NA":
+                            taxonomy = 'NA'
+                        elif 'taxonomy' not in record.annotations and species != "NA":
+                            taxonomy = species
+                        else:
+                            taxonomy = f"{', '.join(record.annotations['taxonomy'])}, {species}" 
+                        if product == "" or "unknown" in product:
+                            for feature in record.features:
+                                if feature.type == "Protein":
+                                    if 'product' not in feature.qualifiers:
+                                        if 'name' in feature.qualifiers:
+                                            product = feature.qualifiers['name'][0]
+                                        else:
+                                            product = 'NA'
+                                    else:
+                                        product = feature.qualifiers['product'][0]
                     for feature in record.features:
-                        if feature.type == "Protein":
-                            if 'product' not in feature.qualifiers:
-                                if 'name' in feature.qualifiers:
-                                    product = feature.qualifiers['name'][0]
-                                else:
-                                    product = 'NA'
-                            else:
-                                product = feature.qualifiers['product'][0]
-            for feature in record.features:
-                if feature.type == "Protein" and \
-                    "EC_number" in feature.qualifiers:
-                    ec_number = feature.qualifiers["EC_number"][0]
-                else:
-                    ec_number = "NA"
-            output_file.write(
-                f"{protein_id}\t{product}\t{taxonomy}\t{ec_number}\n")
-
+                        if feature.type == "Protein" and \
+                            "EC_number" in feature.qualifiers:
+                            ec_number = feature.qualifiers["EC_number"][0]
+                        else:
+                            ec_number = "NA"
+                    output_file.write(
+                        f"{protein_id}\t{product}\t{taxonomy}\t{ec_number}\n")
+                    success = True
+        except:
+            print("There was a warning/error processing "+genbank_file[1]+", it probably wasn't downloaded correctly. Redownloading and trying again...")
+            print("")
+            Path.unlink(Path(genbank_file[1]))
+            refseq_multiprocess_downloader(genbank_file)
+            tries += 1
+        if tries > 5: 
+            print("WARNING: Download failed for "+genbank_file+", please download manually.")
+        
     return temporal_table
 
 # Function to parse Genbank files using multiprocessing
@@ -105,6 +121,7 @@ def table_generator_worker(
     Returns:
         List[Path]: List of temporal tables created
     """
+    warnings.filterwarnings("error")
     logger.info("Processing GenBank files")
     temp_table_list = []
     try:

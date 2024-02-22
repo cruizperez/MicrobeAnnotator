@@ -20,5 +20,5 @@ setup(
     description='A user friendly microbe genome annotation tool',
     license='Artistic License 2.0',
     keywords = ['genome annotation', 'protein', 'comparative genomics'],
-    url='https://github.com/cruizperez/MicrobeAnnotator'
+    url='https://github.com/silvtal/MicrobeAnnotator'
 )

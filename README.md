@@ -1,6 +1,20 @@
 # MicrobeAnnotator
 Easy-to-use pipeline for the comprehensive metabolic annotation of microbial genomes.
 
+## About this version
+I describe the small changes I made [here](https://github.com/cruizperez/MicrobeAnnotator/pull/38). It's mainly focused on debugging database download problems
+
+Can be installed with pip with the following commands:
+
+```
+git clone https://github.com/silvtal/MicrobeAnnotator
+cd MicrobeAnnotator
+python3 setup.py
+
+# Requirements
+python3 -m pip install attrs==20.3.0  biopython==1.78 matplotlib==3.4.1 pandas==1.2.4 psutil==5.8.0 pywget==3.2 requests==2.25.1 seaborn==0.11.1 hmmer=0.1.0
+```
+
 ## Content Table
   * [Features](#features)
   * [Citation](#citation)
@@ -119,7 +133,7 @@ If you cannot install Aspera Connect for some reason, MicrobeAnnotator will use 
 ### Database creation
 First things first. There are two "flavors" of MicrobeAnnotator depending on your storage and computational capabilities (and your time); the regular and light mode.
 The difference between the two is that the regular implementation will make use of four different databases to annotate your proteins, i.e., the Kofam database and the Swissprot, Trembl and RefSeq databases. On the other hand, the light mode will only use Kofam and Swissprot, which in most cases will annotate the majority of your proteins and will take way less time and space.\
-You can decide of course which version to run at any time, but for the time being let's have an example with the normal mode (to run the light version just add the `--light` flag when calling the script).
+You can decide of course which version to run at any time, but for the time being let's have an example with the normal mode (to run the light version just add the `--light` flag when calling the script). You also have the option of only excluding trEMBL from the annotation process by adding the `--excludetrembl` flag.
 
 The first step is to download and format the databases we want to use for MicrobeAnnotator. For this we will execute the `microbeannotator_db_builder` script within the MicrobeAnnotator folder. You can add see all options and inputs for the script with  `microbeannotator_db_builder -h`.\
 Run the script as:\
