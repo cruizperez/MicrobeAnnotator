@@ -126,5 +126,4 @@ def input_validator(
             f"Please select one of 'cols' 'rows', or 'both'\n"
             f"or don't pass this flag for no clustering.")
         exit(1)
-    
 # ==============================================================================
