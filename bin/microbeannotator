@@ -678,7 +678,7 @@ def main():
                                     try:
                                         unannotated_proteins[
                                         starting_filename].remove(match[0])
-                                    except ValueError:
+                                    except (ValueError, KeyError):
                                         continue
                             else:
                                 # Remove annotations with KO from starting and
@@ -687,13 +687,13 @@ def main():
                                     try:
                                         starting_proteins[
                                         starting_filename].remove(match[0])
-                                    except ValueError:
+                                    except (ValueError, KeyError):
                                         continue
                                     try:
                                         unannotated_proteins[
                                             starting_filename].remove(
                                                 match[0])
-                                    except ValueError:
+                                    except (ValueError, KeyError):
                                         continue
                                 # If it has annotation but not KO, remove
                                 # from unannotated proteins only
@@ -701,7 +701,7 @@ def main():
                                     try:
                                         unannotated_proteins[
                                         starting_filename].remove(match[0])
-                                    except ValueError:
+                                    except (ValueError, KeyError):
                                         continue
                     # Check which proteins were not annotated and filter
                     # for the next iteration
