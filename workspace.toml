@@ -1,0 +1,23 @@
+[tool.polylith]
+namespace = "microbeannotator"
+git_tag_pattern = "stable-*"
+
+[tool.polylith.structure]
+theme = "loose"
+
+[tool.polylith.tag.patterns]
+stable = "stable-*"
+release = "v[0-9]*"
+
+[tool.polylith.resources]
+brick_docs_enabled = false
+
+[tool.polylith.test]
+enabled = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+dev-mode-dirs = ["components", "bases", "development", "."]
